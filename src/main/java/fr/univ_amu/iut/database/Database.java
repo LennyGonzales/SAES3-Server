@@ -29,4 +29,19 @@ public class Database {
     public Connection getConnection() {
         return connection;
     }
+
+    /**
+     *  Close the connection with the database
+     *
+     * @return true if the disconnection worked
+     *         false if the disconnection didn't work
+     */
+    public static boolean closeConnection() {
+        try {
+            connection.close();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
 }

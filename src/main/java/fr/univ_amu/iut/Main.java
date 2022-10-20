@@ -7,5 +7,6 @@ public class Main {
     public static void main(String[] args) {
         database = new Database();
         System.out.println(database.getConnection());
+        database.closeConnection();
     }
 }
