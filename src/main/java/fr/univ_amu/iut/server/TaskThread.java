@@ -23,10 +23,27 @@ public class TaskThread implements Runnable {
      * @throws IOException
      * @throws SQLException
      */
-    public boolean isLogin() throws IOException, SQLException { return false; }
+    public boolean isLogin() throws IOException, SQLException {
+        Login login = new Login(in.readLine(),in.readLine());   // Get the username and the password
+        return login.verifyLogin();
+    }
 
+    /**
+     * This function supports client login
+     *
+     * @throws IOException
+     * @throws SQLException
+     */
     public void serviceLogin() throws IOException, SQLException {
-        System.out.println("[+] FLAG FOR LOGIN !");
+        while(!isLogin()) { // Until the client is able to connect
+            out.write("[-] NOT LOGIN !");
+            out.newLine();
+            out.flush();
+            while(!in.ready()); // Wait until the client retry to connect
+        }
+        out.write("[+] LOGIN !");
+        out.newLine();
+        out.flush();
     }
     /**
      * A function which find the service type and call the function associated
@@ -35,16 +52,21 @@ public class TaskThread implements Runnable {
      */
     public void serviceType() throws SQLException, IOException {  // Find the service between {Login, Solo, Multijoueur, Entraînement}
         String str;
-        while ((str = in.readLine()) != null) {
+        while ((str = in.readLine()) != null) { // As long as the server receives no requests, it waits
             switch (str) {
                 case "LOGIN_FLAG":
                     serviceLogin();
+                    break;
             }
         }
-        System.out.println("END");
         stopRunning();
     }
 
+    /**
+     * Stop the connection with the client
+     *
+     * @throws IOException
+     */
     public void stopRunning() throws IOException {
         sockClient.close();
     }

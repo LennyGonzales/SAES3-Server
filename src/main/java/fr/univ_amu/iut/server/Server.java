@@ -13,7 +13,7 @@ public class Server {
     private ExecutorService pool;
 
     public Server() throws Exception {
-        this.pool = Executors.newFixedThreadPool(NB_THREADS);
+        this.pool = Executors.newFixedThreadPool(NB_THREADS);   // Fix the number of threads
         try {
             sockServer = new ServerSocket(NUM_PORT);
         } catch (Exception e){
@@ -24,7 +24,7 @@ public class Server {
     public void acceptClient() throws Exception {
         for (int i = 0; i < NB_CLIENTS; ++i) {
             Socket sock_client = sockServer.accept();
-            pool.execute(new TaskThread(sock_client));
+            pool.execute(new TaskThread(sock_client));  // Use a new thread for each client
         }
         sockServer.close();
     }
