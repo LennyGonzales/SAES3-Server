@@ -21,7 +21,7 @@ public class Server {
         }
     }
 
-    public void acceptClient() throws Exception {
+    public void acceptClients() throws Exception {
         for (int i = 0; i < NB_CLIENTS; ++i) {
             Socket sock_client = sockServer.accept();
             pool.execute(new TaskThread(sock_client));  // Use a new thread for each client
@@ -30,6 +30,6 @@ public class Server {
     }
 
     public void run() throws Exception {
-        acceptClient();
+        acceptClients();
     }
 }
