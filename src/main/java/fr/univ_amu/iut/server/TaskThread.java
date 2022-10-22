@@ -68,6 +68,8 @@ public class TaskThread implements Runnable {
      * @throws IOException
      */
     public void stopRunning() throws IOException {
+        in.close();
+        out.close();
         sockClient.close();
     }
 
