@@ -15,9 +15,14 @@ public class DAOQuizJDBC implements DAOQuiz{
     private static final Connection CONNECTION = Main.database.getConnection();
 
     public DAOQuizJDBC() throws SQLException {
-        findAllQCMStatement = CONNECTION.prepareStatement("SELECT QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM QUIZ_FR");
+        findAllQCMStatement = CONNECTION.prepareStatement("SELECT QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM QCM_FR");
     }
 
+    /**
+     * Return the qcm stores in the database
+     * @return List<Qcm>
+     * @throws SQLException
+     */
     @Override
     public List<Qcm> findAllQCM() throws SQLException {
         ResultSet result = findAllQCMStatement.executeQuery();

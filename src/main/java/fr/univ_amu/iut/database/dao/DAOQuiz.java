@@ -9,6 +9,7 @@ public interface DAOQuiz extends DAO{
     /**
      * Return the qcm stores in the database
      * @return List<Qcm>
+     * @throws SQLException
      */
     List<Qcm> findAllQCM() throws SQLException;
 }
