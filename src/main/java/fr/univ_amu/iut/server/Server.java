@@ -1,5 +1,6 @@
 package fr.univ_amu.iut.server;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +22,10 @@ public class Server {
         }
     }
 
+    /**
+     * Accepts the clients and call the TaskThread class
+     * @throws IOException
+     */
     public void acceptClients() throws Exception {
         for (int i = 0; i < NB_CLIENTS; ++i) {
             Socket sock_client = sockServer.accept();
