@@ -87,6 +87,10 @@ public class TaskThread implements Runnable {
         }
     }
 
+    /**
+     * Supports the creation of a multiplayer game
+     * @throws IOException
+     */
     public void serviceCreationMultiplayer() throws IOException {
         String code = UUID.randomUUID().toString().substring(0,8);
         ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code);   // Call the serverMultiplayer class with the game's code
