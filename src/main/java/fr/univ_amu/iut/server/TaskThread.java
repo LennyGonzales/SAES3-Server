@@ -3,11 +3,13 @@ package fr.univ_amu.iut.server;
 
 import fr.univ_amu.iut.database.dao.DAOQuizJDBC;
 import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.server.multiplayer.ServerMultiplayer;
 
 import java.io.*;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 public class TaskThread implements Runnable {
     private Socket sockClient;
@@ -40,15 +42,15 @@ public class TaskThread implements Runnable {
      * @throws SQLException
      */
     public void serviceLogin() throws IOException, SQLException {
-        while(!isLogin()) { // Until the client is able to connect
+        if(!isLogin()) { // Until the client is able to connect
             out.write("[-] NOT LOGIN !");
             out.newLine();
             out.flush();
-            while(!in.ready()); // Wait until the client retry to connect
+        } else {
+            out.write("[+] LOGIN !");
+            out.newLine();
+            out.flush();
         }
-        out.write("[+] LOGIN !");
-        out.newLine();
-        out.flush();
     }
 
     /**
@@ -79,8 +81,21 @@ public class TaskThread implements Runnable {
                 }
                 out.newLine();
                 out.flush();
+            } else {
+                stopRunning();
             }
         }
+    }
+
+    public void serviceCreationMultiplayer() throws IOException {
+        String code = UUID.randomUUID().toString().substring(0,8);
+        ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code);   // Call the serverMultiplayer class with the game's code
+        serverMultiplayer.run();
+        out.write("CODE_FLAG");
+        out.newLine();
+        out.write(code);
+        out.newLine();
+        out.flush();
     }
 
     /**
@@ -97,8 +112,12 @@ public class TaskThread implements Runnable {
                 case "SOLO_FLAG":
                     serviceSolo();
                     break;
+                case "MULTIPLAYER_CREATION_FLAG":
+                    serviceCreationMultiplayer();
+                    break;
             }
         }
+        System.out.println("END");
         stopRunning();
     }
 

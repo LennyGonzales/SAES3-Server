@@ -8,11 +8,12 @@ import java.util.concurrent.Executors;
 public class ServerMultiplayer {
     private static final int NB_PLAYERS = 40;
     private static final int NB_THREADS = 100;
-    private int num_port;
+    private String code;
     private ServerSocket serverSocket;
     private ExecutorService pool;
 
-    public ServerMultiplayer() throws IOException {
+    public ServerMultiplayer(String code) throws IOException {
+        this.code = code;
         pool = Executors.newFixedThreadPool(NB_THREADS);
         serverSocket = new ServerSocket(0); // Find a free port
     }
