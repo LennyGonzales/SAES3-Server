@@ -1,5 +1,7 @@
 package fr.univ_amu.iut.database.dao;
 
+import java.sql.SQLException;
+
 public interface DAO <Entity,Key> {
     /**
      * Allows removal of a tuple from the base
@@ -13,7 +15,7 @@ public interface DAO <Entity,Key> {
      *
      * @param obj Objet à insérer dans la base
      */
-    Entity insert(Entity obj);
+    Entity insert(Entity obj) throws SQLException;
 
     /**
      * Allows to update a tuple in the database with an object
