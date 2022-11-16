@@ -11,4 +11,11 @@ public interface DAOConfigSessions extends DAO<ConfigSessions,Integer> {
      * @return boolean
      */
     boolean isIn(String code) throws SQLException;
+
+    /**
+     * Find the port associated with a specific code
+     * @param code
+     * @return
+     */
+    int findPort(String code) throws SQLException;
 }

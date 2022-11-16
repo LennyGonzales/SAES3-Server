@@ -10,9 +10,10 @@ import java.sql.SQLException;
 
 public class DAOConfigSessionsJDBC implements DAOConfigSessions{
 
-    private PreparedStatement insertStatement;  // SQL query to insert a tuple
-    private PreparedStatement deleteStatement;  // SQL query to delete a tuple
-    private PreparedStatement isInStatement;    // SQL query to know if the input code is in the database
+    private final PreparedStatement insertStatement;  // SQL query to insert a tuple
+    private final PreparedStatement deleteStatement;  // SQL query to delete a tuple
+    private final PreparedStatement isInStatement;    // SQL query to know if the input code is in the database
+    private final PreparedStatement findPortStatement;    // SQL query to find the port with a specific code
     private static final Connection CONNECTION = Main.database.getConnection();
 
     /**
@@ -22,7 +23,8 @@ public class DAOConfigSessionsJDBC implements DAOConfigSessions{
     public DAOConfigSessionsJDBC() throws SQLException {
         insertStatement = CONNECTION.prepareStatement("INSERT INTO CONFIGSESSIONS VALUES (?, ?);");
         deleteStatement = CONNECTION.prepareStatement("DELETE FROM CONFIGSESSIONS WHERE PORT = ?;");
-        isInStatement = CONNECTION.prepareStatement("SELECT * FROM CONFIGSESSIONS WHERE CODE = ?");
+        isInStatement = CONNECTION.prepareStatement("SELECT * FROM CONFIGSESSIONS WHERE CODE = ?;");
+        findPortStatement = CONNECTION.prepareStatement("SELECT PORT FROM CONFIGSESSIONS WHERE CODE = ?;");
     }
 
     /**
@@ -36,6 +38,19 @@ public class DAOConfigSessionsJDBC implements DAOConfigSessions{
         ResultSet res = isInStatement.executeQuery();
 
         return (res.next());
+    }
+
+    /**
+     * Find the port associated with a specific code
+     * @param code
+     * @return
+     */
+    @Override
+    public int findPort(String code) throws SQLException {
+        findPortStatement.setString(1,code);
+        ResultSet res = isInStatement.executeQuery();
+
+        return res.getInt(1);
     }
 
     /**
