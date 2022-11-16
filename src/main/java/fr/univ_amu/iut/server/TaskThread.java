@@ -111,7 +111,6 @@ public class TaskThread implements Runnable {
      * @throws SQLException
      */
     public void createSession(String code) throws IOException, SQLException {
-        // new Thread(new ServerMultiplayer(code, in)).start();   // Call the serverMultiplayer class with the game's code
         ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code, in);
         serverMultiplayer.run();
 
