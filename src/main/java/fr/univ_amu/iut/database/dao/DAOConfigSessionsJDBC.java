@@ -10,6 +10,7 @@ import java.sql.SQLException;
 public class DAOConfigSessionsJDBC implements DAOConfigSessions{
 
     private PreparedStatement insertStatement;  // SQL query to insert a tuple
+    private PreparedStatement deleteStatement;  // SQL query to delete a tuple
     private static final Connection CONNECTION = Main.database.getConnection();
 
     /**
@@ -18,6 +19,7 @@ public class DAOConfigSessionsJDBC implements DAOConfigSessions{
      */
     public DAOConfigSessionsJDBC() throws SQLException {
         insertStatement = CONNECTION.prepareStatement("INSERT INTO CONFIGSESSIONS VALUES (?, ?);");
+        deleteStatement = CONNECTION.prepareStatement("DELETE FROM CONFIGSESSIONS WHERE PORT = ?;");
     }
 
     /**
@@ -26,8 +28,10 @@ public class DAOConfigSessionsJDBC implements DAOConfigSessions{
      * @return
      */
     @Override
-    public boolean delete(ConfigSessions configSessions) {
-        return false;
+    public boolean delete(ConfigSessions configSessions) throws SQLException {
+        deleteStatement.setInt(1, configSessions.getPort());
+        deleteStatement.executeUpdate();
+        return true;
     }
 
     /**
@@ -42,7 +46,6 @@ public class DAOConfigSessionsJDBC implements DAOConfigSessions{
         insertStatement.setString(2, configSessions.getCode());
 
         insertStatement.executeUpdate();
-
         return configSessions;
     }
 

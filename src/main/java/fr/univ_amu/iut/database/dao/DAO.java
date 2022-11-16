@@ -8,7 +8,7 @@ public interface DAO <Entity,Key> {
      *
      * @param obj Objet à supprimer dans la base
      */
-    boolean delete(Entity obj);
+    boolean delete(Entity obj) throws SQLException;
 
     /**
      * Allows to create a tuple in the database with an object

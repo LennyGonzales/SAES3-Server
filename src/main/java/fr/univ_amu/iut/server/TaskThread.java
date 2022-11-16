@@ -94,31 +94,30 @@ public class TaskThread implements Runnable {
      * @throws IOException
      */
     public void serviceCreationMultiplayer() throws IOException, SQLException {
-        String code = createSession();
-
+        String code = UUID.randomUUID().toString().substring(0,8);
         out.write("CODE_FLAG");
         out.newLine();
         out.write(code);
         out.newLine();
         out.flush();
+
+        createSession(code);
     }
 
     /**
-     * Create the multiplayer session and insert it to the database (code, port)
+     * Create the multiplayer session
      * @return
      * @throws IOException
      * @throws SQLException
      */
-    public String createSession() throws IOException, SQLException {
-        String code = UUID.randomUUID().toString().substring(0,8);
-        ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code);   // Call the serverMultiplayer class with the game's code
+    public void createSession(String code) throws IOException, SQLException {
+        // new Thread(new ServerMultiplayer(code, in)).start();   // Call the serverMultiplayer class with the game's code
+        ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code, in);
         serverMultiplayer.run();
 
-        ConfigSessions configSessions = new ConfigSessions(serverMultiplayer.getPort(), code);  //Create an instance (a tuple)
-        DAOConfigSessionsJDBC configSessionsJDBC = new DAOConfigSessionsJDBC();
-        configSessionsJDBC.insert(configSessions);  // Insert
-
-        return code;
+        out.write("CAN_JOIN_MULTIPLAYER_FLAG");
+        out.newLine();
+        out.flush();
     }
 
     /**
