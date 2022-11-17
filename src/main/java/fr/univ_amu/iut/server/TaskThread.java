@@ -120,6 +120,19 @@ public class TaskThread implements Runnable {
     }
 
     /**
+     * Join a multiplayer session
+     * @throws IOException
+     */
+    public void serviceJoinMultiplayer() throws IOException, SQLException {
+        DAOConfigSessionsJDBC configSessionsJDBC = new DAOConfigSessionsJDBC();
+        if(((str = in.readLine()) != null) && (configSessionsJDBC.isIn(str))) { // Get the input code and ask if the code is in the database
+            out.write(Integer.toString(configSessionsJDBC.findPort(str)));    // Give the port
+            out.newLine();
+            out.flush();
+        }
+    }
+
+    /**
      * A function which find the service type and call the function associated
      *
      * @throws IOException
@@ -135,6 +148,9 @@ public class TaskThread implements Runnable {
                     break;
                 case "MULTIPLAYER_CREATION_FLAG":
                     serviceCreationMultiplayer();
+                    break;
+                case "MULTIPLAYER_JOIN_FLAG":
+                    serviceJoinMultiplayer();
                     break;
             }
         }

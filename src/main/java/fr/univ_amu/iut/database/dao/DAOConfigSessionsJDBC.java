@@ -50,6 +50,7 @@ public class DAOConfigSessionsJDBC implements DAOConfigSessions{
         findPortStatement.setString(1,code);
         ResultSet res = isInStatement.executeQuery();
 
+        res.next();
         return res.getInt(1);
     }
 
