@@ -61,10 +61,15 @@ public class Multiplayer {
         //--------------
         if((str = in.readLine()) != null) { // Get the input code and ask if the code is in the database
             if(configSessionsJDBC.isIn(str)) {
-                out.write(Integer.toString(configSessionsJDBC.findPort(str)));    // Give the port
+                out.write("CODE_EXISTS_FLAG");
                 out.newLine();
-                out.flush();
+                out.write(Integer.toString(configSessionsJDBC.findPort(str)));    // Give the port
+
+            } else {
+                out.write("CODE_NOT_EXISTS_FLAG");
             }
+            out.newLine();
+            out.flush();
         } else {
             TaskThread.stopRunning();
         }
