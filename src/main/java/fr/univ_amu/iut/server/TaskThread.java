@@ -41,7 +41,6 @@ public class TaskThread implements Runnable {
      * @throws IOException
      */
     public void serviceSolo() throws SQLException, IOException {
-        System.out.println("SOLO");
         DAOQuizJDBC daoQuiz = new DAOQuizJDBC();
         List<Qcm> qcmList = daoQuiz.findAllQCM();
 

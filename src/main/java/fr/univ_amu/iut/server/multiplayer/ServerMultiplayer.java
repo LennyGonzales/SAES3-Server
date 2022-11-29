@@ -80,9 +80,7 @@ public class ServerMultiplayer implements Runnable{
             }
             clients.add(sc.socket());
 
-            for (Socket socketClient : clients) {
-                pool.execute(new GiveQuestions(socketClient,qcmList));
-            }
+            for (Socket socketClient : clients) { pool.execute(new GiveQuestions(socketClient,qcmList)); }
         } catch (IOException e) {
             e.printStackTrace();
         }

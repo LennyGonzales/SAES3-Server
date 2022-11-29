@@ -54,6 +54,11 @@ public class Multiplayer {
      */
     public void joinMultiplayerSession() throws IOException, SQLException {
         DAOConfigSessionsJDBC configSessionsJDBC = new DAOConfigSessionsJDBC();
+        //--------------
+        out.write("JOIN_SESSION");
+        out.newLine();
+        out.flush();
+        //--------------
         if((str = in.readLine()) != null) { // Get the input code and ask if the code is in the database
             if(configSessionsJDBC.isIn(str)) {
                 out.write(Integer.toString(configSessionsJDBC.findPort(str)));    // Give the port
