@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.login;
 
-import fr.univ_amu.iut.server.Login;
+import fr.univ_amu.iut.server.login.Login;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.*;

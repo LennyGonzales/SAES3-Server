@@ -1,15 +1,23 @@
-package fr.univ_amu.iut.server;
+package fr.univ_amu.iut.server.login;
 
 import fr.univ_amu.iut.database.dao.DAOUserJDBC;
 
+import java.io.*;
 import java.math.BigInteger;
+import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 public class Login {
+    private Socket sockClient;
+    private BufferedReader in;
+    private BufferedWriter out;
     private String username;
     private String password;
-    public Login(String username, String password) {
+    public Login(Socket sockClient, String username, String password) throws IOException {
+        this.sockClient = sockClient;
+        this.in = new BufferedReader(new InputStreamReader(sockClient.getInputStream()));
+        this.out = new BufferedWriter(new OutputStreamWriter(sockClient.getOutputStream()));
         this.username = username;
         this.password = password;
     }
@@ -17,12 +25,30 @@ public class Login {
     /**
      * Verify if the username and the password is in the database
      *
-     * @return
+     * @return true if the player is in the database
      * @throws SQLException
      */
-    public boolean verifyLogin() throws SQLException {
+    public boolean isLogin() throws SQLException {
         DAOUserJDBC usersDAO = new DAOUserJDBC();
         return usersDAO.isIn(username,encryptLogin(password));    // Verify if the username and the encrypted password is in the database
+    }
+
+    /**
+     * This function supports client login
+     *
+     * @throws IOException
+     * @throws SQLException
+     */
+    public void serviceLogin() throws IOException, SQLException {
+        if(!isLogin()) { // Until the client is able to connect
+            out.write("[-] NOT LOGIN !");
+            out.newLine();
+            out.flush();
+        } else {
+            out.write("[+] LOGIN !");
+            out.newLine();
+            out.flush();
+        }
     }
 
     /**
