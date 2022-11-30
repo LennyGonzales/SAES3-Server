@@ -9,6 +9,7 @@ import fr.univ_amu.iut.server.questions.GiveQuestions;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.Buffer;
@@ -31,8 +32,13 @@ public class ServerMultiplayer implements Runnable{
     private DAOQuizJDBC daoQuiz;
     private List<Qcm> qcmList;
     private List<Socket> clients;
+
+    // Main server
     private BufferedReader in;
     private BufferedWriter out;
+
+    // Secondary server
+    private BufferedWriter outSecondary;
 
     public ServerMultiplayer(String code, BufferedReader in, BufferedWriter out) throws IOException, SQLException {
         this.in = in;
@@ -60,14 +66,22 @@ public class ServerMultiplayer implements Runnable{
         int numPlayer = 0;
         try {
             serverSocketChannel.configureBlocking(false);   //serverSocketChannel.accept() not blocking until there is a connection. This allows the user to click on 'Start Game' and don't wait a new connection to start the game
-            while ((!(in.ready())) && (numPlayer < (NB_PLAYERS - 1))) {
+            do{
                 SocketChannel sc = serverSocketChannel.accept();
                 if (sc != null) {   // Get a connection
+
+                    outSecondary = new BufferedWriter(new OutputStreamWriter(sc.socket().getOutputStream()));
+                    outSecondary.write("PRESENCE_FLAG");
+                    outSecondary.newLine();
+                    outSecondary.flush();
+
                     clients.add(sc.socket());
                     ++numPlayer;
                 }
-            }
+            } while((!(in.ready())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doen't click on the button 'Lancer'
+
             deleteTupleFromDatabase();
+            // Send a message to the multiplayer session's host
             out.write("CAN_JOIN_FLAG");
             out.newLine();
             out.write(Integer.toString(serverSocketChannel.socket().getLocalPort()));
@@ -78,9 +92,15 @@ public class ServerMultiplayer implements Runnable{
             while(sc == null) {
                 sc = serverSocketChannel.accept();
             }
-            clients.add(sc.socket());
+            pool.execute(new GiveQuestions(sc.socket(), qcmList));
 
-            for (Socket socketClient : clients) { pool.execute(new GiveQuestions(socketClient,qcmList)); }
+            for (Socket socketClient : clients) {
+                outSecondary = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream()));
+                outSecondary.write("BEGIN_FLAG");
+                outSecondary.newLine();
+                outSecondary.flush();
+                pool.execute(new GiveQuestions(socketClient,qcmList));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
