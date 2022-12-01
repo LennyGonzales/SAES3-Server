@@ -2,6 +2,7 @@ package fr.univ_amu.iut.server.multiplayer;
 
 import fr.univ_amu.iut.database.dao.DAOConfigSessionsJDBC;
 import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.server.ClientCommunication;
 import fr.univ_amu.iut.server.TaskThread;
 import fr.univ_amu.iut.server.multiplayer.ServerMultiplayer;
 
@@ -12,15 +13,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class Multiplayer {
-    private Socket sockClient;
-    private BufferedReader in;
-    private BufferedWriter out;
-    private String str;
+    private ClientCommunication clientCommunication;
+    private String message;
 
-    public Multiplayer(Socket sockClient) throws IOException {
-        this.sockClient = sockClient;
-        this.in = new BufferedReader(new InputStreamReader(sockClient.getInputStream()));
-        this.out = new BufferedWriter(new OutputStreamWriter(sockClient.getOutputStream()));
+    public Multiplayer(ClientCommunication clientCommunication) throws IOException {
+        this.clientCommunication = clientCommunication;
     }
 
     /**
@@ -30,7 +27,7 @@ public class Multiplayer {
      * @throws SQLException
      */
     public void createSession(String code) throws IOException, SQLException {
-        ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code, in, out);
+        ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code, clientCommunication);
         serverMultiplayer.run();
     }
 
@@ -40,11 +37,8 @@ public class Multiplayer {
      */
     public void createMultiplayerSession() throws IOException, SQLException {
         String code = UUID.randomUUID().toString().substring(0,8);
-        out.write("CODE_FLAG");
-        out.newLine();
-        out.write(code);
-        out.newLine();
-        out.flush();
+        clientCommunication.sendMessageToClient("CODE_FLAG");
+        clientCommunication.sendMessageToClient(code);
         createSession(code);
     }
 
@@ -53,25 +47,16 @@ public class Multiplayer {
      * @throws IOException
      */
     public void joinMultiplayerSession() throws IOException, SQLException {
+        //--------------
+        clientCommunication.sendMessageToClient("JOIN_SESSION");
+        //--------------
         DAOConfigSessionsJDBC configSessionsJDBC = new DAOConfigSessionsJDBC();
-        //--------------
-        out.write("JOIN_SESSION");
-        out.newLine();
-        out.flush();
-        //--------------
-        if((str = in.readLine()) != null) { // Get the input code and ask if the code is in the database
-            if(configSessionsJDBC.isIn(str)) {
-                out.write("CODE_EXISTS_FLAG");
-                out.newLine();
-                out.write(Integer.toString(configSessionsJDBC.findPort(str)));    // Give the port
-
-            } else {
-                out.write("CODE_NOT_EXISTS_FLAG");
-            }
-            out.newLine();
-            out.flush();
+        message = clientCommunication.receiveMessageFromClient();
+        if(configSessionsJDBC.isIn(message)) {  // Get the input code and ask if the code is in the database
+            clientCommunication.sendMessageToClient("CODE_EXISTS_FLAG");
+            clientCommunication.sendMessageToClient(Integer.toString(configSessionsJDBC.findPort(message)));    // Give the port
         } else {
-            TaskThread.stopRunning();
+            clientCommunication.sendMessageToClient("CODE_NOT_EXISTS_FLAG");
         }
     }
 }

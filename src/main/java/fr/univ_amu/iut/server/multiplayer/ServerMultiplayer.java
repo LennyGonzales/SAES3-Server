@@ -4,6 +4,7 @@ import fr.univ_amu.iut.database.dao.DAOConfigSessionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOQuizJDBC;
 import fr.univ_amu.iut.database.table.ConfigSessions;
 import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.server.ClientCommunication;
 import fr.univ_amu.iut.server.questions.GiveQuestions;
 
 import java.io.BufferedReader;
@@ -34,76 +35,92 @@ public class ServerMultiplayer implements Runnable{
     private List<Socket> clients;
 
     // Main server
-    private BufferedReader in;
-    private BufferedWriter out;
+    private ClientCommunication clientCommunication;
 
     // Secondary server
-    private BufferedWriter outSecondary;
-
-    public ServerMultiplayer(String code, BufferedReader in, BufferedWriter out) throws IOException, SQLException {
-        this.in = in;
-        this.out = out;
+    private ClientCommunication clientMultiplayerCommunication;
+    public ServerMultiplayer(String code, ClientCommunication clientCommunication) throws IOException, SQLException {
         this.code = code;
+        this.clientCommunication = clientCommunication;
+
         pool = Executors.newFixedThreadPool(NB_PLAYERS);
         clients = new ArrayList<>();
 
+        // Creation of the multiplayer session's server
         serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.socket().bind(new InetSocketAddress(0)); // Find a free port
-        port = serverSocketChannel.socket().getLocalPort();
+        serverSocketChannel.configureBlocking(false);   //serverSocketChannel.accept() not blocking until there is a connection. This allows the user to click on 'Start Game' and don't wait a new connection to start the game
 
-        configSessions = new ConfigSessions(port, code);  //Create an instance (a tuple)
+        port = serverSocketChannel.socket().getLocalPort(); // Get this port
+
+        configSessions = new ConfigSessions(port, code);  // Create an instance (a tuple)
         configSessionsJDBC = new DAOConfigSessionsJDBC();
 
+        // Get a quiz
         daoQuiz = new DAOQuizJDBC();
         qcmList = daoQuiz.findAllQCM();
     }
 
     /**
-     * Accepts the clients and call the TaskThreadMultiplayer class
+     * Accept the clients
      * @throws IOException
      */
     public void acceptClients() throws IOException, SQLException {
-        int numPlayer = 0;
-        try {
-            serverSocketChannel.configureBlocking(false);   //serverSocketChannel.accept() not blocking until there is a connection. This allows the user to click on 'Start Game' and don't wait a new connection to start the game
-            do{
-                SocketChannel sc = serverSocketChannel.accept();
-                if (sc != null) {   // Get a connection
+        getUsersUntilSessionStart();    // Store users who join the session in a list and notify them that their request has been received
 
-                    outSecondary = new BufferedWriter(new OutputStreamWriter(sc.socket().getOutputStream()));
-                    outSecondary.write("PRESENCE_FLAG");
-                    outSecondary.newLine();
-                    outSecondary.flush();
+        deleteTupleFromDatabase();  // Delete the tuple from the database so that no other clients can join the game
 
-                    clients.add(sc.socket());
-                    ++numPlayer;
-                }
-            } while((!(in.ready())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doen't click on the button 'Lancer'
+        getHostAndExecute();    // Notify the session host that he can join the session | Run the session for him (give the questions)
 
-            deleteTupleFromDatabase();
-            // Send a message to the multiplayer session's host
-            out.write("CAN_JOIN_FLAG");
-            out.newLine();
-            out.write(Integer.toString(serverSocketChannel.socket().getLocalPort()));
-            out.newLine();
-            out.flush();
+        executeUsers();     // Run the session for all other users
 
-            SocketChannel sc = null;
-            while(sc == null) {
-                sc = serverSocketChannel.accept();
-            }
-            pool.execute(new GiveQuestions(sc.socket(), qcmList));
+    }
 
-            for (Socket socketClient : clients) {
-                outSecondary = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream()));
-                outSecondary.write("BEGIN_FLAG");
-                outSecondary.newLine();
-                outSecondary.flush();
-                pool.execute(new GiveQuestions(socketClient,qcmList));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    /**
+     * Run the session for all other users
+     * @throws IOException
+     */
+    public void executeUsers() throws IOException {
+        // Send to all other users that the game begins
+        for (Socket socketClient : clients) {
+            clientMultiplayerCommunication = new ClientCommunication(socketClient);
+            clientMultiplayerCommunication.sendMessageToClient("BEGIN_FLAG");
+            pool.execute(new GiveQuestions(socketClient,qcmList));
         }
+    }
+
+    /**
+     * Notify the session host that he can join the session
+     * Run the session for him (give the questions)
+     * @throws IOException
+     */
+    public void getHostAndExecute() throws IOException {
+        // Send a message to the host of the multiplayer session to join the game
+        clientCommunication.sendMessageToClient("CAN_JOIN_FLAG");
+        clientCommunication.sendMessageToClient(Integer.toString(serverSocketChannel.socket().getLocalPort()));
+        SocketChannel sc = null;
+        while(sc == null) {
+            sc = serverSocketChannel.accept();  // Accepts the host request
+        }
+        pool.execute(new GiveQuestions(sc.socket(), qcmList));  // Give him the questions
+    }
+
+    /**
+     * Store users who join the session in a list and notify them that their request has been received
+     * @throws IOException
+     */
+    public void getUsersUntilSessionStart() throws IOException {
+        int numPlayer = 0;
+        do{
+            SocketChannel sc = serverSocketChannel.accept();      // Accepts the client
+            if (sc != null) {   // Get a connection
+                clientMultiplayerCommunication = new ClientCommunication(sc.socket());
+                clientMultiplayerCommunication.sendMessageToClient("PRESENCE_FLAG");    // Notify him that their request has been received
+                clients.add(sc.socket());   // Add it to the list
+                ++numPlayer;
+            }
+        } while((!(clientCommunication.isReceiveMessageFromClient())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doen't click on the button 'Lancer'
+
     }
 
     /**

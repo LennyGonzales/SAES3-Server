@@ -10,7 +10,8 @@ public class ClientCommunication {
     private BufferedReader in;
     private String message;
 
-    public ClientCommunication() throws IOException {
+    public ClientCommunication(Socket socketClient) throws IOException {
+        this.socketClient = socketClient;
         out = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream()));
         in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
     }

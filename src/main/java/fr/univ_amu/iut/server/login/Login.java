@@ -1,6 +1,7 @@
 package fr.univ_amu.iut.server.login;
 
 import fr.univ_amu.iut.database.dao.DAOUserJDBC;
+import fr.univ_amu.iut.server.ClientCommunication;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -9,17 +10,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 public class Login {
-    private Socket sockClient;
-    private BufferedReader in;
-    private BufferedWriter out;
-    private String username;
-    private String password;
-    public Login(Socket sockClient, String username, String password) throws IOException {
-        this.sockClient = sockClient;
-        this.in = new BufferedReader(new InputStreamReader(sockClient.getInputStream()));
-        this.out = new BufferedWriter(new OutputStreamWriter(sockClient.getOutputStream()));
-        this.username = username;
-        this.password = password;
+    private ClientCommunication clientCommunication;
+    public Login(ClientCommunication clientCommunication) throws IOException {
+        this.clientCommunication = clientCommunication;
     }
 
     /**
@@ -28,9 +21,9 @@ public class Login {
      * @return true if the player is in the database
      * @throws SQLException
      */
-    public boolean isLogin() throws SQLException {
+    public boolean isLogin() throws SQLException, IOException {
         DAOUserJDBC usersDAO = new DAOUserJDBC();
-        return usersDAO.isIn(username,encryptLogin(password));    // Verify if the username and the encrypted password is in the database
+        return usersDAO.isIn(clientCommunication.receiveMessageFromClient(),encryptLogin(clientCommunication.receiveMessageFromClient()));    // Verify if the username and the encrypted password is in the database
     }
 
     /**
@@ -41,13 +34,9 @@ public class Login {
      */
     public void serviceLogin() throws IOException, SQLException {
         if(!isLogin()) { // Until the client is able to connect
-            out.write("[-] NOT LOGIN !");
-            out.newLine();
-            out.flush();
+            clientCommunication.sendMessageToClient("[-] NOT LOGIN !");
         } else {
-            out.write("[+] LOGIN !");
-            out.newLine();
-            out.flush();
+            clientCommunication.sendMessageToClient("[+] LOGIN !");
         }
     }
 
