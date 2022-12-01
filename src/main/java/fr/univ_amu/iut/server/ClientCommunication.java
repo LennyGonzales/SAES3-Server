@@ -3,41 +3,50 @@ package fr.univ_amu.iut.server;
 import java.io.*;
 import java.net.Socket;
 
-public class Client {
+public class ClientCommunication {
 
     private Socket socketClient;
     private BufferedWriter out;
     private BufferedReader in;
     private String message;
 
-    public Client() throws IOException {
+    public ClientCommunication() throws IOException {
         out = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream()));
         in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
     }
 
     /**
-     * Send a String to the server
+     * Send a String to the client
      * @param message
      * @throws IOException
      */
-    public void sendMessageToServer(String message) throws IOException {
+    public void sendMessageToClient(String message) throws IOException {
         out.write(message);
         out.newLine();
         out.flush();
     }
 
     /**
-     * Send the message received from the server
+     * Send the message received from the client
      * @return
      * @throws IOException
      * @throws InterruptedException
      */
-    public String receiveMessageFromServer() throws IOException {
+    public String receiveMessageFromClient() throws IOException {
         if((message = in.readLine()) != null) {
             return message;
         }
         close();
         return null;
+    }
+
+    /**
+     * Return true if the client sent a message to the server
+     * @return
+     * @throws IOException
+     */
+    public boolean isReceiveMessageFromClient() throws IOException {
+        return in.ready();
     }
 
     /**
