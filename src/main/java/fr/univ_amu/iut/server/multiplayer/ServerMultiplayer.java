@@ -7,13 +7,9 @@ import fr.univ_amu.iut.database.table.Qcm;
 import fr.univ_amu.iut.server.ClientCommunication;
 import fr.univ_amu.iut.server.questions.GiveQuestions;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.Buffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
@@ -24,7 +20,6 @@ import java.util.concurrent.Executors;
 
 public class ServerMultiplayer implements Runnable{
     private static final int NB_PLAYERS = 40;
-    private String code;
     private ServerSocketChannel serverSocketChannel;
     private ExecutorService pool;
     private int port;
@@ -35,12 +30,11 @@ public class ServerMultiplayer implements Runnable{
     private List<Socket> clients;
 
     // Main server
-    private ClientCommunication clientCommunication;
+    private final ClientCommunication clientCommunication;
 
     // Secondary server
     private ClientCommunication clientMultiplayerCommunication;
     public ServerMultiplayer(String code, ClientCommunication clientCommunication) throws IOException, SQLException {
-        this.code = code;
         this.clientCommunication = clientCommunication;
 
         pool = Executors.newFixedThreadPool(NB_PLAYERS);
@@ -84,8 +78,8 @@ public class ServerMultiplayer implements Runnable{
         // Send to all other users that the game begins
         for (Socket socketClient : clients) {
             clientMultiplayerCommunication = new ClientCommunication(socketClient);
-            clientMultiplayerCommunication.sendMessageToClient("BEGIN_FLAG");
-            pool.execute(new GiveQuestions(socketClient,qcmList));
+            clientMultiplayerCommunication.sendMessageToClient("BEGIN_FLAG");   // Notify the client that the session begin (he can read the quiz's data)
+            pool.execute(new GiveQuestions(clientMultiplayerCommunication,qcmList));
         }
     }
 
@@ -102,7 +96,7 @@ public class ServerMultiplayer implements Runnable{
         while(sc == null) {
             sc = serverSocketChannel.accept();  // Accepts the host request
         }
-        pool.execute(new GiveQuestions(sc.socket(), qcmList));  // Give him the questions
+        pool.execute(new GiveQuestions(new ClientCommunication(sc.socket()), qcmList));  // Give him the questions
     }
 
     /**

@@ -1,28 +1,21 @@
 package fr.univ_amu.iut.server.multiplayer;
 
 import fr.univ_amu.iut.database.dao.DAOConfigSessionsJDBC;
-import fr.univ_amu.iut.database.table.Qcm;
 import fr.univ_amu.iut.server.ClientCommunication;
-import fr.univ_amu.iut.server.TaskThread;
-import fr.univ_amu.iut.server.multiplayer.ServerMultiplayer;
 
 import java.io.*;
-import java.net.Socket;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.UUID;
 
 public class Multiplayer {
     private ClientCommunication clientCommunication;
-    private String message;
 
-    public Multiplayer(ClientCommunication clientCommunication) throws IOException {
+    public Multiplayer(ClientCommunication clientCommunication) {
         this.clientCommunication = clientCommunication;
     }
 
     /**
      * Create the multiplayer session
-     * @return
      * @throws IOException
      * @throws SQLException
      */
@@ -51,7 +44,7 @@ public class Multiplayer {
         clientCommunication.sendMessageToClient("JOIN_SESSION");
         //--------------
         DAOConfigSessionsJDBC configSessionsJDBC = new DAOConfigSessionsJDBC();
-        message = clientCommunication.receiveMessageFromClient();
+        String message = clientCommunication.receiveMessageFromClient();
         if(configSessionsJDBC.isIn(message)) {  // Get the input code and ask if the code is in the database
             clientCommunication.sendMessageToClient("CODE_EXISTS_FLAG");
             clientCommunication.sendMessageToClient(Integer.toString(configSessionsJDBC.findPort(message)));    // Give the port

@@ -43,11 +43,11 @@ public class TaskThread implements Runnable {
      * @throws SQLException
      * @throws IOException
      */
-    public void serviceSolo() throws SQLException, IOException {
+    public void serviceSolo() throws SQLException {
         DAOQuizJDBC daoQuiz = new DAOQuizJDBC();
         List<Qcm> qcmList = daoQuiz.findAllQCM();
 
-        GiveQuestions giveQuestions = new GiveQuestions(sockClient, qcmList);
+        GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, qcmList);
         giveQuestions.run();
     }
 
@@ -84,19 +84,7 @@ public class TaskThread implements Runnable {
             }
         }
         System.out.println("END");
-        stopRunning();
-    }
-
-
-    /**
-     * Stop the connection with the client
-     *
-     * @throws IOException
-     */
-    public static void stopRunning() throws IOException {
-        in.close();
-        out.close();
-        sockClient.close();
+        clientCommunication.close();
     }
 
     @Override

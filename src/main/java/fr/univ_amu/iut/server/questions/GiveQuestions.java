@@ -1,64 +1,38 @@
 package fr.univ_amu.iut.server.questions;
 
 import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.server.ClientCommunication;
 
 import java.io.*;
-import java.net.Socket;
 import java.util.List;
 
 public class GiveQuestions implements Runnable{
-    private Socket sockClient;
-    private BufferedReader in;
-    private BufferedWriter out;
-    private String str;
     private List<Qcm> quiz;
+    private ClientCommunication clientCommunication;
 
-
-    public GiveQuestions(Socket sockClient, List<Qcm> quiz) throws IOException {
-        this.sockClient = sockClient;
-        this.in = new BufferedReader(new InputStreamReader(sockClient.getInputStream()));
-        this.out = new BufferedWriter(new OutputStreamWriter(sockClient.getOutputStream()));
+    public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> quiz) {
+        this.clientCommunication = clientCommunication;
         this.quiz = quiz;
     }
 
     /**
-     * Send the questions and answers to the client
+     * Send the questions and answers to the client and send a end game flag when the game is finished
      * @throws IOException
      */
     public void giveQuestions() throws IOException {
         for(Qcm q : quiz) {
-            out.write(q.getQuestion());
-            out.newLine();
-            out.write(q.getAnswer1());
-            out.newLine();
-            out.write(q.getAnswer2());
-            out.newLine();
-            out.write(q.getAnswer3());
-            out.newLine();
+            clientCommunication.sendMessageToClient(q.getQuestion());
+            clientCommunication.sendMessageToClient(q.getAnswer1());
+            clientCommunication.sendMessageToClient(q.getAnswer2());
+            clientCommunication.sendMessageToClient(q.getAnswer3());
 
-            out.flush();
-            if ((str = in.readLine()) != null) {
-                if (q.getTrueAnswer() == Integer.parseInt(str)) {
-                    out.write("CORRECT_ANSWER_FLAG");
-                } else {
-                    out.write("WRONG_ANSWER_FLAG");
-                }
-                out.newLine();
-                out.flush();
+            if(q.getTrueAnswer() == Integer.parseInt(clientCommunication.receiveMessageFromClient())) {
+                clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
             } else {
-                stopRunning();
-                break;
+                clientCommunication.sendMessageToClient("WRONG_ANSWER_FLAG");
             }
         }
-        out.write("END_GAME_FLAG");
-        out.newLine();
-        out.flush();
-    }
-
-    public void stopRunning() throws IOException {
-        in.close();
-        out.close();
-        sockClient.close();
+        clientCommunication.sendMessageToClient("END_GAME_FLAG");
     }
 
     @Override

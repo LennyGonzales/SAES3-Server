@@ -5,13 +5,12 @@ import fr.univ_amu.iut.server.ClientCommunication;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 public class Login {
     private ClientCommunication clientCommunication;
-    public Login(ClientCommunication clientCommunication) throws IOException {
+    public Login(ClientCommunication clientCommunication) {
         this.clientCommunication = clientCommunication;
     }
 
