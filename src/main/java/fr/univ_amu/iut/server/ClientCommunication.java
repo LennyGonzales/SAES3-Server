@@ -31,7 +31,6 @@ public class ClientCommunication {
      * Send the message received from the client
      * @return
      * @throws IOException
-     * @throws InterruptedException
      */
     public String receiveMessageFromClient() throws IOException {
         if((message = in.readLine()) != null) {

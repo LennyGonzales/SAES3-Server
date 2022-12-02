@@ -8,7 +8,7 @@ import java.util.List;
 public interface DAOQuiz extends DAO{
     /**
      * Return the qcm stores in the database
-     * @return List<Qcm>
+     * @return a list of questions and answers
      * @throws SQLException
      */
     List<Qcm> findAllQCM() throws SQLException;

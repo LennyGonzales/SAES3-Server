@@ -20,7 +20,7 @@ public class DAOQuizJDBC implements DAOQuiz{
 
     /**
      * Return the qcm stores in the database
-     * @return List<Qcm>
+     * @return a list of questions and answers
      * @throws SQLException
      */
     @Override

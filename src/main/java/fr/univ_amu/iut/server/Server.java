@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 
 public class Server {
     private static final int NB_CLIENTS = 100;
-    private static final int NB_THREADS = 30;
+    private static final int NB_THREADS = 100;
     private static final int NUM_PORT = 10013;
     private ServerSocket sockServer;
     private ExecutorService pool;

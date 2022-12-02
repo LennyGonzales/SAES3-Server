@@ -41,7 +41,6 @@ public class TaskThread implements Runnable {
     /**
      * Send questions and answer to the client and verify if the answer is correct
      * @throws SQLException
-     * @throws IOException
      */
     public void serviceSolo() throws SQLException {
         DAOQuizJDBC daoQuiz = new DAOQuizJDBC();
