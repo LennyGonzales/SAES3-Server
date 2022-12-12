@@ -8,17 +8,21 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+
+/**
+ * Supports the login of the user
+ */
 public class Login {
-    private ClientCommunication clientCommunication;
+    private final ClientCommunication clientCommunication;
     public Login(ClientCommunication clientCommunication) {
         this.clientCommunication = clientCommunication;
     }
 
     /**
-     * Verify if the username and the password is in the database
+     * Verify if the username and the password are in the database
      *
      * @return true if the player is in the database
-     * @throws SQLException
+     * @throws SQLException the SQL request didn't go well (isIn method)
      */
     public boolean isLogin() throws SQLException, IOException {
         DAOUserJDBC usersDAO = new DAOUserJDBC();
@@ -28,8 +32,8 @@ public class Login {
     /**
      * This function supports client login
      *
-     * @throws IOException
-     * @throws SQLException
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws SQLException the SQL request didn't go well (isIn method)
      */
     public void serviceLogin() throws IOException, SQLException {
         if(!isLogin()) { // Until the client is able to connect
@@ -42,8 +46,8 @@ public class Login {
     /**
      * Encrypt a specific string with SHA512 algorithm
      *
-     * @param str
-     * @return hashtext
+     * @param str the String to hash
+     * @return hashtext the String hashed
      * @throws RuntimeException
      */
     public static String encryptLogin(String str)

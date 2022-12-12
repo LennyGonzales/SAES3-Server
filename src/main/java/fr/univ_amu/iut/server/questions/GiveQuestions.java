@@ -10,6 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Supports the quiz/history (give questions and verify the answer)
+ */
 public class GiveQuestions implements Runnable{
     private Random randValue;
     private Iterator<Qcm> iteratorQcm;
@@ -18,7 +21,7 @@ public class GiveQuestions implements Runnable{
 
     public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> qcmList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
         this.clientCommunication = clientCommunication;
-        if ((qcmList.size() > 0) && (writtenResponseQuestionList.size() > 0)) {
+        if ((qcmList.size() > 0) || (writtenResponseQuestionList.size() > 0)) { // Verify if there are questions in the database
             iteratorQcm = qcmList.iterator();
             iteratorWrittenResponseQuestion = writtenResponseQuestionList.iterator();
         } else  {
@@ -29,7 +32,7 @@ public class GiveQuestions implements Runnable{
 
     /**
      * Send the question (QCM) to the client and verify if the answer is correct
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void giveQcm() throws IOException {
         Qcm qcm = iteratorQcm.next();
@@ -47,7 +50,7 @@ public class GiveQuestions implements Runnable{
 
     /**
      * Send the question (Written response question) to the client and verify if the answer is correct
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void giveWrittenResponseQuestion() throws IOException {
         WrittenResponseQuestion writtenResponseQuestion = iteratorWrittenResponseQuestion.next();
@@ -63,7 +66,7 @@ public class GiveQuestions implements Runnable{
 
     /**
      * Send a QCM or a written response question with a random value
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void checkingQuestionType() throws IOException {
         while ((iteratorQcm.hasNext()) || (iteratorWrittenResponseQuestion.hasNext())) {

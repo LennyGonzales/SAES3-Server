@@ -3,6 +3,9 @@ package fr.univ_amu.iut;
 import fr.univ_amu.iut.database.Database;
 import fr.univ_amu.iut.server.Server;
 
+/**
+ * Class to run to launch the server
+ */
 public class Main {
     public static Database database;
     public static void main(String[] args) throws Exception {

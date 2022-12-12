@@ -15,6 +15,9 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Supports the main communication with the client
+ */
 public class TaskThread implements Runnable {
     private static Socket sockClient;
     private static BufferedReader in;
@@ -32,9 +35,8 @@ public class TaskThread implements Runnable {
 
     /**
      * This function supports client login
-     *
-     * @throws IOException
-     * @throws SQLException
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
     public void serviceLogin() throws IOException, SQLException {
         Login login = new Login(clientCommunication);   // Get the username and the password
@@ -43,7 +45,8 @@ public class TaskThread implements Runnable {
 
     /**
      * Send questions and answer to the client and verify if the answer is correct
-     * @throws SQLException
+     * @throws SQLException if the getACertainNumberOfQCM() or getACertainNumberOfWrittenResponseQuestion() method didn't go well
+     * @throws EmptyQuestionsListException if qcmList and writtenResponseQuestionList are empty
      */
     public void serviceSolo() throws SQLException, EmptyQuestionsListException {
         DAOQcmJDBC daoQcmJDBC = new DAOQcmJDBC();
@@ -58,7 +61,8 @@ public class TaskThread implements Runnable {
 
     /**
      * Supports the creation of a multiplayer game
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      */
     public void serviceCreationMultiplayer() throws IOException, SQLException {
         Multiplayer multiplayer = new Multiplayer(clientCommunication);
@@ -67,7 +71,8 @@ public class TaskThread implements Runnable {
 
     /**
      * Join a multiplayer session
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      */
     public void serviceJoinMultiplayer() throws IOException, SQLException {
         Multiplayer multiplayer = new Multiplayer(clientCommunication);
@@ -77,7 +82,9 @@ public class TaskThread implements Runnable {
     /**
      * A function which find the service type and call the function associated
      *
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws SQLException if a SQL request didn't go well
+     * @throws EmptyQuestionsListException
      */
     public void serviceType() throws SQLException, IOException, EmptyQuestionsListException {  // Find the service between {Login, Solo, Multijoueur, Entraînement}
         while ((str = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits

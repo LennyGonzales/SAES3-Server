@@ -6,6 +6,9 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Creation of the Server and accepts the clients
+ */
 public class Server {
     private static final int NB_CLIENTS = 100;
     private static final int NB_THREADS = 100;

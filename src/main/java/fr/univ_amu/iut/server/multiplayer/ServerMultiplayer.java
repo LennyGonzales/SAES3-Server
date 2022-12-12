@@ -21,18 +21,21 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Supports the multiplayer session's server
+ */
 public class ServerMultiplayer implements Runnable{
     private static final int NB_PLAYERS = 40;
-    private ServerSocketChannel serverSocketChannel;
-    private ExecutorService pool;
-    private int port;
-    private ConfigSessions configSessions;
-    private DAOConfigSessionsJDBC configSessionsJDBC;
-    private DAOQcmJDBC daoQcm;
-    private List<Qcm> qcmList;
-    private DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestion;
-    private List<WrittenResponseQuestion> writtenResponseQuestionList;
-    private List<Socket> clients;
+    private final ServerSocketChannel serverSocketChannel;
+    private final ExecutorService pool;
+    private final int port;
+    private final ConfigSessions configSessions;
+    private final DAOConfigSessionsJDBC configSessionsJDBC;
+    private final DAOQcmJDBC daoQcm;
+    private final List<Qcm> qcmList;
+    private final DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestion;
+    private final List<WrittenResponseQuestion> writtenResponseQuestionList;
+    private final List<Socket> clients;
 
     // Main server
     private final ClientCommunication clientCommunication;
@@ -64,7 +67,7 @@ public class ServerMultiplayer implements Runnable{
 
     /**
      * Accept the clients
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void acceptClients() throws IOException, SQLException, EmptyQuestionsListException {
         getUsersUntilSessionStart();    // Store users who join the session in a list and notify them that their request has been received
@@ -79,7 +82,7 @@ public class ServerMultiplayer implements Runnable{
 
     /**
      * Run the session for all other users
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void executeUsers() throws IOException, EmptyQuestionsListException {
         // Send to all other users that the game begins
@@ -93,7 +96,7 @@ public class ServerMultiplayer implements Runnable{
     /**
      * Notify the session host that he can join the session
      * Run the session for him (give the questions)
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void getHostAndExecute() throws IOException, EmptyQuestionsListException {
         // Send a message to the host of the multiplayer session to join the game
@@ -108,7 +111,7 @@ public class ServerMultiplayer implements Runnable{
 
     /**
      * Store users who join the session in a list and notify them that their request has been received
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void getUsersUntilSessionStart() throws IOException {
         int numPlayer = 0;
@@ -120,13 +123,13 @@ public class ServerMultiplayer implements Runnable{
                 clients.add(sc.socket());   // Add it to the list
                 ++numPlayer;
             }
-        } while((!(clientCommunication.isReceiveMessageFromClient())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doen't click on the button 'Lancer'
+        } while((!(clientCommunication.isReceiveMessageFromClient())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doesn't click on the button 'Lancer'
 
     }
 
     /**
      * Insert the session in the database (code, port)
-     * @throws SQLException
+     * @throws SQLException if the SQL request didn't go well (insert method)
      */
     public void insertTupleIntoDatabase() throws SQLException {
         configSessionsJDBC.insert(configSessions);  // Insert
@@ -134,7 +137,7 @@ public class ServerMultiplayer implements Runnable{
 
     /**
      * Delete the session in the database (code)
-     * @throws SQLException
+     * @throws SQLException if the SQL request didn't go well (delete method)
      */
     public void deleteTupleFromDatabase() throws SQLException {
         configSessionsJDBC.delete(configSessions);

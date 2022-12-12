@@ -3,6 +3,9 @@ package fr.univ_amu.iut.server;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Supports the communication with the client
+ */
 public class ClientCommunication {
 
     private Socket socketClient;
@@ -18,8 +21,8 @@ public class ClientCommunication {
 
     /**
      * Send a String to the client
-     * @param message
-     * @throws IOException
+     * @param message to send to the client
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendMessageToClient(String message) throws IOException {
         out.write(message);
@@ -29,8 +32,8 @@ public class ClientCommunication {
 
     /**
      * Send the message received from the client
-     * @return
-     * @throws IOException
+     * @return the string sent by the client
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public String receiveMessageFromClient() throws IOException {
         if((message = in.readLine()) != null) {
@@ -42,8 +45,8 @@ public class ClientCommunication {
 
     /**
      * Return true if the client sent a message to the server
-     * @return
-     * @throws IOException
+     * @return true - The client sent a message | else, false
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public boolean isReceiveMessageFromClient() throws IOException {
         return in.ready();
@@ -51,7 +54,7 @@ public class ClientCommunication {
 
     /**
      * This method close the socket
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void close() throws IOException {
         in.close();

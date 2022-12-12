@@ -7,8 +7,11 @@ import java.io.*;
 import java.sql.SQLException;
 import java.util.UUID;
 
+/**
+ * Supports the multiplayer's actions (creation and join)
+ */
 public class Multiplayer {
-    private ClientCommunication clientCommunication;
+    private final ClientCommunication clientCommunication;
 
     public Multiplayer(ClientCommunication clientCommunication) {
         this.clientCommunication = clientCommunication;
@@ -16,8 +19,8 @@ public class Multiplayer {
 
     /**
      * Create the multiplayer session
-     * @throws IOException
-     * @throws SQLException
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws SQLException if a SQL request didn't go well
      */
     public void createSession(String code) throws IOException, SQLException {
         ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code, clientCommunication);
@@ -26,7 +29,7 @@ public class Multiplayer {
 
     /**
      * Supports the creation of a multiplayer session
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void createMultiplayerSession() throws IOException, SQLException {
         String code = UUID.randomUUID().toString().substring(0,8);
@@ -37,7 +40,7 @@ public class Multiplayer {
 
     /**
      * Join a multiplayer session
-     * @throws IOException
+     * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void joinMultiplayerSession() throws IOException, SQLException {
         clientCommunication.sendMessageToClient("JOIN_SESSION");
