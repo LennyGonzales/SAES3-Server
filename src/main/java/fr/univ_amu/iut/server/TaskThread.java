@@ -53,7 +53,6 @@ public class TaskThread implements Runnable {
         List<WrittenResponseQuestion> writtenResponseQuestionList = daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(5, "ALL");
 
         GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, qcmList, writtenResponseQuestionList);
-        System.out.println(-1);
         giveQuestions.run();
     }
 
@@ -89,7 +88,6 @@ public class TaskThread implements Runnable {
                 case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
             }
         }
-        System.out.println("END");
         clientCommunication.close();
     }
 

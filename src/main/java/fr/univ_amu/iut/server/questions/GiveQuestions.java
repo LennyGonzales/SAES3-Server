@@ -32,14 +32,12 @@ public class GiveQuestions implements Runnable{
      * @throws IOException
      */
     public void giveQcm() throws IOException {
-
         Qcm qcm = iteratorQcm.next();
         clientCommunication.sendMessageToClient(qcm.getQuestion());
         clientCommunication.sendMessageToClient(qcm.getDescription());
         clientCommunication.sendMessageToClient(qcm.getAnswer1());
         clientCommunication.sendMessageToClient(qcm.getAnswer2());
         clientCommunication.sendMessageToClient(qcm.getAnswer3());
-        System.out.println(2);
         if(qcm.getTrueAnswer() == Integer.parseInt(clientCommunication.receiveMessageFromClient())) {
             clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
         } else {
@@ -68,15 +66,11 @@ public class GiveQuestions implements Runnable{
      * @throws IOException
      */
     public void checkingQuestionType() throws IOException {
-        System.out.println(0);
         while ((iteratorQcm.hasNext()) || (iteratorWrittenResponseQuestion.hasNext())) {
             if((randValue.nextInt(2) == 0) && (iteratorQcm.hasNext())) {
-                System.out.println(1);
                 clientCommunication.sendMessageToClient("QCM_FLAG");
-                System.out.println(2);
                 giveQcm();
             } else if (iteratorWrittenResponseQuestion.hasNext()){
-                System.out.println(3);
                 clientCommunication.sendMessageToClient("WRITTEN_RESPONSE_QUESTION_FLAG");
                 giveWrittenResponseQuestion();
             }
