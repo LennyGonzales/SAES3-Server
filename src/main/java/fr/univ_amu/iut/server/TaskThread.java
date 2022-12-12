@@ -1,11 +1,14 @@
 package fr.univ_amu.iut.server;
 
 
-import fr.univ_amu.iut.database.dao.DAOQuizJDBC;
+import fr.univ_amu.iut.database.dao.DAOQcmJDBC;
+import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionJDBC;
 import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import fr.univ_amu.iut.server.login.Login;
 import fr.univ_amu.iut.server.multiplayer.Multiplayer;
 import fr.univ_amu.iut.server.questions.GiveQuestions;
+import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.*;
 import java.net.Socket;
@@ -42,11 +45,15 @@ public class TaskThread implements Runnable {
      * Send questions and answer to the client and verify if the answer is correct
      * @throws SQLException
      */
-    public void serviceSolo() throws SQLException {
-        DAOQuizJDBC daoQuiz = new DAOQuizJDBC();
-        List<Qcm> qcmList = daoQuiz.findAllQCM();
+    public void serviceSolo() throws SQLException, EmptyQuestionsListException {
+        DAOQcmJDBC daoQcmJDBC = new DAOQcmJDBC();
+        List<Qcm> qcmList = daoQcmJDBC.getACertainNumberOfQCM(5, "ALL");
 
-        GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, qcmList);
+        DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionJDBC();
+        List<WrittenResponseQuestion> writtenResponseQuestionList = daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(5, "ALL");
+
+        GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, qcmList, writtenResponseQuestionList);
+        System.out.println(-1);
         giveQuestions.run();
     }
 
@@ -73,7 +80,7 @@ public class TaskThread implements Runnable {
      *
      * @throws IOException
      */
-    public void serviceType() throws SQLException, IOException {  // Find the service between {Login, Solo, Multijoueur, Entraînement}
+    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException {  // Find the service between {Login, Solo, Multijoueur, Entraînement}
         while ((str = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits
             switch (str) {
                 case "LOGIN_FLAG" -> serviceLogin();
@@ -90,7 +97,7 @@ public class TaskThread implements Runnable {
     public void run() {
         try {
             serviceType();
-        } catch (IOException | SQLException e){
+        } catch (IOException | SQLException | EmptyQuestionsListException e){
             throw new RuntimeException(e);
         }
     }

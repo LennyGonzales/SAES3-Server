@@ -40,9 +40,7 @@ public class Multiplayer {
      * @throws IOException
      */
     public void joinMultiplayerSession() throws IOException, SQLException {
-        //--------------
         clientCommunication.sendMessageToClient("JOIN_SESSION");
-        //--------------
         DAOConfigSessionsJDBC configSessionsJDBC = new DAOConfigSessionsJDBC();
         String message = clientCommunication.receiveMessageFromClient();
         if(configSessionsJDBC.isIn(message)) {  // Get the input code and ask if the code is in the database

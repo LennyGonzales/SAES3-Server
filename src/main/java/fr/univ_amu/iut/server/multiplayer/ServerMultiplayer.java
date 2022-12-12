@@ -1,11 +1,14 @@
 package fr.univ_amu.iut.server.multiplayer;
 
 import fr.univ_amu.iut.database.dao.DAOConfigSessionsJDBC;
-import fr.univ_amu.iut.database.dao.DAOQuizJDBC;
+import fr.univ_amu.iut.database.dao.DAOQcmJDBC;
+import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionJDBC;
 import fr.univ_amu.iut.database.table.ConfigSessions;
 import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import fr.univ_amu.iut.server.ClientCommunication;
 import fr.univ_amu.iut.server.questions.GiveQuestions;
+import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -25,8 +28,10 @@ public class ServerMultiplayer implements Runnable{
     private int port;
     private ConfigSessions configSessions;
     private DAOConfigSessionsJDBC configSessionsJDBC;
-    private DAOQuizJDBC daoQuiz;
+    private DAOQcmJDBC daoQcm;
     private List<Qcm> qcmList;
+    private DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestion;
+    private List<WrittenResponseQuestion> writtenResponseQuestionList;
     private List<Socket> clients;
 
     // Main server
@@ -51,15 +56,17 @@ public class ServerMultiplayer implements Runnable{
         configSessionsJDBC = new DAOConfigSessionsJDBC();
 
         // Get a quiz
-        daoQuiz = new DAOQuizJDBC();
-        qcmList = daoQuiz.findAllQCM();
+        daoQcm = new DAOQcmJDBC();
+        qcmList = daoQcm.getACertainNumberOfQCM(5, "ALL");
+        daoWrittenResponseQuestion = new DAOWrittenResponseQuestionJDBC();
+        writtenResponseQuestionList = daoWrittenResponseQuestion.getACertainNumberOfWrittenResponseQuestion(5, "ALL");
     }
 
     /**
      * Accept the clients
      * @throws IOException
      */
-    public void acceptClients() throws IOException, SQLException {
+    public void acceptClients() throws IOException, SQLException, EmptyQuestionsListException {
         getUsersUntilSessionStart();    // Store users who join the session in a list and notify them that their request has been received
 
         deleteTupleFromDatabase();  // Delete the tuple from the database so that no other clients can join the game
@@ -74,12 +81,12 @@ public class ServerMultiplayer implements Runnable{
      * Run the session for all other users
      * @throws IOException
      */
-    public void executeUsers() throws IOException {
+    public void executeUsers() throws IOException, EmptyQuestionsListException {
         // Send to all other users that the game begins
         for (Socket socketClient : clients) {
             clientMultiplayerCommunication = new ClientCommunication(socketClient);
             clientMultiplayerCommunication.sendMessageToClient("BEGIN_FLAG");   // Notify the client that the session begin (he can read the quiz's data)
-            pool.execute(new GiveQuestions(clientMultiplayerCommunication,qcmList));
+            pool.execute(new GiveQuestions(clientMultiplayerCommunication,qcmList, writtenResponseQuestionList));
         }
     }
 
@@ -88,7 +95,7 @@ public class ServerMultiplayer implements Runnable{
      * Run the session for him (give the questions)
      * @throws IOException
      */
-    public void getHostAndExecute() throws IOException {
+    public void getHostAndExecute() throws IOException, EmptyQuestionsListException {
         // Send a message to the host of the multiplayer session to join the game
         clientCommunication.sendMessageToClient("CAN_JOIN_FLAG");
         clientCommunication.sendMessageToClient(Integer.toString(serverSocketChannel.socket().getLocalPort()));
@@ -96,7 +103,7 @@ public class ServerMultiplayer implements Runnable{
         while(sc == null) {
             sc = serverSocketChannel.accept();  // Accepts the host request
         }
-        pool.execute(new GiveQuestions(new ClientCommunication(sc.socket()), qcmList));  // Give him the questions
+        pool.execute(new GiveQuestions(new ClientCommunication(sc.socket()), qcmList, writtenResponseQuestionList));  // Give him the questions
     }
 
     /**
@@ -142,7 +149,7 @@ public class ServerMultiplayer implements Runnable{
         }
         try {
             acceptClients();
-        } catch (IOException | SQLException e) {
+        } catch (IOException | SQLException | EmptyQuestionsListException e) {
             throw new RuntimeException(e);
         }
     }

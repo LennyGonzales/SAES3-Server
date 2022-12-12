@@ -1,35 +1,84 @@
 package fr.univ_amu.iut.server.questions;
 
 import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import fr.univ_amu.iut.server.ClientCommunication;
+import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 public class GiveQuestions implements Runnable{
-    private List<Qcm> quiz;
+    private Random randValue;
+    private Iterator<Qcm> iteratorQcm;
+    private Iterator<WrittenResponseQuestion> iteratorWrittenResponseQuestion;
     private ClientCommunication clientCommunication;
 
-    public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> quiz) {
+    public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> qcmList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
         this.clientCommunication = clientCommunication;
-        this.quiz = quiz;
+        if ((qcmList.size() > 0) && (writtenResponseQuestionList.size() > 0)) {
+            iteratorQcm = qcmList.iterator();
+            iteratorWrittenResponseQuestion = writtenResponseQuestionList.iterator();
+        } else  {
+            throw new EmptyQuestionsListException();
+        }
+        randValue = new Random();
     }
 
     /**
-     * Send the questions and answers to the client and send a end game flag when the game is finished
+     * Send the question (QCM) to the client and verify if the answer is correct
      * @throws IOException
      */
-    public void giveQuestions() throws IOException {
-        for(Qcm q : quiz) {
-            clientCommunication.sendMessageToClient(q.getQuestion());
-            clientCommunication.sendMessageToClient(q.getAnswer1());
-            clientCommunication.sendMessageToClient(q.getAnswer2());
-            clientCommunication.sendMessageToClient(q.getAnswer3());
+    public void giveQcm() throws IOException {
 
-            if(q.getTrueAnswer() == Integer.parseInt(clientCommunication.receiveMessageFromClient())) {
-                clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
-            } else {
-                clientCommunication.sendMessageToClient("WRONG_ANSWER_FLAG");
+        Qcm qcm = iteratorQcm.next();
+        clientCommunication.sendMessageToClient(qcm.getQuestion());
+        clientCommunication.sendMessageToClient(qcm.getDescription());
+        clientCommunication.sendMessageToClient(qcm.getAnswer1());
+        clientCommunication.sendMessageToClient(qcm.getAnswer2());
+        clientCommunication.sendMessageToClient(qcm.getAnswer3());
+        System.out.println(2);
+        if(qcm.getTrueAnswer() == Integer.parseInt(clientCommunication.receiveMessageFromClient())) {
+            clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
+        } else {
+            clientCommunication.sendMessageToClient("WRONG_ANSWER_FLAG");
+        }
+    }
+
+    /**
+     * Send the question (Written response question) to the client and verify if the answer is correct
+     * @throws IOException
+     */
+    public void giveWrittenResponseQuestion() throws IOException {
+        WrittenResponseQuestion writtenResponseQuestion = iteratorWrittenResponseQuestion.next();
+        clientCommunication.sendMessageToClient(writtenResponseQuestion.getQuestion());
+        clientCommunication.sendMessageToClient(writtenResponseQuestion.getDescription());
+
+        if((writtenResponseQuestion.getTrueAnswer().toLowerCase()).equals(clientCommunication.receiveMessageFromClient().toLowerCase())) {
+            clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
+        } else {
+            clientCommunication.sendMessageToClient("WRONG_ANSWER_FLAG");
+        }
+    }
+
+    /**
+     * Send a QCM or a written response question with a random value
+     * @throws IOException
+     */
+    public void checkingQuestionType() throws IOException {
+        System.out.println(0);
+        while ((iteratorQcm.hasNext()) || (iteratorWrittenResponseQuestion.hasNext())) {
+            if((randValue.nextInt(2) == 0) && (iteratorQcm.hasNext())) {
+                System.out.println(1);
+                clientCommunication.sendMessageToClient("QCM_FLAG");
+                System.out.println(2);
+                giveQcm();
+            } else if (iteratorWrittenResponseQuestion.hasNext()){
+                System.out.println(3);
+                clientCommunication.sendMessageToClient("WRITTEN_RESPONSE_QUESTION_FLAG");
+                giveWrittenResponseQuestion();
             }
         }
         clientCommunication.sendMessageToClient("END_GAME_FLAG");
@@ -38,7 +87,7 @@ public class GiveQuestions implements Runnable{
     @Override
     public void run() {
         try {
-            giveQuestions();
+            checkingQuestionType();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
