@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Supports the connection with the database and allows to close it
+ */
 public class Database {
     private static final String URL = "jdbc:postgresql://peanut.db.elephantsql.com/lhnhqbrm";
     private static final String LOGIN = "lhnhqbrm";
