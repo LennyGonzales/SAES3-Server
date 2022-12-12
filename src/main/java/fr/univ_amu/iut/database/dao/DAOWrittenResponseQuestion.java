@@ -5,7 +5,10 @@ import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface DAOWritenResponseQuestion extends DAO {
+/**
+ * The methods' signature for the WrittenResponse table
+ */
+public interface DAOWrittenResponseQuestion extends DAO<WrittenResponseQuestion, Integer> {
 
     /**
      * Return a certain number of written response question on a certain module

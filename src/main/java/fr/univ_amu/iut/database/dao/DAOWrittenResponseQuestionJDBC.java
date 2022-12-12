@@ -1,7 +1,6 @@
 package fr.univ_amu.iut.database.dao;
 
 import fr.univ_amu.iut.Main;
-import fr.univ_amu.iut.database.table.Qcm;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 
 import java.sql.Connection;
@@ -11,11 +10,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DAOWrittenResponseQuestionJDBC implements DAOWritenResponseQuestion{
+public class DAOWrittenResponseQuestionJDBC implements DAOWrittenResponseQuestion {
     private PreparedStatement getACertainNumberOfWrittenResponseQuestion;
 
     private static final Connection CONNECTION = Main.database.getConnection();
 
+    /**
+     * Constructor | Prepare the SQL requests
+     * @throws SQLException if the prepareStatement didn't go well
+     */
     public DAOWrittenResponseQuestionJDBC() throws SQLException {
         getACertainNumberOfWrittenResponseQuestion = CONNECTION.prepareStatement("SELECT DISTINCT DESCRIPTION, QUESTION, TRUE_ANSWER FROM HISTORY H, WRITTENRESPONSE W WHERE H.ID = W.ID and H.ID IN (select ID from HISTORY H WHERE H.MODULE = ? ORDER BY RANDOM() LIMIT ?) LIMIT ?;");
     }
@@ -29,9 +32,11 @@ public class DAOWrittenResponseQuestionJDBC implements DAOWritenResponseQuestion
      */
     @Override
     public List<WrittenResponseQuestion> getACertainNumberOfWrittenResponseQuestion(int numberOfTuples, String module) throws SQLException {
+        // Prepare the request
         getACertainNumberOfWrittenResponseQuestion.setString(1, module);
         getACertainNumberOfWrittenResponseQuestion.setInt(2, numberOfTuples);
         getACertainNumberOfWrittenResponseQuestion.setInt(3, numberOfTuples);
+
         ResultSet result = getACertainNumberOfWrittenResponseQuestion.executeQuery();
         List<WrittenResponseQuestion> writtenResponseQuestions = new ArrayList<>();
 
@@ -44,18 +49,36 @@ public class DAOWrittenResponseQuestionJDBC implements DAOWritenResponseQuestion
         }
         return writtenResponseQuestions;
     }
+
+    /**
+     * Allows removal of a tuple from the base
+     * @param writtenResponseQuestion tuple to delete from the database
+     * @return true - The deletion went well | false - The deletion didn't go well
+     * @throws SQLException if the deletion didn't go well
+     */
     @Override
-    public boolean delete(Object obj) throws SQLException {
+    public boolean delete(WrittenResponseQuestion writtenResponseQuestion) {
         return false;
     }
 
+    /**
+     * Allows to create a tuple in the database with an object
+     * @param writtenResponseQuestion tuple to insert into the database
+     * @return the tuple inserted
+     * @throws SQLException if the insertion didn't go well
+     */
     @Override
-    public Object insert(Object obj) throws SQLException {
+    public WrittenResponseQuestion insert(WrittenResponseQuestion writtenResponseQuestion) {
         return null;
     }
 
+    /**
+     * Allows to update a tuple in the database with an object
+     * @param writtenResponseQuestion tuple to update in the database
+     * @return true - The update went well | false - The update didn't go well
+     */
     @Override
-    public boolean update(Object obj) {
+    public boolean update(WrittenResponseQuestion writtenResponseQuestion) {
         return false;
     }
 }

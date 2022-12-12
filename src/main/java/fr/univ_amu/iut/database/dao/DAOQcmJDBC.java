@@ -10,10 +10,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implements methods' for the Qcm table
+ */
 public class DAOQcmJDBC implements DAOQcm {
     private PreparedStatement getACertainNumberOfQCMStatement;
     private static final Connection CONNECTION = Main.database.getConnection();
 
+    /**
+     * Constructor | Prepare the SQL requests
+     * @throws SQLException if the prepareStatement didn't go well
+     */
     public DAOQcmJDBC() throws SQLException {
         getACertainNumberOfQCMStatement = CONNECTION.prepareStatement("SELECT DISTINCT DESCRIPTION, QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM HISTORY H, QCM Q WHERE H.ID = Q.ID and H.ID IN (select ID from HISTORY H WHERE H.MODULE = ? ORDER BY RANDOM() LIMIT ?) LIMIT ?;");
     }
@@ -46,18 +53,33 @@ public class DAOQcmJDBC implements DAOQcm {
         return qcmList;
     }
 
+    /**
+     * Allows removal of a tuple from the base
+     * @param qcm tuple to delete from the database
+     * @return true - The deletion went well | false - The deletion didn't go well
+     */
     @Override
-    public boolean delete(Object obj) {
+    public boolean delete(Qcm qcm) {
         return false;
     }
 
+    /**
+     * Allows to create a tuple in the database with an object
+     * @param qcm tuple to insert into the database
+     * @return the tuple inserted
+     */
     @Override
-    public Object insert(Object obj) {
+    public Qcm insert(Qcm qcm) {
         return null;
     }
 
+    /**
+     * Allows to update a tuple in the database with an object
+     * @param qcm tuple to update in the database
+     * @return true - The update went well | false - The update didn't go well
+     */
     @Override
-    public boolean update(Object obj) {
+    public boolean update(Qcm qcm) {
         return false;
     }
 }
