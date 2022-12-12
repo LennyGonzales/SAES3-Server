@@ -1,5 +1,8 @@
 package fr.univ_amu.iut.database.table;
 
+/**
+ * Represents a tuple of the CONFIGSESSIONS table
+ */
 public class ConfigSessions {
     private int port;
     private String code;

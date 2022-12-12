@@ -1,5 +1,8 @@
 package fr.univ_amu.iut.database.table;
 
+/**
+ * Represents a tuple of the WRITTENRESPONSE table
+ */
 public class WrittenResponseQuestion {
     private int id;
     private String module;
