@@ -10,6 +10,7 @@ public class ClientCommunication {
 
     private Socket socketClient;
     private BufferedWriter out;
+    private ObjectOutputStream outObject;
     private BufferedReader in;
     private String message;
 
@@ -18,6 +19,18 @@ public class ClientCommunication {
         out = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream()));
         in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
     }
+
+    /**
+     * Send an object to the client
+     * @param obj the object to send
+     * @throws IOException if the communication with the client is closed or didn't go well
+     */
+    public void sendObjectToClient(Object obj) throws IOException {
+        outObject = new ObjectOutputStream(socketClient.getOutputStream()); // We can't instantiate in the constructor because it obfuscates the traffic (by adding characters in messages)
+        outObject.writeObject(obj);
+        outObject.flush();
+    }
+
 
     /**
      * Send a String to the client
@@ -59,6 +72,7 @@ public class ClientCommunication {
     public void close() throws IOException {
         in.close();
         out.close();
+        if(outObject != null) { outObject.close(); }
         socketClient.close();
     }
 }

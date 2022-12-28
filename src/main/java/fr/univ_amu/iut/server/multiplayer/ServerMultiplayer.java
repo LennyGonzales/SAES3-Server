@@ -28,12 +28,9 @@ public class ServerMultiplayer implements Runnable{
     private static final int NB_PLAYERS = 40;
     private final ServerSocketChannel serverSocketChannel;
     private final ExecutorService pool;
-    private final int port;
     private final ConfigSessions configSessions;
     private final DAOConfigSessionsJDBC configSessionsJDBC;
-    private final DAOQcmJDBC daoQcm;
     private final List<Qcm> qcmList;
-    private final DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestion;
     private final List<WrittenResponseQuestion> writtenResponseQuestionList;
     private final List<Socket> clients;
 
@@ -42,7 +39,7 @@ public class ServerMultiplayer implements Runnable{
 
     // Secondary server
     private ClientCommunication clientMultiplayerCommunication;
-    public ServerMultiplayer(String code, ClientCommunication clientCommunication) throws IOException, SQLException {
+    public ServerMultiplayer(String code, String module, ClientCommunication clientCommunication) throws IOException, SQLException {
         this.clientCommunication = clientCommunication;
 
         pool = Executors.newFixedThreadPool(NB_PLAYERS);
@@ -53,16 +50,15 @@ public class ServerMultiplayer implements Runnable{
         serverSocketChannel.socket().bind(new InetSocketAddress(0)); // Find a free port
         serverSocketChannel.configureBlocking(false);   //serverSocketChannel.accept() not blocking until there is a connection. This allows the user to click on 'Start Game' and don't wait a new connection to start the game
 
-        port = serverSocketChannel.socket().getLocalPort(); // Get this port
-
-        configSessions = new ConfigSessions(port, code);  // Create an instance (a tuple)
+        // serverSocketChannel.socket().getLocalPort() => get the port of the socket
+        configSessions = new ConfigSessions(serverSocketChannel.socket().getLocalPort(), code);  // Create an instance (a tuple) of the table 'ConfigSessions'
         configSessionsJDBC = new DAOConfigSessionsJDBC();
 
         // Get a quiz
-        daoQcm = new DAOQcmJDBC();
-        qcmList = daoQcm.getACertainNumberOfQCM(5, "ALL");
-        daoWrittenResponseQuestion = new DAOWrittenResponseQuestionJDBC();
-        writtenResponseQuestionList = daoWrittenResponseQuestion.getACertainNumberOfWrittenResponseQuestion(5, "ALL");
+        DAOQcmJDBC daoQcm = new DAOQcmJDBC();
+        qcmList = daoQcm.getACertainNumberOfQCM(5, module);
+        DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestion = new DAOWrittenResponseQuestionJDBC();
+        writtenResponseQuestionList = daoWrittenResponseQuestion.getACertainNumberOfWrittenResponseQuestion(5, module);
     }
 
     /**
@@ -124,7 +120,6 @@ public class ServerMultiplayer implements Runnable{
                 ++numPlayer;
             }
         } while((!(clientCommunication.isReceiveMessageFromClient())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doesn't click on the button 'Lancer'
-
     }
 
     /**
