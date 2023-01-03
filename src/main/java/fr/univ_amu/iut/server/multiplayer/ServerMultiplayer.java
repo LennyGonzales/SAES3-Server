@@ -120,6 +120,7 @@ public class ServerMultiplayer implements Runnable{
                 ++numPlayer;
             }
         } while((!(clientCommunication.isReceiveMessageFromClient())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doesn't click on the button 'Lancer'
+        clientCommunication.receiveMessageFromClient();
     }
 
     /**
