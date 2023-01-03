@@ -6,6 +6,7 @@ import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionJDBC;
 import fr.univ_amu.iut.database.table.Qcm;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import fr.univ_amu.iut.server.login.Login;
+import fr.univ_amu.iut.server.module.Modules;
 import fr.univ_amu.iut.server.multiplayer.Multiplayer;
 import fr.univ_amu.iut.server.questions.GiveQuestions;
 import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
@@ -43,19 +44,23 @@ public class TaskThread implements Runnable {
         login.serviceLogin();
     }
 
+    public List<Qcm> getQCM(String module) throws SQLException {
+        DAOQcmJDBC daoQcmJDBC = new DAOQcmJDBC();
+        return daoQcmJDBC.getACertainNumberOfQCM(5, module);
+    }
+
+    public List<WrittenResponseQuestion> getWrittenResponseQuestions(String module) throws SQLException {
+        DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionJDBC();
+        return daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(5, module);
+    }
+
     /**
      * Send questions and answer to the client and verify if the answer is correct
      * @throws SQLException if the getACertainNumberOfQCM() or getACertainNumberOfWrittenResponseQuestion() method didn't go well
      * @throws EmptyQuestionsListException if qcmList and writtenResponseQuestionList are empty
      */
     public void serviceSolo() throws SQLException, EmptyQuestionsListException {
-        DAOQcmJDBC daoQcmJDBC = new DAOQcmJDBC();
-        List<Qcm> qcmList = daoQcmJDBC.getACertainNumberOfQCM(5, "ALL");
-
-        DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionJDBC();
-        List<WrittenResponseQuestion> writtenResponseQuestionList = daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(5, "ALL");
-
-        GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, qcmList, writtenResponseQuestionList);
+        GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, getQCM("ALL"), getWrittenResponseQuestions("ALL"));
         giveQuestions.run();
     }
 
@@ -79,6 +84,16 @@ public class TaskThread implements Runnable {
         multiplayer.joinMultiplayerSession();
     }
 
+
+    public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException {
+        Modules modules = new Modules(clientCommunication);
+        modules.sendModulesToTheHost();
+        String moduleChose = modules.getModuleChoice();
+
+        GiveQuestions giveQuestions =  new GiveQuestions(clientCommunication, getQCM(moduleChose), getWrittenResponseQuestions(moduleChose));
+        giveQuestions.run();
+    }
+
     /**
      * A function which find the service type and call the function associated
      *
@@ -93,6 +108,7 @@ public class TaskThread implements Runnable {
                 case "SOLO_FLAG" -> serviceSolo();
                 case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
                 case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
+                case "TRAINING_FLAG" -> serviceTraining();
             }
         }
         clientCommunication.close();

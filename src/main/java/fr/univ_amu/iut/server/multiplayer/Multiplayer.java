@@ -3,6 +3,7 @@ package fr.univ_amu.iut.server.multiplayer;
 import fr.univ_amu.iut.database.dao.DAOConfigSessionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOHistoryJDBC;
 import fr.univ_amu.iut.server.ClientCommunication;
+import fr.univ_amu.iut.server.module.Modules;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -13,28 +14,11 @@ import java.util.UUID;
  */
 public class Multiplayer {
     private final ClientCommunication clientCommunication;
+    private Modules modules;
 
-    public Multiplayer(ClientCommunication clientCommunication) {
+    public Multiplayer(ClientCommunication clientCommunication) throws SQLException {
         this.clientCommunication = clientCommunication;
-    }
-
-    /**
-     * Send modules to the session's host
-     * @throws SQLException if the SQL request to get all the modules didn't go well
-     * @throws IOException if the communication with the client is closed or didn't go well
-     */
-    public void sendModulesToTheHost() throws SQLException, IOException {
-        DAOHistoryJDBC daoHistoryJDBC = new DAOHistoryJDBC();
-        clientCommunication.sendObjectToClient(daoHistoryJDBC.getAllModules());
-    }
-
-    /**
-     * Get the module chosen by the host
-     * @return the module chosen
-     * @throws IOException if the communication with the client is closed or didn't go well
-     */
-    public String getModuleChoice() throws IOException {
-        return clientCommunication.receiveMessageFromClient();
+        modules = new Modules(clientCommunication);
     }
 
     /**
@@ -60,8 +44,8 @@ public class Multiplayer {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void createMultiplayerSession() throws IOException, SQLException {
-        sendModulesToTheHost();
-        String module = getModuleChoice();
+        modules.sendModulesToTheHost();
+        String module = modules.getModuleChoice();
 
         String code = createCode();
         sendCode(code);
