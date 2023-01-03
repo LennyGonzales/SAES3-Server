@@ -20,18 +20,13 @@ import java.util.List;
  * Supports the main communication with the client
  */
 public class TaskThread implements Runnable {
-    private static Socket sockClient;
-    private static BufferedReader in;
-    private static BufferedWriter out;
-    private String str;
     private ClientCommunication clientCommunication;
+    private Modules modules;
+    private GiveQuestions giveQuestions;
 
-    public TaskThread(Socket sockClient) throws IOException {
-        this.sockClient = sockClient;
-        this.in = new BufferedReader(new InputStreamReader(sockClient.getInputStream()));
-        this.out = new BufferedWriter(new OutputStreamWriter(sockClient.getOutputStream()));
-
+    public TaskThread(Socket sockClient) throws IOException, SQLException {
         clientCommunication = new ClientCommunication(sockClient);
+        modules = new Modules(clientCommunication);
     }
 
     /**
@@ -44,11 +39,23 @@ public class TaskThread implements Runnable {
         login.serviceLogin();
     }
 
+    /**
+     * Return 5 qcm
+     * @param module chose by the user
+     * @return 5 qcm
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
+     */
     public List<Qcm> getQCM(String module) throws SQLException {
         DAOQcmJDBC daoQcmJDBC = new DAOQcmJDBC();
         return daoQcmJDBC.getACertainNumberOfQCM(5, module);
     }
 
+    /**
+     * Return 5 written response questions
+     * @param module chose by the user
+     * @return 5 written response questions
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
+     */
     public List<WrittenResponseQuestion> getWrittenResponseQuestions(String module) throws SQLException {
         DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionJDBC();
         return daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(5, module);
@@ -59,8 +66,8 @@ public class TaskThread implements Runnable {
      * @throws SQLException if the getACertainNumberOfQCM() or getACertainNumberOfWrittenResponseQuestion() method didn't go well
      * @throws EmptyQuestionsListException if qcmList and writtenResponseQuestionList are empty
      */
-    public void serviceSolo() throws SQLException, EmptyQuestionsListException {
-        GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, getQCM("ALL"), getWrittenResponseQuestions("ALL"));
+    public void giveQuestionsWithSpecificModule(String module) throws SQLException, EmptyQuestionsListException {
+        giveQuestions = new GiveQuestions(clientCommunication, getQCM(module), getWrittenResponseQuestions(module));
         giveQuestions.run();
     }
 
@@ -84,14 +91,26 @@ public class TaskThread implements Runnable {
         multiplayer.joinMultiplayerSession();
     }
 
-
-    public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException {
-        Modules modules = new Modules(clientCommunication);
+    /**
+     * Send modules and get the module chose
+     *
+     * @return the module chose
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws SQLException  if a SQL request in the Multiplayer class method didn't go well
+     */
+    public String serviceModules() throws IOException, SQLException {
         modules.sendModulesToTheHost();
-        String moduleChose = modules.getModuleChoice();
+        return modules.getModuleChoice();
+    }
 
-        GiveQuestions giveQuestions =  new GiveQuestions(clientCommunication, getQCM(moduleChose), getWrittenResponseQuestions(moduleChose));
-        giveQuestions.run();
+    /**
+     * Supports the creation of a training game
+     * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws EmptyQuestionsListException call when the list of questions is empty
+     */
+    public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException {
+        giveQuestionsWithSpecificModule(serviceModules());
     }
 
     /**
@@ -99,13 +118,14 @@ public class TaskThread implements Runnable {
      *
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request didn't go well
-     * @throws EmptyQuestionsListException
+     * @throws EmptyQuestionsListException call when the list of questions is empty
      */
-    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException {  // Find the service between {Login, Solo, Multijoueur, Entraînement}
-        while ((str = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits
-            switch (str) {
+    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException {  // Find the service between {Login, solo, multiplayer, training}
+        String message;
+        while ((message = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits
+            switch (message) {
                 case "LOGIN_FLAG" -> serviceLogin();
-                case "SOLO_FLAG" -> serviceSolo();
+                case "SOLO_FLAG" -> giveQuestionsWithSpecificModule("ALL");
                 case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
                 case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
                 case "TRAINING_FLAG" -> serviceTraining();
