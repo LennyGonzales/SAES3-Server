@@ -117,6 +117,7 @@ public class ServerMultiplayer implements Runnable{
                 clientMultiplayerCommunication = new ClientCommunication(sc.socket());
                 clientMultiplayerCommunication.sendMessageToClient("PRESENCE_FLAG");    // Notify him that their request has been received
                 clients.add(sc.socket());   // Add it to the list
+                clientCommunication.sendMessageToClient(clientMultiplayerCommunication.receiveMessageFromClient()); // Receive the mail of the user who joined the session and send it to the host of the multiplayer session
                 ++numPlayer;
             }
         } while((!(clientCommunication.isReceiveMessageFromClient())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doesn't click on the button 'Lancer'
