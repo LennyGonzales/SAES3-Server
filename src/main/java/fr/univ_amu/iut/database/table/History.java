@@ -9,6 +9,13 @@ public class History {
     private String description;
     private String question;
 
+    public History(int id, String module, String description, String question) {
+        this.id = id;
+        this.module = module;
+        this.description = description;
+        this.question = question;
+    }
+
     public int getId() {
         return id;
     }

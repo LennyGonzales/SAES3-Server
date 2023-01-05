@@ -53,7 +53,7 @@ public class DAOConfigSessionsJDBC implements DAOConfigSessions{
     @Override
     public int findPort(String code) throws SQLException {
         findPortStatement.setString(1,code);
-        ResultSet res = isInStatement.executeQuery();
+        ResultSet res = findPortStatement.executeQuery();
 
         res.next();
         return res.getInt(1);
