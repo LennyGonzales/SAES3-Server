@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.Assert.*;
 
 public class TestDatabase {
+
     @Test
     public void should_initialize_bdd_link() {
         Database database = new Database();

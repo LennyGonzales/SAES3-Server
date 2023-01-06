@@ -15,7 +15,7 @@ public class TestDAOConfigSessionsJDBC {
 
     @BeforeEach
     public void beforeEachTest() throws SQLException {
-        Main.database = new Database();
+        if(Main.database == null) { Main.database = new Database(); }
         daoConfigSessionsJDBC = new DAOConfigSessionsJDBC();
     }
 

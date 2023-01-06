@@ -14,7 +14,7 @@ public class TestDAOUserJDBC {
 
     @BeforeEach
     public void beforeEachTest() throws SQLException {
-        Main.database = new Database();
+        if(Main.database == null) { Main.database = new Database(); }
         daoUserJDBC = new DAOUserJDBC();
     }
 

@@ -37,9 +37,9 @@ public class Login {
      */
     public void serviceLogin() throws IOException, SQLException {
         if(!isLogin()) { // Until the client is able to connect
-            clientCommunication.sendMessageToClient("[-] NOT LOGIN !");
+            clientCommunication.sendMessageToClient("LOGIN_NOT_SUCCESSFULLY_FLAG");
         } else {
-            clientCommunication.sendMessageToClient("[+] LOGIN !");
+            clientCommunication.sendMessageToClient("LOGIN_SUCCESSFULLY_FLAG");
         }
     }
 

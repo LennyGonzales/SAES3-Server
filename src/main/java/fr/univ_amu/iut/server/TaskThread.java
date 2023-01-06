@@ -5,6 +5,7 @@ import fr.univ_amu.iut.database.dao.DAOQcmJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionJDBC;
 import fr.univ_amu.iut.database.table.Qcm;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
+import fr.univ_amu.iut.server.exceptions.NotTheExpectedFlagException;
 import fr.univ_amu.iut.server.login.Login;
 import fr.univ_amu.iut.server.module.Modules;
 import fr.univ_amu.iut.server.multiplayer.Multiplayer;
@@ -20,9 +21,8 @@ import java.util.List;
  * Supports the main communication with the client
  */
 public class TaskThread implements Runnable {
-    private ClientCommunication clientCommunication;
-    private Modules modules;
-    private GiveQuestions giveQuestions;
+    private final ClientCommunication clientCommunication;
+    private final Modules modules;
 
     public TaskThread(Socket sockClient) throws IOException, SQLException {
         clientCommunication = new ClientCommunication(sockClient);
@@ -67,7 +67,7 @@ public class TaskThread implements Runnable {
      * @throws EmptyQuestionsListException if qcmList and writtenResponseQuestionList are empty
      */
     public void giveQuestionsWithSpecificModule(String module) throws SQLException, EmptyQuestionsListException {
-        giveQuestions = new GiveQuestions(clientCommunication, getQCM(module), getWrittenResponseQuestions(module));
+        GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, getQCM(module), getWrittenResponseQuestions(module));
         giveQuestions.run();
     }
 
@@ -120,7 +120,7 @@ public class TaskThread implements Runnable {
      * @throws SQLException if a SQL request didn't go well
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
-    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException {  // Find the service between {Login, solo, multiplayer, training}
+    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException {  // Find the service between {Login, solo, multiplayer, training}
         String message;
         while ((message = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits
             switch (message) {
@@ -129,6 +129,7 @@ public class TaskThread implements Runnable {
                 case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
                 case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
                 case "TRAINING_FLAG" -> serviceTraining();
+                default -> throw new NotTheExpectedFlagException("LOGIN_FLAG or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");
             }
         }
         clientCommunication.close();
@@ -138,7 +139,7 @@ public class TaskThread implements Runnable {
     public void run() {
         try {
             serviceType();
-        } catch (IOException | SQLException | EmptyQuestionsListException e){
+        } catch (IOException | SQLException | EmptyQuestionsListException | NotTheExpectedFlagException e){
             throw new RuntimeException(e);
         }
     }
