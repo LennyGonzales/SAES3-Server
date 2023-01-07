@@ -12,8 +12,10 @@ import java.sql.SQLException;
  * Implements methods' for the users table
  */
 public class DAOUserJDBC implements DAOUser{
-    private final PreparedStatement isInStatement;
+    private final PreparedStatement authenticationStatement;
     private final PreparedStatement getPointsByEmailStatement;
+    private final PreparedStatement setPointsStatement;
+    private final PreparedStatement verifyEmailStatement;
     private static final Connection CONNECTION = Main.database.getConnection();
 
     /**
@@ -21,8 +23,10 @@ public class DAOUserJDBC implements DAOUser{
      * @throws SQLException if the prepareStatement didn't go well
      */
     public DAOUserJDBC() throws SQLException {
-        isInStatement = CONNECTION.prepareStatement("SELECT ID FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
+        authenticationStatement = CONNECTION.prepareStatement("SELECT ID FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
         getPointsByEmailStatement = CONNECTION.prepareStatement("SELECT POINTS FROM USERS WHERE EMAIL = ?");
+        setPointsStatement = CONNECTION.prepareStatement("UPDATE USERS SET POINTS = ? WHERE EMAIL = ?");
+        verifyEmailStatement = CONNECTION.prepareStatement("SELECT COUNT(*) FROM USERS WHERE EMAIL = ?");
     }
 
     /**
@@ -32,11 +36,11 @@ public class DAOUserJDBC implements DAOUser{
      * @return  true - the user is in the database | false - the user isn't in the database
      * @throws SQLException the SQL request didn't go well
      */
-    public boolean isIn(String email, String password) throws SQLException {
-        isInStatement.setString(1,email);
-        isInStatement.setString(2,password);
+    public boolean authentication(String email, String password) throws SQLException {
+        authenticationStatement.setString(1,email);
+        authenticationStatement.setString(2,password);
 
-        ResultSet result = isInStatement.executeQuery();
+        ResultSet result = authenticationStatement.executeQuery();
         return (result.next());
     }
 
@@ -49,14 +53,47 @@ public class DAOUserJDBC implements DAOUser{
      */
     @Override
     public int getPointsByEmail(String email) throws SQLException, UserIsNotInTheDatabaseException {
-        getPointsByEmailStatement.setString(1, email);
-        ResultSet result = getPointsByEmailStatement.executeQuery();
+        if(verifyEmail(email)) {
+            getPointsByEmailStatement.setString(1, email);
 
-        if(result.next()) {
+            ResultSet result = getPointsByEmailStatement.executeQuery();
+            result.next();
             return result.getInt(1);
         }
         throw new UserIsNotInTheDatabaseException(email);
     }
+
+    /**
+     * Set the points of a user
+     * @param email the email of the user
+     * @param newUserPoints the new points of the user
+     * @throws SQLException the SQL request didn't go well
+     */
+    @Override
+    public void setPointsByEmail(String email, int newUserPoints) throws SQLException, UserIsNotInTheDatabaseException {
+        if(!verifyEmail(email)) {
+            throw new UserIsNotInTheDatabaseException(email);
+        }
+        setPointsStatement.setInt(1, newUserPoints);
+        setPointsStatement.setString(2, email);
+
+        setPointsStatement.executeUpdate();
+    }
+
+    /**
+     * Verify if an email is in the database
+     * @param email the email to verify
+     * @return true - if the email is in the database | else, return false
+     * @throws SQLException if the SQL request didn't go well
+     */
+    @Override
+    public boolean verifyEmail(String email) throws SQLException, UserIsNotInTheDatabaseException {
+        verifyEmailStatement.setString(1,email);
+        ResultSet result = verifyEmailStatement.executeQuery();
+        result.next();
+        return (result.getInt(1) > 0);
+    }
+
 
 
     /**

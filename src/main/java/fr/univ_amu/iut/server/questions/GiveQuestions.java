@@ -1,11 +1,14 @@
 package fr.univ_amu.iut.server.questions;
 
+import fr.univ_amu.iut.database.dao.DAOUserJDBC;
+import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.database.table.Qcm;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import fr.univ_amu.iut.server.ClientCommunication;
 import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -18,6 +21,8 @@ public class GiveQuestions implements Runnable{
     private Iterator<Qcm> iteratorQcm;
     private Iterator<WrittenResponseQuestion> iteratorWrittenResponseQuestion;
     private ClientCommunication clientCommunication;
+    private int numberOfCorrectAnswers;
+    private int numberOfQuestions;
 
     public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> qcmList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
         this.clientCommunication = clientCommunication;
@@ -27,6 +32,8 @@ public class GiveQuestions implements Runnable{
         iteratorQcm = qcmList.iterator();
         iteratorWrittenResponseQuestion = writtenResponseQuestionList.iterator();
         randValue = new Random();
+
+        numberOfQuestions = qcmList.size() + writtenResponseQuestionList.size();
     }
 
     /**
@@ -42,6 +49,7 @@ public class GiveQuestions implements Runnable{
         clientCommunication.sendMessageToClient(qcm.getAnswer3());
         if(qcm.getTrueAnswer() == Integer.parseInt(clientCommunication.receiveMessageFromClient())) {
             clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
+            ++numberOfCorrectAnswers;
         } else {
             clientCommunication.sendMessageToClient("WRONG_ANSWER_FLAG");
         }
@@ -55,9 +63,9 @@ public class GiveQuestions implements Runnable{
         WrittenResponseQuestion writtenResponseQuestion = iteratorWrittenResponseQuestion.next();
         clientCommunication.sendMessageToClient(writtenResponseQuestion.getQuestion());
         clientCommunication.sendMessageToClient(writtenResponseQuestion.getDescription());
-
-        if((writtenResponseQuestion.getTrueAnswer().toLowerCase()).equals(clientCommunication.receiveMessageFromClient().toLowerCase())) {
+        if((writtenResponseQuestion.getTrueAnswer()).equalsIgnoreCase(clientCommunication.receiveMessageFromClient())) {
             clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
+            ++numberOfCorrectAnswers;
         } else {
             clientCommunication.sendMessageToClient("WRONG_ANSWER_FLAG");
         }
@@ -77,14 +85,39 @@ public class GiveQuestions implements Runnable{
                 giveWrittenResponseQuestion();
             }
         }
+    }
+
+    /**
+     * Notify the client of the end game by sending a flag
+     * @throws IOException if the communication with the client is closed or didn't go well
+     */
+    public void endGame() throws IOException {
         clientCommunication.sendMessageToClient("END_GAME_FLAG");
+    }
+
+    /**
+     * Change the points of the user and send it to him
+     * @throws SQLException if the SQL request didn't go well
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws UserIsNotInTheDatabaseException If the user isn't in the database
+     */
+    public void changeUserPoints() throws SQLException, IOException, UserIsNotInTheDatabaseException {
+        DAOUserJDBC daoUserJDBC = new DAOUserJDBC();
+        String email = clientCommunication.receiveMessageFromClient();
+        int userPoints = daoUserJDBC.getPointsByEmail(email);
+        userPoints += 10 * (numberOfCorrectAnswers - (numberOfQuestions/2.0)) * (1 - (userPoints / 2000.0));
+        daoUserJDBC.setPointsByEmail(email, userPoints);
+
+        clientCommunication.sendMessageToClient(Integer.toString(userPoints));
     }
 
     @Override
     public void run() {
         try {
             checkingQuestionType();
-        } catch (IOException e) {
+            endGame();
+            changeUserPoints();
+        } catch (IOException | UserIsNotInTheDatabaseException | SQLException e) {
             throw new RuntimeException(e);
         }
     }

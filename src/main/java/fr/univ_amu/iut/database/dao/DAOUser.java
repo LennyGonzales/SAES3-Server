@@ -15,7 +15,7 @@ public interface DAOUser extends DAO{
      * @return  true - the user is in the database | false - the user isn't in the database
      * @throws SQLException the SQL request didn't go well
      */
-    boolean isIn(String email, String password) throws SQLException;
+    boolean authentication(String email, String password) throws SQLException;
 
     /**
      * Get the points of a user by his email
@@ -25,4 +25,20 @@ public interface DAOUser extends DAO{
      * @throws UserIsNotInTheDatabaseException if the user isn't in the database
      */
     int getPointsByEmail(String email) throws SQLException, UserIsNotInTheDatabaseException;
+
+    /**
+     * Set the points of a user
+     * @param email the email of the user
+     * @param newUserPoints the new points of the user
+     * @throws SQLException the SQL request didn't go well
+     */
+    void setPointsByEmail(String email, int newUserPoints) throws SQLException, UserIsNotInTheDatabaseException;
+
+    /**
+     * Verify if a email is in the database
+     * @param email the email to verify
+     * @return true - if the email is in the databse | else, return false
+     * @throws SQLException if the SQL request didn't go well
+     */
+    boolean verifyEmail(String email) throws SQLException, UserIsNotInTheDatabaseException;
 }

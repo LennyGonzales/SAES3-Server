@@ -26,7 +26,7 @@ public class Login {
      */
     public boolean isLogin() throws SQLException, IOException {
         DAOUserJDBC usersDAO = new DAOUserJDBC();
-        return usersDAO.isIn(clientCommunication.receiveMessageFromClient(),encryptLogin(clientCommunication.receiveMessageFromClient()));    // Verify if the username and the encrypted password is in the database
+        return usersDAO.authentication(clientCommunication.receiveMessageFromClient(),encryptLogin(clientCommunication.receiveMessageFromClient()));    // Verify if the username and the encrypted password is in the database
     }
 
     /**
