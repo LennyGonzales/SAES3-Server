@@ -21,12 +21,11 @@ public class GiveQuestions implements Runnable{
 
     public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> qcmList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
         this.clientCommunication = clientCommunication;
-        if ((qcmList.size() > 0) || (writtenResponseQuestionList.size() > 0)) { // Verify if there are questions in the database
-            iteratorQcm = qcmList.iterator();
-            iteratorWrittenResponseQuestion = writtenResponseQuestionList.iterator();
-        } else  {
-            throw new EmptyQuestionsListException();
+        if ((qcmList.size() < 1) && (writtenResponseQuestionList.size() < 1)) { // Verify if there are questions in the database
+            throw new EmptyQuestionsListException();    // If not, throw exception
         }
+        iteratorQcm = qcmList.iterator();
+        iteratorWrittenResponseQuestion = writtenResponseQuestionList.iterator();
         randValue = new Random();
     }
 
