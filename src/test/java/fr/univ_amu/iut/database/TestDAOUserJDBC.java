@@ -2,6 +2,7 @@ package fr.univ_amu.iut.database;
 
 import fr.univ_amu.iut.Main;
 import fr.univ_amu.iut.database.dao.DAOUserJDBC;
+import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,5 +27,11 @@ public class TestDAOUserJDBC {
     @Test
     public void shouldIsNotIn() throws SQLException {
         assertEquals(false, daoUserJDBC.isIn("randomEmail", "randomPassword"));
+    }
+
+    @Test
+    public void shouldThrowUserIsNotInTheDatabaseException() {
+        String email = "emailNotInTheDatabase";
+        assertThrows(UserIsNotInTheDatabaseException.class, () -> daoUserJDBC.getPointsByEmail(email));
     }
 }

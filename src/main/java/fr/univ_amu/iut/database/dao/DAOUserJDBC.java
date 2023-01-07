@@ -1,6 +1,7 @@
 package fr.univ_amu.iut.database.dao;
 
 import fr.univ_amu.iut.Main;
+import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
  */
 public class DAOUserJDBC implements DAOUser{
     private final PreparedStatement isInStatement;
+    private final PreparedStatement getPointsByEmailStatement;
     private static final Connection CONNECTION = Main.database.getConnection();
 
     /**
@@ -20,6 +22,7 @@ public class DAOUserJDBC implements DAOUser{
      */
     public DAOUserJDBC() throws SQLException {
         isInStatement = CONNECTION.prepareStatement("SELECT ID FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
+        getPointsByEmailStatement = CONNECTION.prepareStatement("SELECT POINTS FROM USERS WHERE EMAIL = ?");
     }
 
     /**
@@ -36,6 +39,25 @@ public class DAOUserJDBC implements DAOUser{
         ResultSet result = isInStatement.executeQuery();
         return (result.next());
     }
+
+    /**
+     * Get the points of a user by his email
+     * @param email the email of the user
+     * @return the points of the user
+     * @throws SQLException the SQL request didn't go well
+     * @throws UserIsNotInTheDatabaseException if the user isn't in the database
+     */
+    @Override
+    public int getPointsByEmail(String email) throws SQLException, UserIsNotInTheDatabaseException {
+        getPointsByEmailStatement.setString(1, email);
+        ResultSet result = getPointsByEmailStatement.executeQuery();
+
+        if(result.next()) {
+            return result.getInt(1);
+        }
+        throw new UserIsNotInTheDatabaseException(email);
+    }
+
 
     /**
      * Allows removal of a tuple from the base
