@@ -65,15 +65,15 @@ public class ServerMultiplayer implements Runnable{
      * Accept the clients
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void acceptClients() throws IOException, SQLException, EmptyQuestionsListException {
-        getUsersUntilSessionStart();    // Store users who join the session in a list and notify them that their request has been received
+    public void acceptClients() throws IOException, SQLException, EmptyQuestionsListException, ClassNotFoundException {
+        if(!getUsersUntilSessionStart().equals("BACK_TO_MENU_FLAG")) {    // Store users who join the session in a list and notify them that their request has been received
 
-        deleteTupleFromDatabase();  // Delete the tuple from the database so that no other clients can join the game
+            deleteTupleFromDatabase();  // Delete the tuple from the database so that no other clients can join the game
 
-        getHostAndExecute();    // Notify the session host that he can join the session | Run the session for him (give the questions)
+            getHostAndExecute();    // Notify the session host that he can join the session | Run the session for him (give the questions)
 
-        executeUsers();     // Run the session for all other users
-
+            executeUsers();     // Run the session for all other users
+        }
     }
 
     /**
@@ -109,7 +109,7 @@ public class ServerMultiplayer implements Runnable{
      * Store users who join the session in a list and notify them that their request has been received
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void getUsersUntilSessionStart() throws IOException {
+    public String getUsersUntilSessionStart() throws IOException, ClassNotFoundException {
         int numPlayer = 0;
         do{
             SocketChannel sc = serverSocketChannel.accept();      // Accepts the client
@@ -121,7 +121,11 @@ public class ServerMultiplayer implements Runnable{
                 ++numPlayer;
             }
         } while((!(clientCommunication.isReceiveMessageFromClient())) && (numPlayer < (NB_PLAYERS - 1))); // While the multiplayer session's host doesn't click on the button 'Lancer'
-        clientCommunication.receiveMessageFromClient();
+
+        if((clientCommunication.receiveMessageFromClient()).equals("BACK_TO_MENU_FLAG")) {
+            return "BACK_TO_MENU_FLAG";
+        }
+        return "CONTINUE";
     }
 
     /**
@@ -149,7 +153,7 @@ public class ServerMultiplayer implements Runnable{
         }
         try {
             acceptClients();
-        } catch (IOException | SQLException | EmptyQuestionsListException e) {
+        } catch (IOException | SQLException | EmptyQuestionsListException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

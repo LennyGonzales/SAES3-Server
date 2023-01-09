@@ -40,7 +40,7 @@ public class GiveQuestions implements Runnable{
      * Send the question (QCM) to the client and verify if the answer is correct
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void giveQcm() throws IOException {
+    public void giveQcm() throws IOException, ClassNotFoundException {
         Qcm qcm = iteratorQcm.next();
         clientCommunication.sendMessageToClient(qcm.getQuestion());
         clientCommunication.sendMessageToClient(qcm.getDescription());
@@ -59,7 +59,7 @@ public class GiveQuestions implements Runnable{
      * Send the question (Written response question) to the client and verify if the answer is correct
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void giveWrittenResponseQuestion() throws IOException {
+    public void giveWrittenResponseQuestion() throws IOException, ClassNotFoundException {
         WrittenResponseQuestion writtenResponseQuestion = iteratorWrittenResponseQuestion.next();
         clientCommunication.sendMessageToClient(writtenResponseQuestion.getQuestion());
         clientCommunication.sendMessageToClient(writtenResponseQuestion.getDescription());
@@ -75,7 +75,7 @@ public class GiveQuestions implements Runnable{
      * Send a QCM or a written response question with a random value
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void checkingQuestionType() throws IOException {
+    public void checkingQuestionType() throws IOException, ClassNotFoundException {
         while ((iteratorQcm.hasNext()) || (iteratorWrittenResponseQuestion.hasNext())) {
             if((randValue.nextInt(2) == 0) && (iteratorQcm.hasNext())) {
                 clientCommunication.sendMessageToClient("QCM_FLAG");
@@ -101,7 +101,7 @@ public class GiveQuestions implements Runnable{
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws UserIsNotInTheDatabaseException If the user isn't in the database
      */
-    public void changeUserPoints() throws SQLException, IOException, UserIsNotInTheDatabaseException {
+    public void changeUserPoints() throws SQLException, IOException, UserIsNotInTheDatabaseException, ClassNotFoundException {
         DAOUserJDBC daoUserJDBC = new DAOUserJDBC();
         String email = clientCommunication.receiveMessageFromClient();
         int userPoints = daoUserJDBC.getPointsByEmail(email);
@@ -117,7 +117,7 @@ public class GiveQuestions implements Runnable{
             checkingQuestionType();
             endGame();
             changeUserPoints();
-        } catch (IOException | UserIsNotInTheDatabaseException | SQLException e) {
+        } catch (IOException | UserIsNotInTheDatabaseException | SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

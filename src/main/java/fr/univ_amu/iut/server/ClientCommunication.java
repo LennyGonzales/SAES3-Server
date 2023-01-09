@@ -9,15 +9,16 @@ import java.net.Socket;
 public class ClientCommunication {
 
     private Socket socketClient;
-    private BufferedWriter out;
-    private ObjectOutputStream outObject;
     private BufferedReader in;
-    private String message;
+    private ObjectInputStream inObject;
+    private ObjectOutputStream outObject;
+    private Object object;
 
     public ClientCommunication(Socket socketClient) throws IOException {
         this.socketClient = socketClient;
-        out = new BufferedWriter(new OutputStreamWriter(socketClient.getOutputStream()));
         in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
+        outObject = new ObjectOutputStream(socketClient.getOutputStream());
+        inObject = new ObjectInputStream(socketClient.getInputStream());
     }
 
     /**
@@ -26,7 +27,6 @@ public class ClientCommunication {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendObjectToClient(Object obj) throws IOException {
-        outObject = new ObjectOutputStream(socketClient.getOutputStream()); // We can't instantiate in the constructor because it obfuscates the traffic (by adding characters in messages)
         outObject.writeObject(obj);
         outObject.flush();
     }
@@ -38,9 +38,8 @@ public class ClientCommunication {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendMessageToClient(String message) throws IOException {
-        out.write(message);
-        out.newLine();
-        out.flush();
+        outObject.writeObject(message);
+        outObject.flush();
     }
 
     /**
@@ -49,10 +48,13 @@ public class ClientCommunication {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public String receiveMessageFromClient() throws IOException {
-        if((message = in.readLine()) != null) {
-            return message;
+        try {
+            object = inObject.readObject();
+            return object.toString();
+        } catch (EOFException | ClassNotFoundException e) {
+            close();
+            e.printStackTrace();
         }
-        close();
         return null;
     }
 
@@ -71,8 +73,8 @@ public class ClientCommunication {
      */
     public void close() throws IOException {
         in.close();
-        out.close();
-        if(outObject != null) { outObject.close(); }
+        inObject.close();
+        outObject.close();
         socketClient.close();
     }
 }

@@ -32,7 +32,7 @@ public class Modules {
      * @return the module chosen
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public String getModuleChoice() throws IOException {
+    public String getModuleChoice() throws IOException, ClassNotFoundException {
         return clientCommunication.receiveMessageFromClient();
     }
 }

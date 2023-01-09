@@ -43,7 +43,7 @@ public class Multiplayer {
      * Supports the creation of a multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void createMultiplayerSession() throws IOException, SQLException {
+    public void createMultiplayerSession() throws IOException, SQLException, ClassNotFoundException {
         modules.sendModulesToTheHost();
         String module = modules.getModuleChoice();
 
@@ -68,7 +68,7 @@ public class Multiplayer {
      * Join a multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void joinMultiplayerSession() throws IOException, SQLException {
+    public void joinMultiplayerSession() throws IOException, SQLException, ClassNotFoundException {
         clientCommunication.sendMessageToClient("JOIN_SESSION");
         DAOConfigSessionsJDBC configSessionsJDBC = new DAOConfigSessionsJDBC();
         String message = clientCommunication.receiveMessageFromClient();

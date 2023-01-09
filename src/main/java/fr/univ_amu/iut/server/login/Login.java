@@ -24,7 +24,7 @@ public class Login {
      * @return true if the player is in the database
      * @throws SQLException the SQL request didn't go well (isIn method)
      */
-    public boolean isLogin() throws SQLException, IOException {
+    public boolean isLogin() throws SQLException, IOException, ClassNotFoundException {
         DAOUserJDBC usersDAO = new DAOUserJDBC();
         return usersDAO.authentication(clientCommunication.receiveMessageFromClient(),encryptLogin(clientCommunication.receiveMessageFromClient()));    // Verify if the username and the encrypted password is in the database
     }
@@ -35,7 +35,7 @@ public class Login {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException the SQL request didn't go well (isIn method)
      */
-    public void serviceLogin() throws IOException, SQLException {
+    public void serviceLogin() throws IOException, SQLException, ClassNotFoundException {
         if(!isLogin()) { // Until the client is able to connect
             clientCommunication.sendMessageToClient("LOGIN_NOT_SUCCESSFULLY_FLAG");
         } else {

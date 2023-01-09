@@ -34,7 +34,7 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public void serviceLogin() throws IOException, SQLException {
+    public void serviceLogin() throws IOException, SQLException, ClassNotFoundException {
         Login login = new Login(clientCommunication);   // Get the username and the password
         login.serviceLogin();
     }
@@ -76,7 +76,7 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      */
-    public void serviceCreationMultiplayer() throws IOException, SQLException {
+    public void serviceCreationMultiplayer() throws IOException, SQLException, ClassNotFoundException {
         Multiplayer multiplayer = new Multiplayer(clientCommunication);
         multiplayer.createMultiplayerSession();
     }
@@ -86,7 +86,7 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      */
-    public void serviceJoinMultiplayer() throws IOException, SQLException {
+    public void serviceJoinMultiplayer() throws IOException, SQLException, ClassNotFoundException {
         Multiplayer multiplayer = new Multiplayer(clientCommunication);
         multiplayer.joinMultiplayerSession();
     }
@@ -98,7 +98,7 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException  if a SQL request in the Multiplayer class method didn't go well
      */
-    public String serviceModules() throws IOException, SQLException {
+    public String serviceModules() throws IOException, SQLException, ClassNotFoundException {
         modules.sendModulesToTheHost();
         return modules.getModuleChoice();
     }
@@ -109,7 +109,7 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
-    public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException {
+    public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException, ClassNotFoundException {
         giveQuestionsWithSpecificModule(serviceModules());
     }
 
@@ -120,7 +120,7 @@ public class TaskThread implements Runnable {
      * @throws SQLException if a SQL request didn't go well
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
-    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException {  // Find the service between {Login, solo, multiplayer, training}
+    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException {  // Find the service between {Login, solo, multiplayer, training}
         String message;
         while ((message = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits
             switch (message) {
@@ -139,7 +139,8 @@ public class TaskThread implements Runnable {
     public void run() {
         try {
             serviceType();
-        } catch (IOException | SQLException | EmptyQuestionsListException | NotTheExpectedFlagException e){
+        } catch (IOException | SQLException | EmptyQuestionsListException | NotTheExpectedFlagException |
+                 ClassNotFoundException e){
             throw new RuntimeException(e);
         }
     }
