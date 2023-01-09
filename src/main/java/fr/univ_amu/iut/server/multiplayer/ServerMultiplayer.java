@@ -109,7 +109,7 @@ public class ServerMultiplayer implements Runnable{
      * Store users who join the session in a list and notify them that their request has been received
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public String getUsersUntilSessionStart() throws IOException, ClassNotFoundException {
+    public String getUsersUntilSessionStart() throws IOException {
         int numPlayer = 0;
         do{
             SocketChannel sc = serverSocketChannel.accept();      // Accepts the client

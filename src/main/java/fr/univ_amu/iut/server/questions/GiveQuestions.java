@@ -61,8 +61,8 @@ public class GiveQuestions implements Runnable{
      */
     public void giveWrittenResponseQuestion() throws IOException, ClassNotFoundException {
         WrittenResponseQuestion writtenResponseQuestion = iteratorWrittenResponseQuestion.next();
-        clientCommunication.sendMessageToClient(writtenResponseQuestion.getQuestion());
         clientCommunication.sendMessageToClient(writtenResponseQuestion.getDescription());
+        clientCommunication.sendMessageToClient(writtenResponseQuestion.getQuestion());
         if((writtenResponseQuestion.getTrueAnswer()).equalsIgnoreCase(clientCommunication.receiveMessageFromClient())) {
             clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
             ++numberOfCorrectAnswers;

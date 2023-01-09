@@ -45,12 +45,13 @@ public class Multiplayer {
      */
     public void createMultiplayerSession() throws IOException, SQLException, ClassNotFoundException {
         modules.sendModulesToTheHost();
-        String module = modules.getModuleChoice();
+        String choice = modules.getModuleChoice();
+        if(!(choice.equals("BACK_TO_MENU_FLAG"))) {
+            String code = createCode();
+            sendCode(code);
 
-        String code = createCode();
-        sendCode(code);
-
-        createSession(code, module);
+            createSession(code, choice);
+        }
     }
 
     /**

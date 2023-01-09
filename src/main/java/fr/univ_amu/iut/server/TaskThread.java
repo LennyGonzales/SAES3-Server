@@ -110,7 +110,10 @@ public class TaskThread implements Runnable {
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
     public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException, ClassNotFoundException {
-        giveQuestionsWithSpecificModule(serviceModules());
+        String choice = serviceModules();
+        if(!(choice.equals("BACK_TO_MENU_FLAG"))) {
+            giveQuestionsWithSpecificModule(choice);
+        }
     }
 
     /**
