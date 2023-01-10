@@ -1,9 +1,9 @@
 package fr.univ_amu.iut.server.multiplayer;
 
-import fr.univ_amu.iut.database.dao.DAOConfigSessionsJDBC;
-import fr.univ_amu.iut.database.dao.DAOHistoryJDBC;
 import fr.univ_amu.iut.server.ClientCommunication;
 import fr.univ_amu.iut.server.module.Modules;
+import fr.univ_amu.iut.server.questions.GiveQuestions;
+import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -40,44 +40,49 @@ public class Multiplayer {
     }
 
     /**
-     * Supports the creation of a multiplayer session
+     * Create the multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void createMultiplayerSession() throws IOException, SQLException, ClassNotFoundException {
+    public void createMultiplayerSession() throws IOException, SQLException, ClassNotFoundException, EmptyQuestionsListException {
+        // Module choice
         modules.sendModulesToTheHost();
         String choice = modules.getModuleChoice();
+
         if(!(choice.equals("BACK_TO_MENU_FLAG"))) {
+            // Code
             String code = createCode();
             sendCode(code);
 
-            createSession(code, choice);
-        }
-    }
+            // Create session
+            MultiplayerSession multiplayerSession = new MultiplayerSession(code, choice, clientCommunication);
+            MultiplayerSessions.addSession(code, multiplayerSession);   // Add session to the multiplayerSessions HashMap
 
-    /**
-     * Create the multiplayer session
-     * @param module the module chosen
-     * @throws IOException if the communication with the client is closed or didn't go well
-     * @throws SQLException if a SQL request didn't go well
-     */
-    public void createSession(String code, String module) throws IOException, SQLException {
-        ServerMultiplayer serverMultiplayer = new ServerMultiplayer(code, module, clientCommunication);
-        serverMultiplayer.run();
+
+            if((multiplayerSession.isGameWillPlayed()) && ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG"))) {
+                GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
+                giveQuestions.run();
+            }
+        }
     }
 
     /**
      * Join a multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void joinMultiplayerSession() throws IOException, SQLException, ClassNotFoundException {
-        clientCommunication.sendMessageToClient("JOIN_SESSION");
-        DAOConfigSessionsJDBC configSessionsJDBC = new DAOConfigSessionsJDBC();
-        String message = clientCommunication.receiveMessageFromClient();
-        if(configSessionsJDBC.isIn(message)) {  // Get the input code and ask if the code is in the database
-            clientCommunication.sendMessageToClient("CODE_EXISTS_FLAG");
-            clientCommunication.sendMessageToClient(Integer.toString(configSessionsJDBC.findPort(message)));    // Give the port
+    public void joinMultiplayerSession() throws IOException, EmptyQuestionsListException {
+        String sessionCode = clientCommunication.receiveMessageFromClient();
+        if(!(MultiplayerSessions.getMultiplayerSessions().containsKey(sessionCode))) {
+            clientCommunication.sendMessageToClient("SESSION_NOT_EXISTS_FLAG");
         } else {
-            clientCommunication.sendMessageToClient("CODE_NOT_EXISTS_FLAG");
+            MultiplayerSession multiplayerSession = MultiplayerSessions.getSession(sessionCode);
+
+            String mail = clientCommunication.receiveMessageFromClient();
+            multiplayerSession.addClient(clientCommunication, mail);
+
+            if ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG")) {
+                GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
+                giveQuestions.run();
+            }
         }
     }
 }

@@ -76,7 +76,7 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      */
-    public void serviceCreationMultiplayer() throws IOException, SQLException, ClassNotFoundException {
+    public void serviceCreationMultiplayer() throws IOException, SQLException, ClassNotFoundException, EmptyQuestionsListException {
         Multiplayer multiplayer = new Multiplayer(clientCommunication);
         multiplayer.createMultiplayerSession();
     }
@@ -86,7 +86,7 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      */
-    public void serviceJoinMultiplayer() throws IOException, SQLException, ClassNotFoundException {
+    public void serviceJoinMultiplayer() throws IOException, SQLException, ClassNotFoundException, EmptyQuestionsListException {
         Multiplayer multiplayer = new Multiplayer(clientCommunication);
         multiplayer.joinMultiplayerSession();
     }
