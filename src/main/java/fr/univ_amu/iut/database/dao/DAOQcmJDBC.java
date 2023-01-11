@@ -39,9 +39,10 @@ public class DAOQcmJDBC implements DAOQcm {
         getACertainNumberOfQCMStatement.setInt(3, numberOfTuples);
         ResultSet result = getACertainNumberOfQCMStatement.executeQuery();
         List<Qcm> qcmList = new ArrayList<>();
-
+        Qcm qcm;
         while(result.next()) {
-            Qcm qcm = new Qcm();
+            qcm = new Qcm();
+            qcm.setModule(module);
             qcm.setDescription(result.getString(1));
             qcm.setQuestion(result.getString(2));
             qcm.setTrueAnswer(result.getInt(3));

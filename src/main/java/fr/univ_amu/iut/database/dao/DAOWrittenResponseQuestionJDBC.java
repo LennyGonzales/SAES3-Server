@@ -39,9 +39,10 @@ public class DAOWrittenResponseQuestionJDBC implements DAOWrittenResponseQuestio
 
         ResultSet result = getACertainNumberOfWrittenResponseQuestion.executeQuery();
         List<WrittenResponseQuestion> writtenResponseQuestions = new ArrayList<>();
-
+        WrittenResponseQuestion writtenResponseQuestion;
         while(result.next()) {
-            WrittenResponseQuestion writtenResponseQuestion = new WrittenResponseQuestion();
+            writtenResponseQuestion = new WrittenResponseQuestion();
+            writtenResponseQuestion.setModule(module);
             writtenResponseQuestion.setDescription(result.getString(1));
             writtenResponseQuestion.setQuestion(result.getString(2));
             writtenResponseQuestion.setTrueAnswer(result.getString(3));

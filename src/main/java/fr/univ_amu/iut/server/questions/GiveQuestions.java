@@ -23,6 +23,7 @@ public class GiveQuestions implements Runnable{
     private Iterator<WrittenResponseQuestion> iteratorWrittenResponseQuestion;
     private ClientCommunication clientCommunication;
     private HashMap<String, Boolean> summaryHashMap;
+    private String module;
 
 
     public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> qcmList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
@@ -35,6 +36,8 @@ public class GiveQuestions implements Runnable{
         randValue = new Random();
 
         summaryHashMap = new HashMap<>();
+
+        module = writtenResponseQuestionList.get(0).getModule();
     }
 
     /**
@@ -43,8 +46,8 @@ public class GiveQuestions implements Runnable{
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendQcm(Qcm qcm) throws IOException {
-        clientCommunication.sendMessageToClient(qcm.getQuestion());
         clientCommunication.sendMessageToClient(qcm.getDescription());
+        clientCommunication.sendMessageToClient(qcm.getQuestion());
         clientCommunication.sendMessageToClient(qcm.getAnswer1());
         clientCommunication.sendMessageToClient(qcm.getAnswer2());
         clientCommunication.sendMessageToClient(qcm.getAnswer3());
@@ -106,9 +109,18 @@ public class GiveQuestions implements Runnable{
         summary.initialize();
     }
 
+    /**
+     * Send the module to the user
+     * @throws IOException if the communication with the client is closed or didn't go well
+     */
+    public void sendModule() throws IOException {
+        clientCommunication.sendMessageToClient(module);
+    }
+
     @Override
     public void run() {
         try {
+            sendModule();
             checkingQuestionType();
             endGame();
         } catch (IOException | ClassNotFoundException | UserIsNotInTheDatabaseException | SQLException e) {
