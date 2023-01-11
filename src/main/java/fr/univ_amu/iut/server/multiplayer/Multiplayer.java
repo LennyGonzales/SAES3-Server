@@ -34,7 +34,7 @@ public class Multiplayer {
      * @param code the session's code
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void sendCode(String code) throws IOException {
+    public void sendCodeToTheUser(String code) throws IOException {
         clientCommunication.sendMessageToClient("CODE_FLAG");
         clientCommunication.sendMessageToClient(code);
     }
@@ -48,16 +48,17 @@ public class Multiplayer {
         modules.sendModulesToTheHost();
         String choice = modules.getModuleChoice();
 
+        // If the user doesn't return on the menu page
         if(!(choice.equals("BACK_TO_MENU_FLAG"))) {
-            // Code
+            // Session code
             String code = createCode();
-            sendCode(code);
+            sendCodeToTheUser(code);
 
-            // Create session
+            // Create the session
             MultiplayerSession multiplayerSession = new MultiplayerSession(code, choice, clientCommunication);
             MultiplayerSessions.addSession(code, multiplayerSession);   // Add session to the multiplayerSessions HashMap
 
-
+            // If the multiplayer session isn't cancel, give the questions
             if((multiplayerSession.isGameWillPlayed()) && ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG"))) {
                 GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
                 giveQuestions.run();
@@ -66,20 +67,33 @@ public class Multiplayer {
     }
 
     /**
+     * Check the existence of a multiplayer session with his code
+     * @param sessionCode the multiplayer session code
+     * @return true - the multiplayer session exists | else, false
+     * @throws IOException if the communication with the client is closed or didn't go well
+     */
+    public boolean checkMultiplayerSessionExistence(String sessionCode) throws IOException {
+        if(MultiplayerSessions.getMultiplayerSessions().containsKey(sessionCode)) {  // Verify if the multiplayer session exists
+            return true;
+        }
+        clientCommunication.sendMessageToClient("SESSION_NOT_EXISTS_FLAG");
+        return false;
+    }
+
+    /**
      * Join a multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void joinMultiplayerSession() throws IOException, EmptyQuestionsListException {
-        String sessionCode = clientCommunication.receiveMessageFromClient();
-        if(!(MultiplayerSessions.getMultiplayerSessions().containsKey(sessionCode))) {
-            clientCommunication.sendMessageToClient("SESSION_NOT_EXISTS_FLAG");
-        } else {
-            MultiplayerSession multiplayerSession = MultiplayerSessions.getSession(sessionCode);
+        String sessionCode = clientCommunication.receiveMessageFromClient();    // Get the code of the multiplayer session to join
+
+        if(checkMultiplayerSessionExistence(sessionCode)) {  // Verify if the multiplayer session exists
+            MultiplayerSession multiplayerSession = MultiplayerSessions.getSessionWithSessionCode(sessionCode);    // Get the multiplayer session instance
 
             String mail = clientCommunication.receiveMessageFromClient();
-            multiplayerSession.addClient(clientCommunication, mail);
+            multiplayerSession.addUser(clientCommunication, mail);
 
-            if ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG")) {
+            if ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG")) {    // If the session begins, we give the questions
                 GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
                 giveQuestions.run();
             }

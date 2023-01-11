@@ -9,6 +9,7 @@ import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.*;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -21,8 +22,8 @@ public class GiveQuestions implements Runnable{
     private Iterator<Qcm> iteratorQcm;
     private Iterator<WrittenResponseQuestion> iteratorWrittenResponseQuestion;
     private ClientCommunication clientCommunication;
-    private int numberOfCorrectAnswers;
-    private int numberOfQuestions;
+    private HashMap<String, Boolean> summaryHashMap;
+
 
     public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> qcmList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
         this.clientCommunication = clientCommunication;
@@ -33,42 +34,50 @@ public class GiveQuestions implements Runnable{
         iteratorWrittenResponseQuestion = writtenResponseQuestionList.iterator();
         randValue = new Random();
 
-        numberOfQuestions = qcmList.size() + writtenResponseQuestionList.size();
+        summaryHashMap = new HashMap<>();
+    }
+
+    /**
+     * Send a qcm to the client
+     * @param qcm the qcm to send
+     * @throws IOException if the communication with the client is closed or didn't go well
+     */
+    public void sendQcm(Qcm qcm) throws IOException {
+        clientCommunication.sendMessageToClient(qcm.getQuestion());
+        clientCommunication.sendMessageToClient(qcm.getDescription());
+        clientCommunication.sendMessageToClient(qcm.getAnswer1());
+        clientCommunication.sendMessageToClient(qcm.getAnswer2());
+        clientCommunication.sendMessageToClient(qcm.getAnswer3());
     }
 
     /**
      * Send the question (QCM) to the client and verify if the answer is correct
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void giveQcm() throws IOException, ClassNotFoundException {
+    public void giveQcm() throws IOException {
         Qcm qcm = iteratorQcm.next();
-        clientCommunication.sendMessageToClient(qcm.getQuestion());
-        clientCommunication.sendMessageToClient(qcm.getDescription());
-        clientCommunication.sendMessageToClient(qcm.getAnswer1());
-        clientCommunication.sendMessageToClient(qcm.getAnswer2());
-        clientCommunication.sendMessageToClient(qcm.getAnswer3());
-        if(qcm.getTrueAnswer() == Integer.parseInt(clientCommunication.receiveMessageFromClient())) {
-            clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
-            ++numberOfCorrectAnswers;
-        } else {
-            clientCommunication.sendMessageToClient("WRONG_ANSWER_FLAG");
-        }
+        sendQcm(qcm);
+        summaryHashMap.put(qcm.getQuestion(), (qcm.getTrueAnswer() == Integer.parseInt(clientCommunication.receiveMessageFromClient())));  // Put the question and check if the answer is correct or not
+    }
+
+    /**
+     * Send the written response question
+     * @param writtenResponseQuestion the written response question instance
+     * @throws IOException if the communication with the client is closed or didn't go well
+     */
+    public void sendWrittenResponseQuestion(WrittenResponseQuestion writtenResponseQuestion) throws IOException {
+        clientCommunication.sendMessageToClient(writtenResponseQuestion.getDescription());
+        clientCommunication.sendMessageToClient(writtenResponseQuestion.getQuestion());
     }
 
     /**
      * Send the question (Written response question) to the client and verify if the answer is correct
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void giveWrittenResponseQuestion() throws IOException, ClassNotFoundException {
+    public void giveWrittenResponseQuestion() throws IOException {
         WrittenResponseQuestion writtenResponseQuestion = iteratorWrittenResponseQuestion.next();
-        clientCommunication.sendMessageToClient(writtenResponseQuestion.getDescription());
-        clientCommunication.sendMessageToClient(writtenResponseQuestion.getQuestion());
-        if((writtenResponseQuestion.getTrueAnswer()).equalsIgnoreCase(clientCommunication.receiveMessageFromClient())) {
-            clientCommunication.sendMessageToClient("CORRECT_ANSWER_FLAG");
-            ++numberOfCorrectAnswers;
-        } else {
-            clientCommunication.sendMessageToClient("WRONG_ANSWER_FLAG");
-        }
+        sendWrittenResponseQuestion(writtenResponseQuestion);
+        summaryHashMap.put(writtenResponseQuestion.getQuestion(), (writtenResponseQuestion.getTrueAnswer()).equalsIgnoreCase(clientCommunication.receiveMessageFromClient())); // Put the question and check if the answer is correct or not
     }
 
     /**
@@ -91,24 +100,10 @@ public class GiveQuestions implements Runnable{
      * Notify the client of the end game by sending a flag
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void endGame() throws IOException {
+    public void endGame() throws IOException, UserIsNotInTheDatabaseException, SQLException, ClassNotFoundException {
         clientCommunication.sendMessageToClient("END_GAME_FLAG");
-    }
-
-    /**
-     * Change the points of the user and send it to him
-     * @throws SQLException if the SQL request didn't go well
-     * @throws IOException if the communication with the client is closed or didn't go well
-     * @throws UserIsNotInTheDatabaseException If the user isn't in the database
-     */
-    public void changeUserPoints() throws SQLException, IOException, UserIsNotInTheDatabaseException, ClassNotFoundException {
-        DAOUserJDBC daoUserJDBC = new DAOUserJDBC();
-        String email = clientCommunication.receiveMessageFromClient();
-        int userPoints = daoUserJDBC.getPointsByEmail(email);
-        userPoints += 10 * (numberOfCorrectAnswers - (numberOfQuestions/2.0)) * (1 - (userPoints / 2000.0));
-        daoUserJDBC.setPointsByEmail(email, userPoints);
-
-        clientCommunication.sendMessageToClient(Integer.toString(userPoints));
+        Summary summary = new Summary(clientCommunication, summaryHashMap);
+        summary.initialize();
     }
 
     @Override
@@ -116,8 +111,7 @@ public class GiveQuestions implements Runnable{
         try {
             checkingQuestionType();
             endGame();
-            changeUserPoints();
-        } catch (IOException | UserIsNotInTheDatabaseException | SQLException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | UserIsNotInTheDatabaseException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
