@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestWrittenResponse {
+public class TestWrittenResponseQuestion {
     private WrittenResponseQuestion writtenResponseQuestion;
     @BeforeEach
     public void beforeEachTest() {
