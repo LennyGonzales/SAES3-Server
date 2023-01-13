@@ -6,107 +6,107 @@ import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertEquals;
 
 public class TestQCM {
-    private Qcm qcm;
+    private MultipleChoiceQuestion multipleChoiceQuestion;
 
     @BeforeEach
     public void beforeEachTest() {
-        qcm = new Qcm();
-        qcm.setId(1);
-        qcm.setModule("module");
-        qcm.setDescription("description");
-        qcm.setQuestion("question");
-        qcm.setTrueAnswer(1);
-        qcm.setAnswer1("answer1");
-        qcm.setAnswer2("answer2");
-        qcm.setAnswer3("answer3");
+        multipleChoiceQuestion = new MultipleChoiceQuestion();
+        multipleChoiceQuestion.setId(1);
+        multipleChoiceQuestion.setModule("module");
+        multipleChoiceQuestion.setDescription("description");
+        multipleChoiceQuestion.setQuestion("question");
+        multipleChoiceQuestion.setTrueAnswer(1);
+        multipleChoiceQuestion.setAnswer1("answer1");
+        multipleChoiceQuestion.setAnswer2("answer2");
+        multipleChoiceQuestion.setAnswer3("answer3");
     }
 
 
     @Test
     public void shouldGetId() {
-        assertEquals(1, qcm.getId());
+        assertEquals(1, multipleChoiceQuestion.getId());
     }
 
     @Test
     public void shouldSetId() {
-        qcm.setId(2);
-        assertEquals(2, qcm.getId());
+        multipleChoiceQuestion.setId(2);
+        assertEquals(2, multipleChoiceQuestion.getId());
     }
 
     @Test
     public void shouldGetModule() {
-        assertEquals("module", qcm.getModule());
+        assertEquals("module", multipleChoiceQuestion.getModule());
     }
 
     @Test
     public void shouldSetModule() {
-        qcm.setModule("TCP");
-        assertEquals("TCP", qcm.getModule());
+        multipleChoiceQuestion.setModule("TCP");
+        assertEquals("TCP", multipleChoiceQuestion.getModule());
     }
 
     @Test
     public void shouldGetDescription() {
-        assertEquals("description", qcm.getDescription());
+        assertEquals("description", multipleChoiceQuestion.getDescription());
     }
 
     @Test
     public void shouldSetDescription() {
-        qcm.setDescription("descriptionChange");
-        assertEquals("descriptionChange", qcm.getDescription());
+        multipleChoiceQuestion.setDescription("descriptionChange");
+        assertEquals("descriptionChange", multipleChoiceQuestion.getDescription());
     }
 
     @Test
     public void shouldGetQuestion() {
-        assertEquals("question", qcm.getQuestion());
+        assertEquals("question", multipleChoiceQuestion.getQuestion());
     }
 
     @Test
     public void shouldSetQuestion() {
-        qcm.setQuestion("questionChange");
-        assertEquals("questionChange", qcm.getQuestion());
+        multipleChoiceQuestion.setQuestion("questionChange");
+        assertEquals("questionChange", multipleChoiceQuestion.getQuestion());
     }
 
     @Test
     public void shouldGetTrueAnswer() {
-        assertEquals(1, qcm.getTrueAnswer());
+        assertEquals(1, multipleChoiceQuestion.getTrueAnswer());
     }
 
     @Test
     public void shouldSetTrueAnswer() {
-        qcm.setTrueAnswer(2);
-        assertEquals(2, qcm.getTrueAnswer());
+        multipleChoiceQuestion.setTrueAnswer(2);
+        assertEquals(2, multipleChoiceQuestion.getTrueAnswer());
     }
 
     @Test
     public void shouldGetAnswer1() {
-        assertEquals("answer1", qcm.getAnswer1());
+        assertEquals("answer1", multipleChoiceQuestion.getAnswer1());
     }
 
     @Test
     public void shouldSetAnswer1() {
-        qcm.setAnswer1("answer1Change");
-        assertEquals("answer1Change", qcm.getAnswer1());
+        multipleChoiceQuestion.setAnswer1("answer1Change");
+        assertEquals("answer1Change", multipleChoiceQuestion.getAnswer1());
     }
 
     @Test
     public void shouldGetAnswer2() {
-        assertEquals("answer2", qcm.getAnswer2());
+        assertEquals("answer2", multipleChoiceQuestion.getAnswer2());
     }
 
     @Test
     public void shouldSetAnswer2() {
-        qcm.setAnswer2("answer2Change");
-        assertEquals("answer2Change", qcm.getAnswer2());
+        multipleChoiceQuestion.setAnswer2("answer2Change");
+        assertEquals("answer2Change", multipleChoiceQuestion.getAnswer2());
     }
 
     @Test
     public void shouldGetAnswer3() {
-        assertEquals("answer3", qcm.getAnswer3());
+        assertEquals("answer3", multipleChoiceQuestion.getAnswer3());
     }
 
     @Test
     public void shouldSetAnswer3() {
-        qcm.setAnswer3("answer3Change");
-        assertEquals("answer3Change", qcm.getAnswer3());
+        multipleChoiceQuestion.setAnswer3("answer3Change");
+        assertEquals("answer3Change", multipleChoiceQuestion.getAnswer3());
     }
 }

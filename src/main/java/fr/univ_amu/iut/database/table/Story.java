@@ -1,16 +1,16 @@
 package fr.univ_amu.iut.database.table;
 
 /**
- * Represents a tuple of the HISTORY table
+ * Represents a tuple of the Stories table
  * @author LennyGonzales
  */
-public class History {
+public class Story {
     private int id;
     private String module;
     private String description;
     private String question;
 
-    public History(int id, String module, String description, String question) {
+    public Story(int id, String module, String description, String question) {
         this.id = id;
         this.module = module;
         this.description = description;

@@ -1,9 +1,9 @@
 package fr.univ_amu.iut.server;
 
 
-import fr.univ_amu.iut.database.dao.DAOQcmJDBC;
-import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionJDBC;
-import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
+import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
+import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import fr.univ_amu.iut.server.exceptions.NotTheExpectedFlagException;
 import fr.univ_amu.iut.server.login.Login;
@@ -46,9 +46,9 @@ public class TaskThread implements Runnable {
      * @return 5 qcm
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public List<Qcm> getQCM(String module) throws SQLException {
-        DAOQcmJDBC daoQcmJDBC = new DAOQcmJDBC();
-        return daoQcmJDBC.getACertainNumberOfQCM(5, module);
+    public List<MultipleChoiceQuestion> getQCM(String module) throws SQLException {
+        DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceResponsesJDBC = new DAOMultipleChoiceQuestionsJDBC();
+        return daoMultipleChoiceResponsesJDBC.getACertainNumberOfQCM(5, module);
     }
 
     /**
@@ -58,7 +58,7 @@ public class TaskThread implements Runnable {
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
     public List<WrittenResponseQuestion> getWrittenResponseQuestions(String module) throws SQLException {
-        DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionJDBC();
+        DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionsJDBC();
         return daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(5, module);
     }
 
@@ -129,7 +129,7 @@ public class TaskThread implements Runnable {
         while ((message = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits
             switch (message) {
                 case "LOGIN_FLAG" -> serviceLogin();
-                case "SOLO_FLAG" -> giveQuestionsWithSpecificModule("ALL");
+                case "SOLO_FLAG" -> giveQuestionsWithSpecificModule("Tous les modules");
                 case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
                 case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
                 case "TRAINING_FLAG" -> serviceTraining();

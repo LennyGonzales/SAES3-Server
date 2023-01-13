@@ -4,7 +4,7 @@ package fr.univ_amu.iut.database.table;
  * Represents a tuple of the QCM table
  * @author LennyGonzales
  */
-public class Qcm {
+public class MultipleChoiceQuestion {
     private int id;
     private String module;
     private String description;

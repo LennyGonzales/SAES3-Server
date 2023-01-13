@@ -9,10 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Implements methods' for the users table
+ * Implements methods' for the Users table
  * @author LennyGonzales
  */
-public class DAOUserJDBC implements DAOUser{
+public class DAOUsersJDBC implements DAOUsers {
     private final PreparedStatement authenticationStatement;
     private final PreparedStatement getPointsByEmailStatement;
     private final PreparedStatement setPointsStatement;
@@ -23,7 +23,7 @@ public class DAOUserJDBC implements DAOUser{
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
-    public DAOUserJDBC() throws SQLException {
+    public DAOUsersJDBC() throws SQLException {
         authenticationStatement = CONNECTION.prepareStatement("SELECT ID FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
         getPointsByEmailStatement = CONNECTION.prepareStatement("SELECT POINTS FROM USERS WHERE EMAIL = ?");
         setPointsStatement = CONNECTION.prepareStatement("UPDATE USERS SET POINTS = ? WHERE EMAIL = ?");

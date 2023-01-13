@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.server.module;
 
-import fr.univ_amu.iut.database.dao.DAOHistoryJDBC;
+import fr.univ_amu.iut.database.dao.DAOStoriesJDBC;
 import fr.univ_amu.iut.server.ClientCommunication;
 
 import java.io.IOException;
@@ -11,11 +11,11 @@ import java.sql.SQLException;
  * @author LennyGonzales
  */
 public class Modules {
-    private final DAOHistoryJDBC daoHistoryJDBC;
+    private final DAOStoriesJDBC daoStoriesJDBC;
     private final ClientCommunication clientCommunication;
 
     public Modules(ClientCommunication clientCommunication) throws SQLException {
-        daoHistoryJDBC = new DAOHistoryJDBC();
+        daoStoriesJDBC = new DAOStoriesJDBC();
         this.clientCommunication = clientCommunication;
     }
 
@@ -25,7 +25,7 @@ public class Modules {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendModules() throws SQLException, IOException {
-        clientCommunication.sendObjectToClient(daoHistoryJDBC.getAllModules());
+        clientCommunication.sendObjectToClient(daoStoriesJDBC.getAllModules());
     }
 
     /**

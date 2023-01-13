@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.server.questions;
 
-import fr.univ_amu.iut.database.dao.DAOUserJDBC;
+import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.server.ClientCommunication;
 
@@ -32,7 +32,7 @@ public class Summary {
      * @throws UserIsNotInTheDatabaseException If the user isn't in the database
      */
     public void changeUserPoints() throws SQLException, IOException, UserIsNotInTheDatabaseException {
-        DAOUserJDBC daoUserJDBC = new DAOUserJDBC();
+        DAOUsersJDBC daoUserJDBC = new DAOUsersJDBC();
         String email = clientCommunication.receiveMessageFromClient();
         int userPoints = daoUserJDBC.getPointsByEmail(email);
         userPoints += 10 * (getNumberOfCorrectAnswers() - (summaryHashMap.size()/2.0)) * (1 - (userPoints / 2000.0));   // function to calculate the new user points

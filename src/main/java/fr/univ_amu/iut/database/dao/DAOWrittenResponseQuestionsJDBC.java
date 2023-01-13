@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements methods' for the WrittenResponseQuestion table
+ * Implements methods' for the WrittenResponses table
  * @author LennyGonzales
  */
-public class DAOWrittenResponseQuestionJDBC implements DAOWrittenResponseQuestion {
+public class DAOWrittenResponseQuestionsJDBC implements DAOWrittenResponseQuestions {
     private PreparedStatement getACertainNumberOfWrittenResponseQuestion;
 
     private static final Connection CONNECTION = Main.database.getConnection();
@@ -23,8 +23,8 @@ public class DAOWrittenResponseQuestionJDBC implements DAOWrittenResponseQuestio
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
-    public DAOWrittenResponseQuestionJDBC() throws SQLException {
-        getACertainNumberOfWrittenResponseQuestion = CONNECTION.prepareStatement("SELECT DISTINCT DESCRIPTION, QUESTION, TRUE_ANSWER FROM HISTORY H, WRITTENRESPONSE W WHERE H.ID = W.ID and H.ID IN (select ID from HISTORY H WHERE H.MODULE = ? ORDER BY RANDOM() LIMIT ?) LIMIT ?;");
+    public DAOWrittenResponseQuestionsJDBC() throws SQLException {
+        getACertainNumberOfWrittenResponseQuestion = CONNECTION.prepareStatement("SELECT DISTINCT DESCRIPTION, QUESTION, TRUE_ANSWER FROM STORIES S, WRITTENRESPONSES W WHERE S.ID = W.ID and S.ID IN (select ID from STORIES S WHERE S.MODULE = ? ORDER BY RANDOM() LIMIT ?) LIMIT ?;");
     }
 
     /**

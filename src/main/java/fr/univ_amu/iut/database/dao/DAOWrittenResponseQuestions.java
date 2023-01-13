@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * The methods' signature for the WrittenResponseQuestion table
+ * The methods' signature for the WrittenResponses table
  * @author LennyGonzales
  */
-public interface DAOWrittenResponseQuestion extends DAO<WrittenResponseQuestion, Integer> {
+public interface DAOWrittenResponseQuestions extends DAO<WrittenResponseQuestion, Integer> {
 
     /**
      * Return a certain number of written response question on a certain module

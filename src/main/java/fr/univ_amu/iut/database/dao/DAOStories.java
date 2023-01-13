@@ -1,15 +1,15 @@
 package fr.univ_amu.iut.database.dao;
 
-import fr.univ_amu.iut.database.table.History;
+import fr.univ_amu.iut.database.table.Story;
 
 import java.sql.SQLException;
 import java.util.List;
 
 /**
- * The methods' signature for the ConfigSessions table
+ * The methods' signature for the Stories table
  * @author LennyGonzales
  */
-public interface DAOHistory extends DAO<History,Integer> {
+public interface DAOStories extends DAO<Story,Integer> {
 
     /**
      * Get all the modules

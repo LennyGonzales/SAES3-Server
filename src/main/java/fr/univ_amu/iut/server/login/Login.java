@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.server.login;
 
-import fr.univ_amu.iut.database.dao.DAOUserJDBC;
+import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.server.ClientCommunication;
 
 import java.io.*;
@@ -27,7 +27,7 @@ public class Login {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public boolean isLogin() throws SQLException, IOException {
-        DAOUserJDBC usersDAO = new DAOUserJDBC();
+        DAOUsersJDBC usersDAO = new DAOUsersJDBC();
         return usersDAO.authentication(clientCommunication.receiveMessageFromClient(),encryptLogin(clientCommunication.receiveMessageFromClient()));    // Verify if the username and the encrypted password is in the database
     }
 

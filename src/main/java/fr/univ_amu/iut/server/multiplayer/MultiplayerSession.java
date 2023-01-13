@@ -1,8 +1,8 @@
 package fr.univ_amu.iut.server.multiplayer;
 
-import fr.univ_amu.iut.database.dao.DAOQcmJDBC;
-import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionJDBC;
-import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
+import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
+import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import fr.univ_amu.iut.server.ClientCommunication;
 
@@ -16,7 +16,7 @@ import java.util.List;
  * @author LennyGonzales
  */
 public class MultiplayerSession {
-    private final List<Qcm> qcmList;
+    private final List<MultipleChoiceQuestion> multipleChoiceQuestionList;
     private final List<WrittenResponseQuestion> writtenResponseQuestionList;
 
     private final List<ClientCommunication> users;
@@ -30,9 +30,9 @@ public class MultiplayerSession {
         users = new ArrayList<>();
 
         // Generate the questions lists
-        DAOQcmJDBC daoQcmJDBC = new DAOQcmJDBC();
-        qcmList = daoQcmJDBC.getACertainNumberOfQCM(5, module);
-        DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionJDBC();
+        DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceResponsesJDBC = new DAOMultipleChoiceQuestionsJDBC();
+        multipleChoiceQuestionList = daoMultipleChoiceResponsesJDBC.getACertainNumberOfQCM(5, module);
+        DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionsJDBC();
         writtenResponseQuestionList = daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(5, module);
     }
 
@@ -40,8 +40,8 @@ public class MultiplayerSession {
      * Get the qcm list
      * @return the qcm list
      */
-    public List<Qcm> getQcmList() {
-        return qcmList;
+    public List<MultipleChoiceQuestion> getQcmList() {
+        return multipleChoiceQuestionList;
     }
 
     /**

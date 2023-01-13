@@ -1,7 +1,7 @@
 package fr.univ_amu.iut.database;
 
 import fr.univ_amu.iut.Main;
-import fr.univ_amu.iut.database.dao.DAOUserJDBC;
+import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,13 +10,13 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
-public class TestDAOUserJDBC {
-    private DAOUserJDBC daoUserJDBC;
+public class TestDAOUsersJDBC {
+    private DAOUsersJDBC daoUserJDBC;
 
     @BeforeEach
     public void beforeEachTest() throws SQLException {
         if(Main.database == null) { Main.database = new Database(); }
-        daoUserJDBC = new DAOUserJDBC();
+        daoUserJDBC = new DAOUsersJDBC();
     }
 
     @Test

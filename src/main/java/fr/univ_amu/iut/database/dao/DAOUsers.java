@@ -5,10 +5,10 @@ import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 import java.sql.SQLException;
 
 /**
- * The methods' signature for the users table
+ * The methods' signature for the Users table
  * @author LennyGonzales
  */
-public interface DAOUser extends DAO{
+public interface DAOUsers extends DAO{
     /**
      * verify if the user's email is in the database
      * @param email the input email of the user

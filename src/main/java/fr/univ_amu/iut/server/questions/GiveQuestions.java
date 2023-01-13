@@ -1,7 +1,7 @@
 package fr.univ_amu.iut.server.questions;
 
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
-import fr.univ_amu.iut.database.table.Qcm;
+import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
 import fr.univ_amu.iut.server.ClientCommunication;
 import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
@@ -14,24 +14,24 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Supports the quiz/history (give questions and verify the answer)
+ * Supports the quiz/story (give questions and verify the answer)
  * @author LennyGonzales
  */
 public class GiveQuestions implements Runnable{
     private final Random randValue;
-    private final Iterator<Qcm> iteratorQcm;
+    private final Iterator<MultipleChoiceQuestion> iteratorQcm;
     private final Iterator<WrittenResponseQuestion> iteratorWrittenResponseQuestion;
     private final ClientCommunication clientCommunication;
     private final HashMap<String, Boolean> summaryHashMap;
     private final String module;
 
 
-    public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> qcmList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
+    public GiveQuestions(ClientCommunication clientCommunication, List<MultipleChoiceQuestion> multipleChoiceQuestionList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
         this.clientCommunication = clientCommunication;
-        if ((qcmList.size() < 1) && (writtenResponseQuestionList.size() < 1)) { // Verify if there are questions in the database
+        if ((multipleChoiceQuestionList.size() < 1) && (writtenResponseQuestionList.size() < 1)) { // Verify if there are questions in the database
             throw new EmptyQuestionsListException();    // If not, throw exception
         }
-        iteratorQcm = qcmList.iterator();
+        iteratorQcm = multipleChoiceQuestionList.iterator();
         iteratorWrittenResponseQuestion = writtenResponseQuestionList.iterator();
         randValue = new Random();
 
@@ -41,21 +41,21 @@ public class GiveQuestions implements Runnable{
         if(writtenResponseQuestionList.size() > 0) {
             module = writtenResponseQuestionList.get(0).getModule();
         } else {
-            module = qcmList.get(0).getModule();
+            module = multipleChoiceQuestionList.get(0).getModule();
         }
     }
 
     /**
      * Send a qcm to the user
-     * @param qcm the qcm to send
+     * @param multipleChoiceQuestion the qcm to send
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void sendQcm(Qcm qcm) throws IOException {
-        clientCommunication.sendMessageToClient(qcm.getDescription());
-        clientCommunication.sendMessageToClient(qcm.getQuestion());
-        clientCommunication.sendMessageToClient(qcm.getAnswer1());
-        clientCommunication.sendMessageToClient(qcm.getAnswer2());
-        clientCommunication.sendMessageToClient(qcm.getAnswer3());
+    public void sendQcm(MultipleChoiceQuestion multipleChoiceQuestion) throws IOException {
+        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getDescription());
+        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getQuestion());
+        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getAnswer1());
+        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getAnswer2());
+        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getAnswer3());
     }
 
     /**
@@ -63,15 +63,15 @@ public class GiveQuestions implements Runnable{
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void giveQcm() throws IOException {
-        Qcm qcm = iteratorQcm.next();
-        sendQcm(qcm);
+        MultipleChoiceQuestion multipleChoiceQuestion = iteratorQcm.next();
+        sendQcm(multipleChoiceQuestion);
 
         // Put the question and check if the answer is correct or not
         String answer = clientCommunication.receiveMessageFromClient();
         if(answer == null) {
-            summaryHashMap.put(qcm.getQuestion(), false);   // Not throwing the NumberFormatException : Cannot parse null string
+            summaryHashMap.put(multipleChoiceQuestion.getQuestion(), false);   // Not throwing the NumberFormatException : Cannot parse null string
         } else {
-            summaryHashMap.put(qcm.getQuestion(), (qcm.getTrueAnswer() == Integer.parseInt(answer)));
+            summaryHashMap.put(multipleChoiceQuestion.getQuestion(), (multipleChoiceQuestion.getTrueAnswer() == Integer.parseInt(answer)));
         }
     }
 
