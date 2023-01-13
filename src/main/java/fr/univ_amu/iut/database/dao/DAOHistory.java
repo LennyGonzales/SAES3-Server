@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * The methods' signature for the ConfigSessions table
+ * @author LennyGonzales
  */
 public interface DAOHistory extends DAO<History,Integer> {
 

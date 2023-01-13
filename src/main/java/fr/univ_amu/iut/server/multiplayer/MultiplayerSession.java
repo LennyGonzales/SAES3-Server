@@ -13,6 +13,7 @@ import java.util.List;
 
 /**
  * Supports a multiplayer session
+ * @author LennyGonzales
  */
 public class MultiplayerSession {
     private final List<Qcm> qcmList;
@@ -21,13 +22,14 @@ public class MultiplayerSession {
     private final List<ClientCommunication> users;
 
     private final ClientCommunication hostCommunication;
-    private String sessionCode;
+    private final String sessionCode;
 
     public MultiplayerSession(String sessionCode, String module, ClientCommunication hostCommunication) throws SQLException {
         this.hostCommunication = hostCommunication;
         this.sessionCode = sessionCode;
         users = new ArrayList<>();
 
+        // Generate the questions lists
         DAOQcmJDBC daoQcmJDBC = new DAOQcmJDBC();
         qcmList = daoQcmJDBC.getACertainNumberOfQCM(5, module);
         DAOWrittenResponseQuestionJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionJDBC();
@@ -51,7 +53,7 @@ public class MultiplayerSession {
     }
 
     /**
-     * Add a user
+     * Add a user to the session
      * @param clientMultiplayerCommunication the communication with this user
      * @param email the email of this user
      * @throws IOException if the communication with the client is closed or didn't go well
@@ -63,7 +65,6 @@ public class MultiplayerSession {
 
     /**
      * Verify if the user return to the menu
-     * Store users who join the session in a list and notify them that their request has been received, but if the user
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public boolean verifyBackToMenu() throws IOException {
@@ -71,13 +72,13 @@ public class MultiplayerSession {
     }
 
     /**
-     * Store users who join the session in a list and notify them that their request has been received
+     * Waits until the session start, we store users who join the session in a list and notify them that their request has been received
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void getUsersUntilSessionStartOrBackToMenu() throws IOException {
-        users.add(hostCommunication);
+        users.add(hostCommunication);   // Add the host of the session to the users list
         while(!(hostCommunication.isReceiveMessageFromClient())) {
-            // While the multiplayer session's host doesn't click on the button 'Lancer', we wait for new users
+            // While the multiplayer session's host doesn't click on the button 'Lancer', we store users who join the session in a list and notify them that their request has been received
         }
     }
 
@@ -88,9 +89,9 @@ public class MultiplayerSession {
     public void executeUsers() throws IOException {
         // Send to all users that the game begins
         for (ClientCommunication clientMultiplayerCommunication : users) {
-            clientMultiplayerCommunication.sendMessageToClient("BEGIN_FLAG");   // Notify the client that the session begin (he can read the quiz's data)
+            clientMultiplayerCommunication.sendMessageToClient("BEGIN_FLAG");   // Notify the client that the session begin
         }
-        MultiplayerSessions.removeSession(sessionCode);
+        MultiplayerSessions.removeSession(sessionCode); // Remove the session
     }
 
     /**

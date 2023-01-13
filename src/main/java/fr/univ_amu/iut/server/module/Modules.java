@@ -7,11 +7,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 /**
- * Supports the modules' actions (send and get)
+ * Supports the modules' actions
+ * @author LennyGonzales
  */
 public class Modules {
-    private DAOHistoryJDBC daoHistoryJDBC;
-    private ClientCommunication clientCommunication;
+    private final DAOHistoryJDBC daoHistoryJDBC;
+    private final ClientCommunication clientCommunication;
 
     public Modules(ClientCommunication clientCommunication) throws SQLException {
         daoHistoryJDBC = new DAOHistoryJDBC();
@@ -19,20 +20,20 @@ public class Modules {
     }
 
     /**
-     * Send modules to the session's host
+     * Send modules to the user
      * @throws SQLException if the SQL request to get all the modules didn't go well
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void sendModulesToTheHost() throws SQLException, IOException {
+    public void sendModules() throws SQLException, IOException {
         clientCommunication.sendObjectToClient(daoHistoryJDBC.getAllModules());
     }
 
     /**
-     * Get the module chosen by the host
+     * Get the module chosen by the user
      * @return the module chosen
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public String getModuleChoice() throws IOException, ClassNotFoundException {
+    public String getModuleChoice() throws IOException {
         return clientCommunication.receiveMessageFromClient();
     }
 }

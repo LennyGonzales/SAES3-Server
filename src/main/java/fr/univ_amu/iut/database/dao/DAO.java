@@ -6,6 +6,7 @@ import java.sql.SQLException;
  * The signature of the basic methods of a JDBC
  * @param <Entity>
  * @param <Key>
+ * @author LennyGonzales
  */
 public interface DAO <Entity,Key> {
     /**

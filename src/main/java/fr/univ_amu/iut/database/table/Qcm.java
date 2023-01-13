@@ -2,6 +2,7 @@ package fr.univ_amu.iut.database.table;
 
 /**
  * Represents a tuple of the QCM table
+ * @author LennyGonzales
  */
 public class Qcm {
     private int id;

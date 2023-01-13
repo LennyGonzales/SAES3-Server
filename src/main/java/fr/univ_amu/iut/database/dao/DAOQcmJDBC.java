@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Implements methods' for the Qcm table
+ * @author LennyGonzales
  */
 public class DAOQcmJDBC implements DAOQcm {
     private PreparedStatement getACertainNumberOfQCMStatement;

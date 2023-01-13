@@ -5,6 +5,7 @@ import fr.univ_amu.iut.server.Server;
 
 /**
  * Class to run to launch the server
+ * @author LennyGonzales
  */
 public class Main {
     public static Database database;
@@ -12,7 +13,7 @@ public class Main {
         database = new Database();  // Initialize the connection with the database
 
         Server server = new Server();   // Initialize the server
-        server.run();
+        server.acceptClients();
 
         database.closeConnection(); //Close the connection with the database
     }

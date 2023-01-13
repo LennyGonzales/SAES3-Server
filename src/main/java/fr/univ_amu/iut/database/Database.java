@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 /**
  * Supports the connection with the database and allows to close it
+ * @author LennyGonzales
  */
 public class Database {
     private static final String URL = "jdbc:postgresql://peanut.db.elephantsql.com/lhnhqbrm";
@@ -25,9 +26,9 @@ public class Database {
     }
 
     /**
-     * Return the connection
+     * Return the connection with the database
      *
-     * @return connection
+     * @return the connection
      */
     public Connection getConnection() {
         return connection;

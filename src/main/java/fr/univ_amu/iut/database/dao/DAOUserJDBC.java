@@ -10,6 +10,7 @@ import java.sql.SQLException;
 
 /**
  * Implements methods' for the users table
+ * @author LennyGonzales
  */
 public class DAOUserJDBC implements DAOUser{
     private final PreparedStatement authenticationStatement;

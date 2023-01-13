@@ -2,6 +2,7 @@ package fr.univ_amu.iut.database.table;
 
 /**
  * Represents a tuple of the WRITTENRESPONSE table
+ * @author LennyGonzales
  */
 public class WrittenResponseQuestion {
     private int id;

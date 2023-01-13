@@ -1,6 +1,5 @@
 package fr.univ_amu.iut.database.dao;
 
-import fr.univ_amu.iut.database.table.ConfigSessions;
 import fr.univ_amu.iut.database.table.Qcm;
 
 import java.sql.SQLException;
@@ -8,6 +7,7 @@ import java.util.List;
 
 /**
  * The methods' signature for the ConfigSessions table
+ * @author LennyGonzales
  */
 public interface DAOQcm extends DAO<Qcm,Integer>{
     /**

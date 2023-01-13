@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 /**
  * Creation of the Server and accepts the clients
+ * @author LennyGonzales
  */
 public class Server {
     private static final int NB_CLIENTS = 100;
@@ -27,7 +28,7 @@ public class Server {
 
     /**
      * Accepts the clients and call the TaskThread class
-     * @throws IOException
+     * @throws IOException if an error occurs when waiting for a connection
      */
     public void acceptClients() throws Exception {
         for (int i = 0; i < NB_CLIENTS; ++i) {
@@ -35,9 +36,5 @@ public class Server {
             pool.execute(new TaskThread(sock_client));  // Use a new thread for each client
         }
         sockServer.close();
-    }
-
-    public void run() throws Exception {
-        acceptClients();
     }
 }

@@ -10,6 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implements methods' for the WrittenResponseQuestion table
+ * @author LennyGonzales
+ */
 public class DAOWrittenResponseQuestionJDBC implements DAOWrittenResponseQuestion {
     private PreparedStatement getACertainNumberOfWrittenResponseQuestion;
 

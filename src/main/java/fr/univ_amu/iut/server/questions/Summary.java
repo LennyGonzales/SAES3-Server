@@ -8,9 +8,13 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+/**
+ * Supports the summary (give the questions and whether the user's answers were correct or not)
+ * @author LennyGonzales
+ */
 public class Summary {
-    private HashMap<String, Boolean> summaryHashMap;
-    private ClientCommunication clientCommunication;
+    private final HashMap<String, Boolean> summaryHashMap;
+    private final ClientCommunication clientCommunication;
 
     public Summary(ClientCommunication clientCommunication, HashMap<String, Boolean> summaryHashMap) {
         this.clientCommunication = clientCommunication;
@@ -27,7 +31,7 @@ public class Summary {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws UserIsNotInTheDatabaseException If the user isn't in the database
      */
-    public void changeUserPoints() throws SQLException, IOException, UserIsNotInTheDatabaseException, ClassNotFoundException {
+    public void changeUserPoints() throws SQLException, IOException, UserIsNotInTheDatabaseException {
         DAOUserJDBC daoUserJDBC = new DAOUserJDBC();
         String email = clientCommunication.receiveMessageFromClient();
         int userPoints = daoUserJDBC.getPointsByEmail(email);
@@ -41,7 +45,7 @@ public class Summary {
         clientCommunication.sendObjectToClient(summaryHashMap);
     }
 
-    public void initialize() throws UserIsNotInTheDatabaseException, SQLException, IOException, ClassNotFoundException {
+    public void initialize() throws UserIsNotInTheDatabaseException, SQLException, IOException {
         changeUserPoints();
         sendSummary();
     }

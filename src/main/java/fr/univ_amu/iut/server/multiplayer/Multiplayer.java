@@ -10,7 +10,8 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 /**
- * Supports the multiplayer's actions (creation and join)
+ * Supports the multiplayer's actions (create and join)
+ * @author LennyGonzales
  */
 public class Multiplayer {
     private final ClientCommunication clientCommunication;
@@ -22,7 +23,7 @@ public class Multiplayer {
     }
 
     /**
-     * Create the session's code
+     * Generate the session's code (a random string with a length of 8)
      * @return the session's code
      */
     public String createCode() {
@@ -30,7 +31,7 @@ public class Multiplayer {
     }
 
     /**
-     * Send the code to the host
+     * Send the code to the user
      * @param code the session's code
      * @throws IOException if the communication with the client is closed or didn't go well
      */
@@ -43,9 +44,9 @@ public class Multiplayer {
      * Create the multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void createMultiplayerSession() throws IOException, SQLException, ClassNotFoundException, EmptyQuestionsListException {
+    public void createMultiplayerSession() throws IOException, SQLException, EmptyQuestionsListException {
         // Module choice
-        modules.sendModulesToTheHost();
+        modules.sendModules();
         String choice = modules.getModuleChoice();
 
         // If the user doesn't return on the menu page
@@ -58,7 +59,7 @@ public class Multiplayer {
             MultiplayerSession multiplayerSession = new MultiplayerSession(code, choice, clientCommunication);
             MultiplayerSessions.addSession(code, multiplayerSession);   // Add session to the multiplayerSessions HashMap
 
-            // If the multiplayer session isn't cancel, give the questions
+            // If the multiplayer session isn't cancel, give the questions to the user
             if((multiplayerSession.isGameWillPlayed()) && ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG"))) {
                 GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
                 giveQuestions.run();
@@ -83,6 +84,7 @@ public class Multiplayer {
     /**
      * Join a multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws EmptyQuestionsListException if the questions lists are empty
      */
     public void joinMultiplayerSession() throws IOException, EmptyQuestionsListException {
         String sessionCode = clientCommunication.receiveMessageFromClient();    // Get the code of the multiplayer session to join
@@ -90,10 +92,10 @@ public class Multiplayer {
         if(checkMultiplayerSessionExistence(sessionCode)) {  // Verify if the multiplayer session exists
             MultiplayerSession multiplayerSession = MultiplayerSessions.getSessionWithSessionCode(sessionCode);    // Get the multiplayer session instance
 
-            String mail = clientCommunication.receiveMessageFromClient();
-            multiplayerSession.addUser(clientCommunication, mail);
+            String mail = clientCommunication.receiveMessageFromClient();   // Get the user email
+            multiplayerSession.addUser(clientCommunication, mail);  // Add it to the user list
 
-            if ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG")) {    // If the session begins, we give the questions
+            if ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG")) {    // If the session begin (the host of the session start it), we give the questions to the user
                 GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
                 giveQuestions.run();
             }

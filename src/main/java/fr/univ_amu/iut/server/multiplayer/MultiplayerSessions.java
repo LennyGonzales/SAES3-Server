@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 /**
  * Stores multiplayer sessions
+ * @author LennyGonzales
  */
 public class MultiplayerSessions {
     private static HashMap<String, MultiplayerSession> multiplayerSessions = new HashMap<>();

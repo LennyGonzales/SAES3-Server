@@ -1,6 +1,5 @@
 package fr.univ_amu.iut.server.questions;
 
-import fr.univ_amu.iut.database.dao.DAOUserJDBC;
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.database.table.Qcm;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
@@ -16,14 +15,15 @@ import java.util.Random;
 
 /**
  * Supports the quiz/history (give questions and verify the answer)
+ * @author LennyGonzales
  */
 public class GiveQuestions implements Runnable{
-    private Random randValue;
-    private Iterator<Qcm> iteratorQcm;
-    private Iterator<WrittenResponseQuestion> iteratorWrittenResponseQuestion;
-    private ClientCommunication clientCommunication;
-    private HashMap<String, Boolean> summaryHashMap;
-    private String module;
+    private final Random randValue;
+    private final Iterator<Qcm> iteratorQcm;
+    private final Iterator<WrittenResponseQuestion> iteratorWrittenResponseQuestion;
+    private final ClientCommunication clientCommunication;
+    private final HashMap<String, Boolean> summaryHashMap;
+    private final String module;
 
 
     public GiveQuestions(ClientCommunication clientCommunication, List<Qcm> qcmList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
@@ -37,11 +37,16 @@ public class GiveQuestions implements Runnable{
 
         summaryHashMap = new HashMap<>();
 
-        module = writtenResponseQuestionList.get(0).getModule();
+        // Get the module of the story
+        if(writtenResponseQuestionList.size() > 0) {
+            module = writtenResponseQuestionList.get(0).getModule();
+        } else {
+            module = qcmList.get(0).getModule();
+        }
     }
 
     /**
-     * Send a qcm to the client
+     * Send a qcm to the user
      * @param qcm the qcm to send
      * @throws IOException if the communication with the client is closed or didn't go well
      */
@@ -54,13 +59,20 @@ public class GiveQuestions implements Runnable{
     }
 
     /**
-     * Send the question (QCM) to the client and verify if the answer is correct
+     * Send the question (QCM) to the user and verify if the answer is correct
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void giveQcm() throws IOException {
         Qcm qcm = iteratorQcm.next();
         sendQcm(qcm);
-        summaryHashMap.put(qcm.getQuestion(), (qcm.getTrueAnswer() == Integer.parseInt(clientCommunication.receiveMessageFromClient())));  // Put the question and check if the answer is correct or not
+
+        // Put the question and check if the answer is correct or not
+        String answer = clientCommunication.receiveMessageFromClient();
+        if(answer == null) {
+            summaryHashMap.put(qcm.getQuestion(), false);   // Not throwing the NumberFormatException : Cannot parse null string
+        } else {
+            summaryHashMap.put(qcm.getQuestion(), (qcm.getTrueAnswer() == Integer.parseInt(answer)));
+        }
     }
 
     /**
@@ -100,11 +112,12 @@ public class GiveQuestions implements Runnable{
     }
 
     /**
-     * Notify the client of the end game by sending a flag
+     * Supports the end game
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void endGame() throws IOException, UserIsNotInTheDatabaseException, SQLException, ClassNotFoundException {
-        clientCommunication.sendMessageToClient("END_GAME_FLAG");
+        clientCommunication.sendMessageToClient("END_GAME_FLAG"); // Notify the client of the end game by sending a flag
+
         Summary summary = new Summary(clientCommunication, summaryHashMap);
         summary.initialize();
     }

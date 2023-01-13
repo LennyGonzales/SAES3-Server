@@ -2,6 +2,7 @@ package fr.univ_amu.iut.database.table;
 
 /**
  * Represents a tuple of the HISTORY table
+ * @author LennyGonzales
  */
 public class History {
     private int id;

@@ -10,6 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implements methods' for the History table
+ * @author LennyGonzales
+ */
 public class DAOHistoryJDBC implements DAOHistory{
     private final PreparedStatement getAllModulesStatement;
     private static final Connection CONNECTION = Main.database.getConnection();

@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * Supports the main communication with the client
+ * @author LennyGonzales
  */
 public class TaskThread implements Runnable {
     private final ClientCommunication clientCommunication;
@@ -34,7 +35,7 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public void serviceLogin() throws IOException, SQLException, ClassNotFoundException {
+    public void serviceLogin() throws IOException, SQLException {
         Login login = new Login(clientCommunication);   // Get the username and the password
         login.serviceLogin();
     }
@@ -62,7 +63,7 @@ public class TaskThread implements Runnable {
     }
 
     /**
-     * Send questions and answer to the client and verify if the answer is correct
+     * Give the qcm and written response questions to the user and verify the answers
      * @throws SQLException if the getACertainNumberOfQCM() or getACertainNumberOfWrittenResponseQuestion() method didn't go well
      * @throws EmptyQuestionsListException if qcmList and writtenResponseQuestionList are empty
      */
@@ -72,11 +73,12 @@ public class TaskThread implements Runnable {
     }
 
     /**
-     * Supports the creation of a multiplayer game
+     * Supports the creation of a multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
+     * @throws EmptyQuestionsListException  if qcmList and writtenResponseQuestionList are empty
      */
-    public void serviceCreationMultiplayer() throws IOException, SQLException, ClassNotFoundException, EmptyQuestionsListException {
+    public void serviceCreationMultiplayer() throws IOException, SQLException, EmptyQuestionsListException {
         Multiplayer multiplayer = new Multiplayer(clientCommunication);
         multiplayer.createMultiplayerSession();
     }
@@ -85,45 +87,44 @@ public class TaskThread implements Runnable {
      * Join a multiplayer session
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
+     * @throws EmptyQuestionsListException  if qcmList and writtenResponseQuestionList are empty
      */
-    public void serviceJoinMultiplayer() throws IOException, SQLException, ClassNotFoundException, EmptyQuestionsListException {
+    public void serviceJoinMultiplayer() throws IOException, SQLException, EmptyQuestionsListException {
         Multiplayer multiplayer = new Multiplayer(clientCommunication);
         multiplayer.joinMultiplayerSession();
     }
 
     /**
-     * Send modules and get the module chose
-     *
+     * Send the modules and get the module chosen by the user
      * @return the module chose
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException  if a SQL request in the Multiplayer class method didn't go well
      */
-    public String serviceModules() throws IOException, SQLException, ClassNotFoundException {
-        modules.sendModulesToTheHost();
+    public String serviceModules() throws IOException, SQLException {
+        modules.sendModules();
         return modules.getModuleChoice();
     }
 
     /**
-     * Supports the creation of a training game
+     * Supports the creation of a training session
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
-    public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException, ClassNotFoundException {
+    public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException {
         String choice = serviceModules();
-        if(!(choice.equals("BACK_TO_MENU_FLAG"))) {
+        if((choice != null) && (!(choice.equals("BACK_TO_MENU_FLAG")))) {   // (choice != null) to not throwing the NullPointerException (String.equals(null))
             giveQuestionsWithSpecificModule(choice);
         }
     }
 
     /**
-     * A function which find the service type and call the function associated
-     *
+     * A function which find the service type (login, create multiplayer session, ...) and call the function associated
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request didn't go well
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
-    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException {  // Find the service between {Login, solo, multiplayer, training}
+    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException {
         String message;
         while ((message = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits
             switch (message) {
@@ -135,7 +136,7 @@ public class TaskThread implements Runnable {
                 default -> throw new NotTheExpectedFlagException("LOGIN_FLAG or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");
             }
         }
-        clientCommunication.close();
+        clientCommunication.close();    // Close the communication when the client leave
     }
 
     @Override

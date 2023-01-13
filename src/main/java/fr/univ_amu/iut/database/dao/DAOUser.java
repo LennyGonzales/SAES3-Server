@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 /**
  * The methods' signature for the users table
+ * @author LennyGonzales
  */
 public interface DAOUser extends DAO{
     /**

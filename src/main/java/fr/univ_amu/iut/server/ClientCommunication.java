@@ -5,13 +5,14 @@ import java.net.Socket;
 
 /**
  * Supports the communication with the client
+ * @author LennyGonzales
  */
 public class ClientCommunication {
 
-    private Socket socketClient;
-    private BufferedReader in;
-    private ObjectInputStream inObject;
-    private ObjectOutputStream outObject;
+    private final Socket socketClient;
+    private final BufferedReader in;
+    private final ObjectInputStream inObject;
+    private final ObjectOutputStream outObject;
     private Object object;
 
     public ClientCommunication(Socket socketClient) throws IOException {
@@ -43,7 +44,7 @@ public class ClientCommunication {
     }
 
     /**
-     * Send the message received from the client
+     * Return the message received from the client
      * @return the string sent by the client
      * @throws IOException if the communication with the client is closed or didn't go well
      */
@@ -60,7 +61,7 @@ public class ClientCommunication {
 
     /**
      * Return true if the client sent a message to the server
-     * @return true - The client sent a message | else, false
+     * @return true - if the client sent a message | else, false
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public boolean isReceiveMessageFromClient() throws IOException {
@@ -68,7 +69,7 @@ public class ClientCommunication {
     }
 
     /**
-     * This method close the socket
+     * Close the streams and the socket
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void close() throws IOException {

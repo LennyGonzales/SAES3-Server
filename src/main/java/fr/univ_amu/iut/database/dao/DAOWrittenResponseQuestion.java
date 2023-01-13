@@ -6,7 +6,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * The methods' signature for the WrittenResponse table
+ * The methods' signature for the WrittenResponseQuestion table
+ * @author LennyGonzales
  */
 public interface DAOWrittenResponseQuestion extends DAO<WrittenResponseQuestion, Integer> {
 
