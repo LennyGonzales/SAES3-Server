@@ -24,7 +24,7 @@ public class DAOUsersJDBC implements DAOUsers {
      * @throws SQLException if the prepareStatement didn't go well
      */
     public DAOUsersJDBC() throws SQLException {
-        authenticationStatement = CONNECTION.prepareStatement("SELECT ID FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
+        authenticationStatement = CONNECTION.prepareStatement("SELECT * FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
         getPointsByEmailStatement = CONNECTION.prepareStatement("SELECT POINTS FROM USERS WHERE EMAIL = ?");
         setPointsStatement = CONNECTION.prepareStatement("UPDATE USERS SET POINTS = ? WHERE EMAIL = ?");
         verifyEmailStatement = CONNECTION.prepareStatement("SELECT COUNT(*) FROM USERS WHERE EMAIL = ?");
