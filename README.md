@@ -16,7 +16,7 @@ Après s'être connecté, l’utilisateur pourra choisir parmi différents modes
   - « Entrainement »
 
 ## Lancement de l'application :arrow_forward:
-
+### IDE
 Pour commencer, télécharger le serveur en exécutant la commande :
 ```bash
   git clone https://github.com/LennyGonzales/SAES3-Server.git
@@ -26,6 +26,14 @@ Puis à partir d'un IDE, exécuter simplement cette ligne du fichier Main.java
 ```java
     public static void main(String[] args) throws Exception {
 ```
+### JAR
+Pour commencer, télécharger le fichier jar **SAES3-Server-1.0-SNAPSHOT-jar-with-dependencies.jar** se trouvant à la racine du projet.
+
+Puis, à partir d'un terminal, allez sur le répertoire où se situe le fichier .jar et executez cette commande :
+```bash
+java -jar SAES3-Server-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
 ## Membres
 
 - CANALE Enzo <img align="left" src="https://avatars.githubusercontent.com/u/92590811" alt="profile" width="20" height="20"/>
