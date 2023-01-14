@@ -75,6 +75,7 @@ public class Multiplayer {
      */
     public boolean checkMultiplayerSessionExistence(String sessionCode) throws IOException {
         if(MultiplayerSessions.getMultiplayerSessions().containsKey(sessionCode)) {  // Verify if the multiplayer session exists
+            clientCommunication.sendMessageToClient("SESSION_EXISTS_FLAG");
             return true;
         }
         clientCommunication.sendMessageToClient("SESSION_NOT_EXISTS_FLAG");
