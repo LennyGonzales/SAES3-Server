@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.server.module;
 
-import fr.univ_amu.iut.database.dao.DAOStoriesJDBC;
+import fr.univ_amu.iut.database.dao.DAOModuleJDBC;
 import fr.univ_amu.iut.server.ClientCommunication;
 
 import java.io.IOException;
@@ -11,11 +11,11 @@ import java.sql.SQLException;
  * @author LennyGonzales
  */
 public class Modules {
-    private final DAOStoriesJDBC daoStoriesJDBC;
+    private final DAOModuleJDBC daoStoriesJDBC;
     private final ClientCommunication clientCommunication;
 
     public Modules(ClientCommunication clientCommunication) throws SQLException {
-        daoStoriesJDBC = new DAOStoriesJDBC();
+        daoStoriesJDBC = new DAOModuleJDBC();
         this.clientCommunication = clientCommunication;
     }
 

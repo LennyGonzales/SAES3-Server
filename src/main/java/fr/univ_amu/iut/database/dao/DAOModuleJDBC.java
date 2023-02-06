@@ -14,16 +14,16 @@ import java.util.List;
  * Implements methods' for the Stories table
  * @author LennyGonzales
  */
-public class DAOStoriesJDBC implements DAOStories {
+public class DAOModuleJDBC implements DAOModule {
     private final PreparedStatement getAllModulesStatement;
-    private static final Connection CONNECTION = Main.database.getConnection();
+    private static final Connection CONNECTION = Main.database.getConnections().get("STORIES");
 
     /**
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
-    public DAOStoriesJDBC() throws SQLException {
-        getAllModulesStatement = CONNECTION.prepareStatement("SELECT DISTINCT MODULE FROM STORIES;");
+    public DAOModuleJDBC() throws SQLException {
+        getAllModulesStatement = CONNECTION.prepareStatement("SELECT DISTINCT MODULE FROM WRITTENRESPONSEQUESTIONS UNION SELECT DISTINCT module FROM MULTIPLECHOICEQUESTIONS;");
     }
 
     /**

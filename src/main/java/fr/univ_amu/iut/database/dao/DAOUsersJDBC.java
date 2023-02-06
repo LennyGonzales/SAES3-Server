@@ -17,7 +17,7 @@ public class DAOUsersJDBC implements DAOUsers {
     private final PreparedStatement getPointsByEmailStatement;
     private final PreparedStatement setPointsStatement;
     private final PreparedStatement verifyEmailStatement;
-    private static final Connection CONNECTION = Main.database.getConnection();
+    private static final Connection CONNECTION = Main.database.getConnections().get("USERS");
 
     /**
      * Constructor | Prepare the SQL requests

@@ -5,25 +5,12 @@ package fr.univ_amu.iut.database.table;
  * @author LennyGonzales
  */
 public class Story {
-    private int id;
     private String module;
-    private String description;
-    private String question;
 
-    public Story(int id, String module, String description, String question) {
-        this.id = id;
+    public Story(String module) {
         this.module = module;
-        this.description = description;
-        this.question = question;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getModule() {
         return module;
@@ -31,21 +18,5 @@ public class Story {
 
     public void setModule(String module) {
         this.module = module;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
     }
 }

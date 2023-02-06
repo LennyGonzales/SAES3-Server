@@ -16,14 +16,14 @@ import java.util.List;
  */
 public class DAOMultipleChoiceQuestionsJDBC implements DAOMultipleChoiceQuestions {
     private PreparedStatement getACertainNumberOfQCMStatement;
-    private static final Connection CONNECTION = Main.database.getConnection();
+    private static final Connection CONNECTION = Main.database.getConnections().get("STORIES");
 
     /**
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
     public DAOMultipleChoiceQuestionsJDBC() throws SQLException {
-        getACertainNumberOfQCMStatement = CONNECTION.prepareStatement("SELECT DISTINCT DESCRIPTION, QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM STORIES S, MULTIPLECHOICERESPONSES M WHERE S.ID = M.ID and S.ID IN (select ID from STORIES S WHERE S.MODULE = ? ORDER BY RANDOM() LIMIT ?) LIMIT ?;");
+        getACertainNumberOfQCMStatement = CONNECTION.prepareStatement("SELECT DISTINCT DESCRIPTION, QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM MULTIPLECHOICEQUESTIONS WHERE MODULE = ? LIMIT ?;");
     }
 
     /**
@@ -37,7 +37,6 @@ public class DAOMultipleChoiceQuestionsJDBC implements DAOMultipleChoiceQuestion
     public List<MultipleChoiceQuestion> getACertainNumberOfQCM(int numberOfTuples, String module) throws SQLException {
         getACertainNumberOfQCMStatement.setString(1, module);
         getACertainNumberOfQCMStatement.setInt(2, numberOfTuples);
-        getACertainNumberOfQCMStatement.setInt(3, numberOfTuples);
         ResultSet result = getACertainNumberOfQCMStatement.executeQuery();
         List<MultipleChoiceQuestion> multipleChoiceQuestionList = new ArrayList<>();
         MultipleChoiceQuestion multipleChoiceQuestion;
