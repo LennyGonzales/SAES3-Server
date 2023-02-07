@@ -68,7 +68,7 @@ public class GiveQuestions implements Runnable{
 
         // Put the question and check if the answer is correct or not
         String answer = clientCommunication.receiveMessageFromClient();
-        if(answer == null) {
+        if((answer.equals("TIMER_ENDED_FLAG")) || (answer == null)) {
             summaryHashMap.put(multipleChoiceQuestion.getQuestion(), false);   // Not throwing the NumberFormatException : Cannot parse null string
         } else {
             summaryHashMap.put(multipleChoiceQuestion.getQuestion(), (multipleChoiceQuestion.getTrueAnswer() == Integer.parseInt(answer)));
@@ -92,7 +92,13 @@ public class GiveQuestions implements Runnable{
     public void giveWrittenResponseQuestion() throws IOException {
         WrittenResponseQuestion writtenResponseQuestion = iteratorWrittenResponseQuestion.next();
         sendWrittenResponseQuestion(writtenResponseQuestion);
-        summaryHashMap.put(writtenResponseQuestion.getQuestion(), (writtenResponseQuestion.getTrueAnswer()).equalsIgnoreCase(clientCommunication.receiveMessageFromClient())); // Put the question and check if the answer is correct or not
+
+        String answer = clientCommunication.receiveMessageFromClient();
+        if(answer.equals("TIMER_ENDED_FLAG")) {
+            summaryHashMap.put(writtenResponseQuestion.getQuestion(), false);
+        } else {
+            summaryHashMap.put(writtenResponseQuestion.getQuestion(), (writtenResponseQuestion.getTrueAnswer()).equalsIgnoreCase(answer)); // Put the question and check if the answer is correct or not
+        }
     }
 
     /**
