@@ -2,7 +2,7 @@ package fr.univ_amu.iut.server.questions;
 
 import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
-import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Communication;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -14,10 +14,10 @@ import java.util.HashMap;
  */
 public class Summary {
     private final HashMap<String, Boolean> summaryHashMap;
-    private final ClientCommunication clientCommunication;
+    private final Communication communication;
 
-    public Summary(ClientCommunication clientCommunication, HashMap<String, Boolean> summaryHashMap) {
-        this.clientCommunication = clientCommunication;
+    public Summary(Communication communication, HashMap<String, Boolean> summaryHashMap) {
+        this.communication = communication;
         this.summaryHashMap = summaryHashMap;
     }
 
@@ -33,16 +33,16 @@ public class Summary {
      */
     public void changeUserPoints() throws SQLException, IOException, UserIsNotInTheDatabaseException {
         DAOUsersJDBC daoUserJDBC = new DAOUsersJDBC();
-        String email = clientCommunication.receiveMessageFromClient();
+        String email = communication.receiveMessageFromClient();
         int userPoints = daoUserJDBC.getPointsByEmail(email);
         userPoints += 10 * (getNumberOfCorrectAnswers() - (summaryHashMap.size()/2.0)) * (1 - (userPoints / 2000.0));   // function to calculate the new user points
         daoUserJDBC.setPointsByEmail(email, userPoints);
 
-        clientCommunication.sendMessageToClient(Integer.toString(userPoints));
+        communication.sendMessageToClient(Integer.toString(userPoints));
     }
 
     public void sendSummary() throws IOException {
-        clientCommunication.sendObjectToClient(summaryHashMap);
+        communication.sendObjectToClient(summaryHashMap);
     }
 
     public void initialize() throws UserIsNotInTheDatabaseException, SQLException, IOException {

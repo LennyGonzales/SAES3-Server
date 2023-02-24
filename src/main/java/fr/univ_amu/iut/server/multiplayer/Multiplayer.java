@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.server.multiplayer;
 
-import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.server.module.Modules;
 import fr.univ_amu.iut.server.questions.GiveQuestions;
 import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
@@ -14,12 +14,12 @@ import java.util.UUID;
  * @author LennyGonzales
  */
 public class Multiplayer {
-    private final ClientCommunication clientCommunication;
+    private final Communication communication;
     private Modules modules;
 
-    public Multiplayer(ClientCommunication clientCommunication) throws SQLException {
-        this.clientCommunication = clientCommunication;
-        modules = new Modules(clientCommunication);
+    public Multiplayer(Communication communication) throws SQLException {
+        this.communication = communication;
+        modules = new Modules(communication);
     }
 
     /**
@@ -36,8 +36,8 @@ public class Multiplayer {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendCodeToTheUser(String code) throws IOException {
-        clientCommunication.sendMessageToClient("CODE_FLAG");
-        clientCommunication.sendMessageToClient(code);
+        communication.sendMessageToClient("CODE_FLAG");
+        communication.sendMessageToClient(code);
     }
 
     /**
@@ -56,12 +56,12 @@ public class Multiplayer {
             sendCodeToTheUser(code);
 
             // Create the session
-            MultiplayerSession multiplayerSession = new MultiplayerSession(code, choice, clientCommunication);
+            MultiplayerSession multiplayerSession = new MultiplayerSession(code, choice, communication);
             MultiplayerSessions.addSession(code, multiplayerSession);   // Add session to the multiplayerSessions HashMap
 
             // If the multiplayer session isn't cancel, give the questions to the user
-            if((multiplayerSession.isGameWillPlayed()) && ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG"))) {
-                GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
+            if((multiplayerSession.isGameWillPlayed()) && ((communication.receiveMessageFromClient()).equals("BEGIN_FLAG"))) {
+                GiveQuestions giveQuestions = new GiveQuestions(communication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
                 giveQuestions.run();
             }
         }
@@ -75,10 +75,10 @@ public class Multiplayer {
      */
     public boolean checkMultiplayerSessionExistence(String sessionCode) throws IOException {
         if(MultiplayerSessions.getMultiplayerSessions().containsKey(sessionCode)) {  // Verify if the multiplayer session exists
-            clientCommunication.sendMessageToClient("SESSION_EXISTS_FLAG");
+            communication.sendMessageToClient("SESSION_EXISTS_FLAG");
             return true;
         }
-        clientCommunication.sendMessageToClient("SESSION_NOT_EXISTS_FLAG");
+        communication.sendMessageToClient("SESSION_NOT_EXISTS_FLAG");
         return false;
     }
 
@@ -88,16 +88,16 @@ public class Multiplayer {
      * @throws EmptyQuestionsListException if the questions lists are empty
      */
     public void joinMultiplayerSession() throws IOException, EmptyQuestionsListException {
-        String sessionCode = clientCommunication.receiveMessageFromClient();    // Get the code of the multiplayer session to join
+        String sessionCode = communication.receiveMessageFromClient();    // Get the code of the multiplayer session to join
 
         if(checkMultiplayerSessionExistence(sessionCode)) {  // Verify if the multiplayer session exists
             MultiplayerSession multiplayerSession = MultiplayerSessions.getSessionWithSessionCode(sessionCode);    // Get the multiplayer session instance
 
-            String mail = clientCommunication.receiveMessageFromClient();   // Get the user email
-            multiplayerSession.addUser(clientCommunication, mail);  // Add it to the user list
+            String mail = communication.receiveMessageFromClient();   // Get the user email
+            multiplayerSession.addUser(communication, mail);  // Add it to the user list
 
-            if ((clientCommunication.receiveMessageFromClient()).equals("BEGIN_FLAG")) {    // If the session begin (the host of the session start it), we give the questions to the user
-                GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
+            if ((communication.receiveMessageFromClient()).equals("BEGIN_FLAG")) {    // If the session begin (the host of the session start it), we give the questions to the user
+                GiveQuestions giveQuestions = new GiveQuestions(communication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
                 giveQuestions.run();
             }
         }

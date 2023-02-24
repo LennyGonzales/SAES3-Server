@@ -1,11 +1,12 @@
 package fr.univ_amu.iut.server;
 
 
+import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
-import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.server.exceptions.NotTheExpectedFlagException;
 import fr.univ_amu.iut.server.login.Login;
@@ -27,10 +28,10 @@ import java.util.Map;
  * @author LennyGonzales
  */
 public class TaskThread implements Runnable {
-    private final ClientCommunication clientCommunication;
+    private final Communication communication;
 
     public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
-        clientCommunication = new ClientCommunication(sockClient);
+        communication = new Communication(sockClient);
     }
 
     /**
@@ -39,7 +40,7 @@ public class TaskThread implements Runnable {
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
     public void serviceLogin(Object credentials) throws IOException, SQLException {
-        Login login = new Login(clientCommunication, (List<String>) credentials);   // Get the username and the password
+        Login login = new Login(communication, (List<String>) credentials);   // Get the username and the password
         login.serviceLogin();
     }
 
@@ -71,7 +72,7 @@ public class TaskThread implements Runnable {
      * @throws EmptyQuestionsListException if qcmList and writtenResponseQuestionList are empty
      */
     public void giveQuestionsWithSpecificModule(String module) throws SQLException, EmptyQuestionsListException {
-        GiveQuestions giveQuestions = new GiveQuestions(clientCommunication, getQCM(module), getWrittenResponseQuestions(module));
+        GiveQuestions giveQuestions = new GiveQuestions(communication, getQCM(module), getWrittenResponseQuestions(module));
         giveQuestions.run();
     }
 
@@ -82,7 +83,7 @@ public class TaskThread implements Runnable {
      * @throws EmptyQuestionsListException  if qcmList and writtenResponseQuestionList are empty
      */
     public void serviceCreationMultiplayer() throws IOException, SQLException, EmptyQuestionsListException {
-        Multiplayer multiplayer = new Multiplayer(clientCommunication);
+        Multiplayer multiplayer = new Multiplayer(communication);
         multiplayer.createMultiplayerSession();
     }
 
@@ -93,7 +94,7 @@ public class TaskThread implements Runnable {
      * @throws EmptyQuestionsListException  if qcmList and writtenResponseQuestionList are empty
      */
     public void serviceJoinMultiplayer() throws IOException, SQLException, EmptyQuestionsListException {
-        Multiplayer multiplayer = new Multiplayer(clientCommunication);
+        Multiplayer multiplayer = new Multiplayer(communication);
         multiplayer.joinMultiplayerSession();
     }
 
@@ -104,7 +105,7 @@ public class TaskThread implements Runnable {
      * @throws SQLException  if a SQL request in the Multiplayer class method didn't go well
      */
     public String serviceModules() throws IOException, SQLException {
-        Modules modules = new Modules(clientCommunication);
+        Modules modules = new Modules(communication);
         modules.sendModules();
         return modules.getModuleChoice();
     }
@@ -129,23 +130,19 @@ public class TaskThread implements Runnable {
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
     public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException {
-        HashMap<Flags, Object> message;
-        while ((message = clientCommunication.receiveMessage()) != null) { // As long as the server receives no requests, it waits
-            Iterator it = (message).entrySet().iterator();
-            if(it.hasNext()) {
-                Map.Entry<Flags, Object> entry = (Map.Entry)it.next(); // Get element
-                // Use element
-                switch(entry.getKey()) {
-                    case LOGIN -> serviceLogin(entry.getValue());
-                    //case "SOLO_FLAG" -> giveQuestionsWithSpecificModule("Tous les modules");
-                    //case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
-                    //case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
-                    case TRAINING -> serviceTraining();
-                    default -> throw new NotTheExpectedFlagException("LOGIN or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");
-                }
+        CommunicationFormat message;
+        while ((message = communication.receiveMessage()) != null) { // As long as the server receives no requests, it waits
+            // Use element
+            switch(message.getFlag()) {
+                case LOGIN -> serviceLogin(message.getContent());
+                //case "SOLO_FLAG" -> giveQuestionsWithSpecificModule("Tous les modules");
+                //case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
+                //case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
+                case TRAINING -> serviceTraining();
+                default -> throw new NotTheExpectedFlagException("LOGIN or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");
             }
         }
-        clientCommunication.close();    // Close the communication when the client leave
+        communication.close();    // Close the communication when the client leave
     }
 
     @Override

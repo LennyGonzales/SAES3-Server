@@ -9,7 +9,7 @@ import java.util.HashMap;
  * Supports the communication with the client
  * @author LennyGonzales
  */
-public class ClientCommunication {
+public class Communication {
 
     private final SSLSocket socketClient;
     private final BufferedReader in;
@@ -19,7 +19,7 @@ public class ClientCommunication {
     private HashMap<String, Object> hashMapMessage; // private HashMap<Flag, String> hashMapMessage;
 
 
-    public ClientCommunication(SSLSocket socketClient) throws IOException {
+    public Communication(SSLSocket socketClient) throws IOException {
         this.socketClient = socketClient;
         in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
         outObject = new ObjectOutputStream(socketClient.getOutputStream());
@@ -40,19 +40,8 @@ public class ClientCommunication {
 
 
 
-    public void sendMessage(Flags flag, Object content) throws IOException {
-        HashMap<Flags, Object> hashmap = new HashMap<>();
-        hashmap.put(flag,content);
-
-        outObject.writeObject(hashmap);
-        outObject.flush();
-    }
-
-    public void sendMessage(Flags flag) throws IOException {
-        HashMap<Flags, Object> hashmap = new HashMap<>();
-        hashmap.put(flag,null);
-
-        outObject.writeObject(hashmap);
+    public void sendMessage(CommunicationFormat communicationFormat) throws IOException {
+        outObject.writeObject(communicationFormat);
         outObject.flush();
     }
 
@@ -61,11 +50,11 @@ public class ClientCommunication {
      * @return the string sent by the client
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public HashMap<Flags, Object> receiveMessage() throws IOException {
+    public CommunicationFormat receiveMessage() throws IOException {
         try {
             object = inObject.readObject();
-            if(object instanceof HashMap) {
-                return (HashMap<Flags, Object>) object;
+            if(object instanceof CommunicationFormat) {
+                return (CommunicationFormat) object;
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);

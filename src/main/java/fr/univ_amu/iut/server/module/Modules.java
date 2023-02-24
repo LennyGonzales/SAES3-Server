@@ -1,7 +1,8 @@
 package fr.univ_amu.iut.server.module;
 
+import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.database.dao.DAOModuleJDBC;
-import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.Flags;
 
 import java.io.IOException;
@@ -13,11 +14,11 @@ import java.sql.SQLException;
  */
 public class Modules {
     private final DAOModuleJDBC daoStoriesJDBC;
-    private final ClientCommunication clientCommunication;
+    private final Communication communication;
 
-    public Modules(ClientCommunication clientCommunication) throws SQLException {
+    public Modules(Communication communication) throws SQLException {
         daoStoriesJDBC = new DAOModuleJDBC();
-        this.clientCommunication = clientCommunication;
+        this.communication = communication;
     }
 
     /**
@@ -26,8 +27,8 @@ public class Modules {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendModules() throws SQLException, IOException {
-        clientCommunication.sendMessage(Flags.MODULES, daoStoriesJDBC.getAllModules());
-
+        communication.sendMessage(new CommunicationFormat(Flags.MODULES, daoStoriesJDBC.getAllModules()));
+        //communication.sendMessage(Flags.MODULES, daoStoriesJDBC.getAllModules());
     }
 
     /**
@@ -36,6 +37,6 @@ public class Modules {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public String getModuleChoice() throws IOException {
-        return clientCommunication.receiveMessageFromClient();
+        return communication.receiveMessageFromClient();
     }
 }

@@ -4,7 +4,7 @@ import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
-import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Communication;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -19,13 +19,13 @@ public class MultiplayerSession {
     private final List<MultipleChoiceQuestion> multipleChoiceQuestionList;
     private final List<WrittenResponseQuestion> writtenResponseQuestionList;
 
-    private final List<ClientCommunication> users;
+    private final List<Communication> users;
 
-    private final ClientCommunication hostCommunication;
+    private final Communication hostCommunication;
     private final String sessionCode;
     private String message;
 
-    public MultiplayerSession(String sessionCode, String module, ClientCommunication hostCommunication) throws SQLException {
+    public MultiplayerSession(String sessionCode, String module, Communication hostCommunication) throws SQLException {
         this.hostCommunication = hostCommunication;
         this.sessionCode = sessionCode;
         users = new ArrayList<>();
@@ -59,7 +59,7 @@ public class MultiplayerSession {
      * @param email the email of this user
      * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public void addUser(ClientCommunication clientMultiplayerCommunication, String email) throws IOException {
+    public void addUser(Communication clientMultiplayerCommunication, String email) throws IOException {
         users.add(clientMultiplayerCommunication);
         hostCommunication.sendMessageToClient(email);
     }
@@ -92,7 +92,7 @@ public class MultiplayerSession {
      */
     public void executeUsers() throws IOException {
         // Send to all users that the game begins
-        for (ClientCommunication clientMultiplayerCommunication : users) {
+        for (Communication clientMultiplayerCommunication : users) {
             clientMultiplayerCommunication.sendMessageToClient("BEGIN_FLAG");   // Notify the client that the session begin
         }
         MultiplayerSessions.removeSession(sessionCode); // Remove the session

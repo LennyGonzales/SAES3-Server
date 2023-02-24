@@ -3,7 +3,7 @@ package fr.univ_amu.iut.server.questions;
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
-import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.*;
@@ -21,13 +21,13 @@ public class GiveQuestions implements Runnable{
     private final Random randValue;
     private final Iterator<MultipleChoiceQuestion> iteratorQcm;
     private final Iterator<WrittenResponseQuestion> iteratorWrittenResponseQuestion;
-    private final ClientCommunication clientCommunication;
+    private final Communication communication;
     private final HashMap<String, Boolean> summaryHashMap;
     private final String module;
 
 
-    public GiveQuestions(ClientCommunication clientCommunication, List<MultipleChoiceQuestion> multipleChoiceQuestionList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
-        this.clientCommunication = clientCommunication;
+    public GiveQuestions(Communication communication, List<MultipleChoiceQuestion> multipleChoiceQuestionList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException{
+        this.communication = communication;
         if ((multipleChoiceQuestionList.size() < 1) && (writtenResponseQuestionList.size() < 1)) { // Verify if there are questions in the database
             throw new EmptyQuestionsListException();    // If not, throw exception
         }
@@ -51,11 +51,11 @@ public class GiveQuestions implements Runnable{
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendQcm(MultipleChoiceQuestion multipleChoiceQuestion) throws IOException {
-        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getDescription());
-        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getQuestion());
-        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getAnswer1());
-        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getAnswer2());
-        clientCommunication.sendMessageToClient(multipleChoiceQuestion.getAnswer3());
+        communication.sendMessageToClient(multipleChoiceQuestion.getDescription());
+        communication.sendMessageToClient(multipleChoiceQuestion.getQuestion());
+        communication.sendMessageToClient(multipleChoiceQuestion.getAnswer1());
+        communication.sendMessageToClient(multipleChoiceQuestion.getAnswer2());
+        communication.sendMessageToClient(multipleChoiceQuestion.getAnswer3());
     }
 
     /**
@@ -67,7 +67,7 @@ public class GiveQuestions implements Runnable{
         sendQcm(multipleChoiceQuestion);
 
         // Put the question and check if the answer is correct or not
-        String answer = clientCommunication.receiveMessageFromClient();
+        String answer = communication.receiveMessageFromClient();
         if((answer.equals("TIMER_ENDED_FLAG")) || (answer == null)) {
             summaryHashMap.put(multipleChoiceQuestion.getQuestion(), false);   // Not throwing the NumberFormatException : Cannot parse null string
         } else {
@@ -81,8 +81,8 @@ public class GiveQuestions implements Runnable{
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendWrittenResponseQuestion(WrittenResponseQuestion writtenResponseQuestion) throws IOException {
-        clientCommunication.sendMessageToClient(writtenResponseQuestion.getDescription());
-        clientCommunication.sendMessageToClient(writtenResponseQuestion.getQuestion());
+        communication.sendMessageToClient(writtenResponseQuestion.getDescription());
+        communication.sendMessageToClient(writtenResponseQuestion.getQuestion());
     }
 
     /**
@@ -93,7 +93,7 @@ public class GiveQuestions implements Runnable{
         WrittenResponseQuestion writtenResponseQuestion = iteratorWrittenResponseQuestion.next();
         sendWrittenResponseQuestion(writtenResponseQuestion);
 
-        String answer = clientCommunication.receiveMessageFromClient();
+        String answer = communication.receiveMessageFromClient();
         if(answer.equals("TIMER_ENDED_FLAG")) {
             summaryHashMap.put(writtenResponseQuestion.getQuestion(), false);
         } else {
@@ -108,10 +108,10 @@ public class GiveQuestions implements Runnable{
     public void checkingQuestionType() throws IOException, ClassNotFoundException {
         while ((iteratorQcm.hasNext()) || (iteratorWrittenResponseQuestion.hasNext())) {
             if((randValue.nextInt(2) == 0) && (iteratorQcm.hasNext())) {
-                clientCommunication.sendMessageToClient("QCM_FLAG");
+                communication.sendMessageToClient("QCM_FLAG");
                 giveQcm();
             } else if (iteratorWrittenResponseQuestion.hasNext()){
-                clientCommunication.sendMessageToClient("WRITTEN_RESPONSE_QUESTION_FLAG");
+                communication.sendMessageToClient("WRITTEN_RESPONSE_QUESTION_FLAG");
                 giveWrittenResponseQuestion();
             }
         }
@@ -122,9 +122,9 @@ public class GiveQuestions implements Runnable{
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void endGame() throws IOException, UserIsNotInTheDatabaseException, SQLException, ClassNotFoundException {
-        clientCommunication.sendMessageToClient("END_GAME_FLAG"); // Notify the client of the end game by sending a flag
+        communication.sendMessageToClient("END_GAME_FLAG"); // Notify the client of the end game by sending a flag
 
-        Summary summary = new Summary(clientCommunication, summaryHashMap);
+        Summary summary = new Summary(communication, summaryHashMap);
         summary.initialize();
     }
 
@@ -133,7 +133,7 @@ public class GiveQuestions implements Runnable{
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendModule() throws IOException {
-        clientCommunication.sendMessageToClient(module);
+        communication.sendMessageToClient(module);
     }
 
     @Override

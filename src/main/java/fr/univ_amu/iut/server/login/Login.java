@@ -1,7 +1,8 @@
 package fr.univ_amu.iut.server.login;
 
+import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
-import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.Flags;
 
 import java.io.*;
@@ -16,10 +17,10 @@ import java.util.List;
  * @author LennyGonzales
  */
 public class Login {
-    private final ClientCommunication clientCommunication;
+    private final Communication communication;
     private final List<String> credentials;
-    public Login(ClientCommunication clientCommunication, List<String> credentials) {
-        this.clientCommunication = clientCommunication;
+    public Login(Communication communication, List<String> credentials) {
+        this.communication = communication;
         this.credentials = credentials;
     }
 
@@ -42,9 +43,9 @@ public class Login {
      */
     public void serviceLogin() throws IOException, SQLException {
         if(isLogin()) {
-            clientCommunication.sendMessage(Flags.LOGIN_SUCCESSFULLY);
+            communication.sendMessage(new CommunicationFormat(Flags.LOGIN_SUCCESSFULLY));
         } else {
-            clientCommunication.sendMessage(Flags.LOGIN_NOT_SUCCESSFULLY);
+            communication.sendMessage(new CommunicationFormat(Flags.LOGIN_NOT_SUCCESSFULLY));
         }
     }
 
