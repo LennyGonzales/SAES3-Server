@@ -1,7 +1,12 @@
 package fr.univ_amu.iut.server;
 
+
+import javax.net.ssl.SSLSocket;
 import java.io.*;
-import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Supports the communication with the client
@@ -9,17 +14,21 @@ import java.net.Socket;
  */
 public class ClientCommunication {
 
-    private final Socket socketClient;
+    private final SSLSocket socketClient;
     private final BufferedReader in;
     private final ObjectInputStream inObject;
     private final ObjectOutputStream outObject;
     private Object object;
+    private HashMap<String, Object> hashMapMessage; // private HashMap<Flag, String> hashMapMessage;
 
-    public ClientCommunication(Socket socketClient) throws IOException {
+
+    public ClientCommunication(SSLSocket socketClient) throws IOException {
         this.socketClient = socketClient;
         in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
         outObject = new ObjectOutputStream(socketClient.getOutputStream());
         inObject = new ObjectInputStream(socketClient.getInputStream());
+
+        hashMapMessage = new HashMap<>();
     }
 
     /**
@@ -31,6 +40,26 @@ public class ClientCommunication {
         outObject.writeObject(obj);
         outObject.flush();
     }
+
+
+
+    public void sendMessageWithContent(String flag, Object content) throws IOException {
+        HashMap<String, Object> hashmap = new HashMap<>();
+        hashmap.put(flag,content);
+
+        outObject.writeObject(hashmap);
+        outObject.flush();
+    }
+
+    public void sendMessage(String flag) throws IOException {
+        HashMap<String, Object> hashmap = new HashMap<>();
+        hashmap.put(flag,null);
+
+        outObject.writeObject(hashmap);
+        outObject.flush();
+    }
+
+
 
 
     /**
@@ -51,21 +80,13 @@ public class ClientCommunication {
     public String receiveMessageFromClient() throws IOException {
         try {
             object = inObject.readObject();
-            return object.toString();
-        } catch (EOFException | ClassNotFoundException e) {
-            close();
-            e.printStackTrace();
+            if(object instanceof String) {
+                return object.toString();
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         return null;
-    }
-
-    /**
-     * Return true if the client sent a message to the server
-     * @return true - if the client sent a message | else, false
-     * @throws IOException if the communication with the client is closed or didn't go well
-     */
-    public boolean isReceiveMessageFromClient() throws IOException {
-        return in.ready();
     }
 
     /**

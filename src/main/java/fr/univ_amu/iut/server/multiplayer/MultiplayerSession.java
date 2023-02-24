@@ -23,6 +23,7 @@ public class MultiplayerSession {
 
     private final ClientCommunication hostCommunication;
     private final String sessionCode;
+    private String message;
 
     public MultiplayerSession(String sessionCode, String module, ClientCommunication hostCommunication) throws SQLException {
         this.hostCommunication = hostCommunication;
@@ -68,7 +69,8 @@ public class MultiplayerSession {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public boolean verifyBackToMenu() throws IOException {
-        return (hostCommunication.receiveMessageFromClient()).equals("BACK_TO_MENU_FLAG");    // If the user return to the menu
+        return message.equals("BACK_TO_MENU_FLAG");
+        //return (hostCommunication.receiveMessageFromClient()).equals("BACK_TO_MENU_FLAG");    // If the user return to the menu
     }
 
     /**
@@ -77,9 +79,11 @@ public class MultiplayerSession {
      */
     public void getUsersUntilSessionStartOrBackToMenu() throws IOException {
         users.add(hostCommunication);   // Add the host of the session to the users list
-        while(!(hostCommunication.isReceiveMessageFromClient())) {
+        message = hostCommunication.receiveMessageFromClient();
+        /*while(!(hostCommunication.isReceiveMessageFromClient())) {
             // While the multiplayer session's host doesn't click on the button 'Lancer', we store users who join the session in a list and notify them that their request has been received
         }
+         */
     }
 
     /**

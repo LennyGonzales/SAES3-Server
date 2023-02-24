@@ -12,6 +12,7 @@ import fr.univ_amu.iut.server.multiplayer.Multiplayer;
 import fr.univ_amu.iut.server.questions.GiveQuestions;
 import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
+import javax.net.ssl.SSLSocket;
 import java.io.*;
 import java.net.Socket;
 import java.sql.SQLException;
@@ -23,11 +24,9 @@ import java.util.List;
  */
 public class TaskThread implements Runnable {
     private final ClientCommunication clientCommunication;
-    private final Modules modules;
 
-    public TaskThread(Socket sockClient) throws IOException, SQLException {
+    public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
         clientCommunication = new ClientCommunication(sockClient);
-        modules = new Modules(clientCommunication);
     }
 
     /**
@@ -101,6 +100,7 @@ public class TaskThread implements Runnable {
      * @throws SQLException  if a SQL request in the Multiplayer class method didn't go well
      */
     public String serviceModules() throws IOException, SQLException {
+        Modules modules = new Modules(clientCommunication);
         modules.sendModules();
         return modules.getModuleChoice();
     }
