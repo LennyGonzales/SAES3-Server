@@ -1,13 +1,15 @@
 package fr.univ_amu.iut.server.login;
 
 import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
-import fr.univ_amu.iut.server.ClientCommunication;
+import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Flags;
 
 import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Supports the login of the user
@@ -15,8 +17,10 @@ import java.sql.SQLException;
  */
 public class Login {
     private final ClientCommunication clientCommunication;
-    public Login(ClientCommunication clientCommunication) {
+    private final List<String> credentials;
+    public Login(ClientCommunication clientCommunication, List<String> credentials) {
         this.clientCommunication = clientCommunication;
+        this.credentials = credentials;
     }
 
     /**
@@ -24,11 +28,10 @@ public class Login {
      *
      * @return true if the player is in the database
      * @throws SQLException the SQL request didn't go well (isIn method)
-     * @throws IOException if the communication with the client is closed or didn't go well
      */
-    public boolean isLogin() throws SQLException, IOException {
+    public boolean isLogin() throws SQLException {
         DAOUsersJDBC usersDAO = new DAOUsersJDBC();
-        return usersDAO.authentication(clientCommunication.receiveMessageFromClient(),encryptLogin(clientCommunication.receiveMessageFromClient()));    // Verify if the username and the encrypted password is in the database
+        return usersDAO.authentication(credentials.get(0), encryptLogin(credentials.get(1)));    // Verify if the username and the encrypted password is in the database
     }
 
     /**
@@ -39,9 +42,9 @@ public class Login {
      */
     public void serviceLogin() throws IOException, SQLException {
         if(isLogin()) {
-            clientCommunication.sendMessage("LOGIN_SUCCESSFULLY");
+            clientCommunication.sendMessage(Flags.LOGIN_SUCCESSFULLY);
         } else {
-            clientCommunication.sendMessage("LOGIN_NOT_SUCCESSFULLY");
+            clientCommunication.sendMessage(Flags.LOGIN_NOT_SUCCESSFULLY);
         }
     }
 

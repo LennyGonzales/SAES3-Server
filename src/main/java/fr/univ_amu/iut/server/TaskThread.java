@@ -5,6 +5,8 @@ import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
+import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.server.exceptions.NotTheExpectedFlagException;
 import fr.univ_amu.iut.server.login.Login;
 import fr.univ_amu.iut.server.module.Modules;
@@ -14,9 +16,11 @@ import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import javax.net.ssl.SSLSocket;
 import java.io.*;
-import java.net.Socket;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Supports the main communication with the client
@@ -34,8 +38,8 @@ public class TaskThread implements Runnable {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public void serviceLogin() throws IOException, SQLException {
-        Login login = new Login(clientCommunication);   // Get the username and the password
+    public void serviceLogin(Object credentials) throws IOException, SQLException {
+        Login login = new Login(clientCommunication, (List<String>) credentials);   // Get the username and the password
         login.serviceLogin();
     }
 
@@ -113,7 +117,7 @@ public class TaskThread implements Runnable {
      */
     public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException {
         String choice = serviceModules();
-        if((choice != null) && (!(choice.equals("BACK_TO_MENU_FLAG")))) {   // (choice != null) to not throwing the NullPointerException (String.equals(null))
+        if((choice != null) && (!(choice.equals(Flags.BACK_TO_MENU)))) {   // (choice != null) to not throwing the NullPointerException (String.equals(null))
             giveQuestionsWithSpecificModule(choice);
         }
     }
@@ -125,15 +129,20 @@ public class TaskThread implements Runnable {
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
     public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException {
-        String message;
-        while ((message = clientCommunication.receiveMessageFromClient()) != null) { // As long as the server receives no requests, it waits
-            switch (message) {
-                case "LOGIN_FLAG" -> serviceLogin();
-                case "SOLO_FLAG" -> giveQuestionsWithSpecificModule("Tous les modules");
-                case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
-                case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
-                case "TRAINING_FLAG" -> serviceTraining();
-                default -> throw new NotTheExpectedFlagException("LOGIN_FLAG or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");
+        HashMap<Flags, Object> message;
+        while ((message = clientCommunication.receiveMessage()) != null) { // As long as the server receives no requests, it waits
+            Iterator it = (message).entrySet().iterator();
+            if(it.hasNext()) {
+                Map.Entry<Flags, Object> entry = (Map.Entry)it.next(); // Get element
+                // Use element
+                switch(entry.getKey()) {
+                    case LOGIN -> serviceLogin(entry.getValue());
+                    //case "SOLO_FLAG" -> giveQuestionsWithSpecificModule("Tous les modules");
+                    //case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
+                    //case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
+                    case TRAINING -> serviceTraining();
+                    default -> throw new NotTheExpectedFlagException("LOGIN or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");
+                }
             }
         }
         clientCommunication.close();    // Close the communication when the client leave

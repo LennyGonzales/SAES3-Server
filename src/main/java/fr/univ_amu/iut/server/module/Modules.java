@@ -1,12 +1,11 @@
 package fr.univ_amu.iut.server.module;
 
 import fr.univ_amu.iut.database.dao.DAOModuleJDBC;
-import fr.univ_amu.iut.server.ClientCommunication;
+import fr.univ_amu.iut.communication.ClientCommunication;
+import fr.univ_amu.iut.communication.Flags;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Supports the modules' actions
@@ -27,7 +26,7 @@ public class Modules {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void sendModules() throws SQLException, IOException {
-        clientCommunication.sendMessageWithContent("MODULES", daoStoriesJDBC.getAllModules());
+        clientCommunication.sendMessage(Flags.MODULES, daoStoriesJDBC.getAllModules());
 
     }
 

@@ -2,7 +2,7 @@ package fr.univ_amu.iut.server.questions;
 
 import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
-import fr.univ_amu.iut.server.ClientCommunication;
+import fr.univ_amu.iut.communication.ClientCommunication;
 
 import java.io.IOException;
 import java.sql.SQLException;

@@ -3,7 +3,7 @@ package fr.univ_amu.iut.server.questions;
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
-import fr.univ_amu.iut.server.ClientCommunication;
+import fr.univ_amu.iut.communication.ClientCommunication;
 import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.*;

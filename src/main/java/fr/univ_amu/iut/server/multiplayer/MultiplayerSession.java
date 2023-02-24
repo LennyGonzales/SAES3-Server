@@ -4,7 +4,7 @@ import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
 import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
-import fr.univ_amu.iut.server.ClientCommunication;
+import fr.univ_amu.iut.communication.ClientCommunication;
 
 import java.io.IOException;
 import java.sql.SQLException;

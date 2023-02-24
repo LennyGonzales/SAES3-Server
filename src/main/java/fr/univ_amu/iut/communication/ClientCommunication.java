@@ -1,12 +1,9 @@
-package fr.univ_amu.iut.server;
+package fr.univ_amu.iut.communication;
 
 
 import javax.net.ssl.SSLSocket;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Supports the communication with the client
@@ -43,20 +40,37 @@ public class ClientCommunication {
 
 
 
-    public void sendMessageWithContent(String flag, Object content) throws IOException {
-        HashMap<String, Object> hashmap = new HashMap<>();
+    public void sendMessage(Flags flag, Object content) throws IOException {
+        HashMap<Flags, Object> hashmap = new HashMap<>();
         hashmap.put(flag,content);
 
         outObject.writeObject(hashmap);
         outObject.flush();
     }
 
-    public void sendMessage(String flag) throws IOException {
-        HashMap<String, Object> hashmap = new HashMap<>();
+    public void sendMessage(Flags flag) throws IOException {
+        HashMap<Flags, Object> hashmap = new HashMap<>();
         hashmap.put(flag,null);
 
         outObject.writeObject(hashmap);
         outObject.flush();
+    }
+
+    /**
+     * Return the message received from the client
+     * @return the string sent by the client
+     * @throws IOException if the communication with the client is closed or didn't go well
+     */
+    public HashMap<Flags, Object> receiveMessage() throws IOException {
+        try {
+            object = inObject.readObject();
+            if(object instanceof HashMap) {
+                return (HashMap<Flags, Object>) object;
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
 
