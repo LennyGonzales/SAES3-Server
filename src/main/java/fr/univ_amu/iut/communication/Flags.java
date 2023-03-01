@@ -6,5 +6,6 @@ public enum Flags {
     LOGIN_SUCCESSFULLY,
     LOGIN_NOT_SUCCESSFULLY,
     MODULES,
+    MODULE_CHOICE,
     TRAINING
 }

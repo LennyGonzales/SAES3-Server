@@ -36,6 +36,6 @@ public class Modules {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public String getModuleChoice() throws IOException {
-        return communication.receiveMessageFromClient();
+        return (String) communication.receiveMessage().getContent();
     }
 }

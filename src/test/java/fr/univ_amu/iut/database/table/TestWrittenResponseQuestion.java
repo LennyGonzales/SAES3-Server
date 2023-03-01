@@ -1,4 +1,5 @@
 package fr.univ_amu.iut.database.table;
+import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

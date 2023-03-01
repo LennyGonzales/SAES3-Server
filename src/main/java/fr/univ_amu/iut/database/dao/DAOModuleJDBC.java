@@ -1,7 +1,7 @@
 package fr.univ_amu.iut.database.dao;
 
 import fr.univ_amu.iut.Main;
-import fr.univ_amu.iut.database.table.Story;
+import fr.univ_amu.iut.domain.Story;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

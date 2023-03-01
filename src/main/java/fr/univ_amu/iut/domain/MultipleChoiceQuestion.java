@@ -1,4 +1,4 @@
-package fr.univ_amu.iut.database.table;
+package fr.univ_amu.iut.domain;
 
 /**
  * Represents a tuple of the QCM table

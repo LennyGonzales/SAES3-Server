@@ -1,17 +1,15 @@
 package fr.univ_amu.iut.server.questions;
 
 import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
-import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
-import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
+import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
+import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 
 import java.io.*;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Supports the quiz/story (give questions and verify the answer)
@@ -31,6 +29,11 @@ public class GiveQuestions implements Runnable{
         if ((multipleChoiceQuestionList.size() < 1) && (writtenResponseQuestionList.size() < 1)) { // Verify if there are questions in the database
             throw new EmptyQuestionsListException();    // If not, throw exception
         }
+        List<Object> storyList = new ArrayList<>();
+        Stream.of(multipleChoiceQuestionList, writtenResponseQuestionList).forEach(storyList::addAll);
+        Collections.shuffle(storyList);
+        System.out.println(storyList);
+
         iteratorQcm = multipleChoiceQuestionList.iterator();
         iteratorWrittenResponseQuestion = writtenResponseQuestionList.iterator();
         randValue = new Random();

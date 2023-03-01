@@ -4,8 +4,8 @@ package fr.univ_amu.iut.server;
 import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
-import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
-import fr.univ_amu.iut.database.table.WrittenResponseQuestion;
+import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
+import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.server.exceptions.NotTheExpectedFlagException;
@@ -18,10 +18,7 @@ import fr.univ_amu.iut.server.questions.exceptions.EmptyQuestionsListException;
 import javax.net.ssl.SSLSocket;
 import java.io.*;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Supports the main communication with the client

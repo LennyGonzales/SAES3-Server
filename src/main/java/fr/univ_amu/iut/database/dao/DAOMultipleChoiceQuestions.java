@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.database.dao;
 
-import fr.univ_amu.iut.database.table.MultipleChoiceQuestion;
+import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
 
 import java.sql.SQLException;
 import java.util.List;
