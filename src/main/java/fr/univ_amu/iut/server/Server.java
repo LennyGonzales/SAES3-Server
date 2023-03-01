@@ -39,8 +39,6 @@ public class Server {
             System.setProperty("javax.net.ssl.keyStorePassword", "password");   // ----!!!
             SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
             sockServer = (SSLServerSocket) factory.createServerSocket(NUM_PORT);
-            //sockServer.setNeedClientAuth(true);       //----!!!
-            //sockServer.setEnabledCipherSuites(new String[] { "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256" });
             sockServer.setEnabledProtocols(new String[] { "TLSv1.3" });
 
         } catch (Exception e){

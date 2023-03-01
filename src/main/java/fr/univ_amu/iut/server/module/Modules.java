@@ -28,7 +28,6 @@ public class Modules {
      */
     public void sendModules() throws SQLException, IOException {
         communication.sendMessage(new CommunicationFormat(Flags.MODULES, daoStoriesJDBC.getAllModules()));
-        //communication.sendMessage(Flags.MODULES, daoStoriesJDBC.getAllModules());
     }
 
     /**
