@@ -7,5 +7,11 @@ public enum Flags {
     LOGIN_NOT_SUCCESSFULLY,
     MODULES,
     MODULE_CHOICE,
-    TRAINING
+    TRAINING,
+    STORY,
+    ANSWER,
+    TIMER_ENDED,
+    SUMMARY,
+    EMAIL,
+    USER_POINTS
 }

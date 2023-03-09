@@ -1,56 +1,22 @@
 package fr.univ_amu.iut.domain;
 
+import java.util.Optional;
+
 /**
  * Represents a tuple of the QCM table
  * @author LennyGonzales
  */
-public class MultipleChoiceQuestion {
-    private int id;
-    private String module;
-    private String description;
-    private String question;
-    private int trueAnswer;
+public class MultipleChoiceQuestion extends Question {
+    private Integer trueAnswer;
     private String answer1;
     private String answer2;
     private String answer3;
 
-    public int getId() {
-        return id;
+    public Optional<Integer> getTrueAnswer() {
+        return Optional.ofNullable(trueAnswer);
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getModule() {
-        return module;
-    }
-
-    public void setModule(String module) {
-        this.module = module;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-
-    public int getTrueAnswer() {
-        return trueAnswer;
-    }
-
-    public void setTrueAnswer(int trueAnswer) {
+    public void setTrueAnswer(Integer trueAnswer) {
         this.trueAnswer = trueAnswer;
     }
 

@@ -68,7 +68,7 @@ public class TaskThread implements Runnable {
      * @throws SQLException if the getACertainNumberOfQCM() or getACertainNumberOfWrittenResponseQuestion() method didn't go well
      * @throws EmptyQuestionsListException if qcmList and writtenResponseQuestionList are empty
      */
-    public void giveQuestionsWithSpecificModule(String module) throws SQLException, EmptyQuestionsListException {
+    public void giveQuestionsWithSpecificModule(String module) throws SQLException, EmptyQuestionsListException, IOException {
         GiveQuestions giveQuestions = new GiveQuestions(communication, getQCM(module), getWrittenResponseQuestions(module));
         giveQuestions.run();
     }

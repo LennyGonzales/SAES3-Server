@@ -1,6 +1,8 @@
 
 package fr.univ_amu.iut.database;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -18,6 +20,7 @@ public class Database {
     private static final String DATABASE_STORIES = "STORIES";
 
     private static HashMap<String, Connection> connections;
+    private Dotenv dotenv;
 
 
     /**
@@ -38,30 +41,30 @@ public class Database {
      */
     public void initConnections() throws SQLException {
         // Read the .env file
-        Properties env = new Properties();
-        try {
-            env.load(new FileInputStream("databaseCredentials.env"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        dotenv = Dotenv.configure().load();
 
         // init the connections
-        connections.put(DATABASE_USERS, initSingleConnection(env, DATABASE_USERS));
-        connections.put(DATABASE_STORIES, initSingleConnection(env, DATABASE_STORIES));
+        connections.put(DATABASE_USERS, initSingleConnection(DATABASE_USERS));
+        connections.put(DATABASE_STORIES, initSingleConnection(DATABASE_STORIES));
     }
 
     /**
      * Initialize a connection with a database
-     * @param env the env properties
      * @param databaseName the name of the database
      * @return the connection with the database
      * @throws SQLException if the connection didn't go well
      */
-    public Connection initSingleConnection(Properties env, String databaseName) throws SQLException {
+    public Connection initSingleConnection(String databaseName) throws SQLException {
         return DriverManager.getConnection(
+                dotenv.get("DB_" + databaseName + "_URL"),
+                dotenv.get("DB_" + databaseName + "_LOGIN"),
+                dotenv.get("DB_" + databaseName + "_PASSWORD")
+
+                /*
                 env.getProperty("DB_" + databaseName + "_URL"),
                 env.getProperty("DB_" + databaseName + "_LOGIN"),
                 env.getProperty("DB_" + databaseName + "_PASSWORD")
+                 */
         );
     }
 
