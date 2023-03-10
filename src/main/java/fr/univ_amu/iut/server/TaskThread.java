@@ -132,8 +132,8 @@ public class TaskThread implements Runnable {
             // Use element
             switch(message.getFlag()) {
                 case LOGIN -> serviceLogin(message.getContent());
-                //case "SOLO_FLAG" -> giveQuestionsWithSpecificModule("Tous les modules");
-                //case "MULTIPLAYER_CREATION_FLAG" -> serviceCreationMultiplayer();
+                case SOLO -> giveQuestionsWithSpecificModule("Tous les modules");
+                //case "MULTIPLAYER_CREATION" -> serviceCreationMultiplayer();
                 //case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
                 case TRAINING -> serviceTraining();
                 default -> throw new NotTheExpectedFlagException("LOGIN or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");

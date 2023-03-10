@@ -13,5 +13,6 @@ public enum Flags {
     TIMER_ENDED,
     SUMMARY,
     EMAIL,
-    USER_POINTS
+    USER_POINTS,
+    SOLO
 }
