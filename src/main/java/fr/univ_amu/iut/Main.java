@@ -1,7 +1,6 @@
 package fr.univ_amu.iut;
 
 import fr.univ_amu.iut.database.Database;
-import fr.univ_amu.iut.server.Server;
 
 /**
  * Class to run to launch the server
@@ -15,6 +14,6 @@ public class Main {
         Server server = new Server();   // Initialize the server
         server.acceptClients();
 
-        database.closeConnection(); //Close the connection with the database
+        database.closeConnections(); //Close the connection with the database
     }
 }

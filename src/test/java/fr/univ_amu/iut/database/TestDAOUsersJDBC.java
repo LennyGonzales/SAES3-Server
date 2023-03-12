@@ -2,7 +2,7 @@ package fr.univ_amu.iut.database;
 
 import fr.univ_amu.iut.Main;
 import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
-import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
+import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

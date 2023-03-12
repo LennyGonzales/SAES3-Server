@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.database.dao;
 
-import fr.univ_amu.iut.database.exceptions.UserIsNotInTheDatabaseException;
+import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 
 import java.sql.SQLException;
 

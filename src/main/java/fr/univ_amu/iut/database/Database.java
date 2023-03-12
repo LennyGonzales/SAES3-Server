@@ -59,12 +59,6 @@ public class Database {
                 dotenv.get("DB_" + databaseName + "_URL"),
                 dotenv.get("DB_" + databaseName + "_LOGIN"),
                 dotenv.get("DB_" + databaseName + "_PASSWORD")
-
-                /*
-                env.getProperty("DB_" + databaseName + "_URL"),
-                env.getProperty("DB_" + databaseName + "_LOGIN"),
-                env.getProperty("DB_" + databaseName + "_PASSWORD")
-                 */
         );
     }
 
@@ -83,7 +77,7 @@ public class Database {
      * @return true if the disconnection worked
      *         false if the disconnection didn't work
      */
-    public static boolean closeConnection() {
+    public static boolean closeConnections() {
         connections.values().forEach(connection ->
         {
             try {
