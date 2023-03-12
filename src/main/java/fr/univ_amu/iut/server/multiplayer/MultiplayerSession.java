@@ -1,5 +1,7 @@
 package fr.univ_amu.iut.server.multiplayer;
 
+import fr.univ_amu.iut.communication.CommunicationFormat;
+import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
@@ -9,6 +11,7 @@ import fr.univ_amu.iut.communication.Communication;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,16 +44,24 @@ public class MultiplayerSession {
      * Get the qcm list
      * @return the qcm list
      */
-    public List<MultipleChoiceQuestion> getQcmList() {
-        return multipleChoiceQuestionList;
+    public List<MultipleChoiceQuestion> getQcmList() throws CloneNotSupportedException {
+        List<MultipleChoiceQuestion> out = new ArrayList<>();
+        for(MultipleChoiceQuestion question : multipleChoiceQuestionList) {
+            out.add(question.clone());
+        }
+        return out;
     }
 
     /**
      * Get the written response question list
      * @return the written response question list
      */
-    public List<WrittenResponseQuestion> getWrittenResponseQuestionList() {
-        return writtenResponseQuestionList;
+    public List<WrittenResponseQuestion> getWrittenResponseQuestionList() throws CloneNotSupportedException {
+        List<WrittenResponseQuestion> out = new ArrayList<>();
+        for(WrittenResponseQuestion question : writtenResponseQuestionList) {
+            out.add(question.clone());
+        }
+        return out;
     }
 
     /**
@@ -61,54 +72,18 @@ public class MultiplayerSession {
      */
     public void addUser(Communication clientMultiplayerCommunication, String email) throws IOException {
         users.add(clientMultiplayerCommunication);
-        hostCommunication.sendMessageToClient(email);
-    }
-
-    /**
-     * Verify if the user return to the menu
-     * @throws IOException if the communication with the client is closed or didn't go well
-     */
-    public boolean verifyBackToMenu() throws IOException {
-        return message.equals("BACK_TO_MENU_FLAG");
-        //return (hostCommunication.receiveMessageFromClient()).equals("BACK_TO_MENU_FLAG");    // If the user return to the menu
-    }
-
-    /**
-     * Waits until the session start, we store users who join the session in a list and notify them that their request has been received
-     * @throws IOException if the communication with the client is closed or didn't go well
-     */
-    public void getUsersUntilSessionStartOrBackToMenu() throws IOException {
-        users.add(hostCommunication);   // Add the host of the session to the users list
-        message = hostCommunication.receiveMessageFromClient();
-        /*while(!(hostCommunication.isReceiveMessageFromClient())) {
-            // While the multiplayer session's host doesn't click on the button 'Lancer', we store users who join the session in a list and notify them that their request has been received
-        }
-         */
+        hostCommunication.sendMessage(new CommunicationFormat(Flags.NEW_PLAYER, email));
     }
 
     /**
      * Run the session for all other users
      * @throws IOException if the communication with a user is closed or didn't go well
      */
-    public void executeUsers() throws IOException {
-        // Send to all users that the game begins
+    public void start() throws IOException {
+        CommunicationFormat message = new CommunicationFormat(Flags.BEGIN);
         for (Communication clientMultiplayerCommunication : users) {
-            clientMultiplayerCommunication.sendMessageToClient("BEGIN_FLAG");   // Notify the client that the session begin
+            clientMultiplayerCommunication.sendMessage(message);
         }
-        MultiplayerSessions.removeSession(sessionCode); // Remove the session
-    }
-
-    /**
-     * Return if the game will played
-     * @return true - if the game will played | else, false
-     * @throws IOException if the communication with a user is closed or didn't go well
-     */
-    public boolean isGameWillPlayed() throws IOException{
-        getUsersUntilSessionStartOrBackToMenu();
-        if(verifyBackToMenu()) {
-            return false;
-        }
-        executeUsers();     // Run the session for all other users
-        return true;
+        users.add(hostCommunication);
     }
 }

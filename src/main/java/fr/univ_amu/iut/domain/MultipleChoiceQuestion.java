@@ -6,14 +6,14 @@ import java.util.Optional;
  * Represents a tuple of the QCM table
  * @author LennyGonzales
  */
-public class MultipleChoiceQuestion extends Question {
+public class MultipleChoiceQuestion extends Question implements Cloneable {
     private Integer trueAnswer;
     private String answer1;
     private String answer2;
     private String answer3;
 
-    public Optional<Integer> getTrueAnswer() {
-        return Optional.ofNullable(trueAnswer);
+    public Integer getTrueAnswer() {
+        return trueAnswer;
     }
 
     public void setTrueAnswer(Integer trueAnswer) {
@@ -42,5 +42,11 @@ public class MultipleChoiceQuestion extends Question {
 
     public void setAnswer3(String answer3) {
         this.answer3 = answer3;
+    }
+
+    @Override
+    public MultipleChoiceQuestion clone() throws CloneNotSupportedException
+    {
+        return (MultipleChoiceQuestion) super.clone();
     }
 }

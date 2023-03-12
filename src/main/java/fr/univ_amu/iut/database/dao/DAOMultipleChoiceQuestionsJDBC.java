@@ -23,7 +23,7 @@ public class DAOMultipleChoiceQuestionsJDBC implements DAOMultipleChoiceQuestion
      * @throws SQLException if the prepareStatement didn't go well
      */
     public DAOMultipleChoiceQuestionsJDBC() throws SQLException {
-        getACertainNumberOfQCMStatement = CONNECTION.prepareStatement("SELECT DISTINCT DESCRIPTION, QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM MULTIPLECHOICEQUESTIONS WHERE MODULE = ? LIMIT ?;");
+        getACertainNumberOfQCMStatement = CONNECTION.prepareStatement("SELECT DISTINCT ID, DESCRIPTION, QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM MULTIPLECHOICEQUESTIONS WHERE MODULE = ? LIMIT ?;");
     }
 
     /**
@@ -43,12 +43,13 @@ public class DAOMultipleChoiceQuestionsJDBC implements DAOMultipleChoiceQuestion
         while(result.next()) {
             multipleChoiceQuestion = new MultipleChoiceQuestion();
             multipleChoiceQuestion.setModule(module);
-            multipleChoiceQuestion.setDescription(result.getString(1));
-            multipleChoiceQuestion.setQuestion(result.getString(2));
-            multipleChoiceQuestion.setTrueAnswer(result.getInt(3));
-            multipleChoiceQuestion.setAnswer1(result.getString(4));
-            multipleChoiceQuestion.setAnswer2(result.getString(5));
-            multipleChoiceQuestion.setAnswer3(result.getString(6));
+            multipleChoiceQuestion.setId(result.getInt(1));
+            multipleChoiceQuestion.setDescription(result.getString(2));
+            multipleChoiceQuestion.setQuestion(result.getString(3));
+            multipleChoiceQuestion.setTrueAnswer(result.getInt(4));
+            multipleChoiceQuestion.setAnswer1(result.getString(5));
+            multipleChoiceQuestion.setAnswer2(result.getString(6));
+            multipleChoiceQuestion.setAnswer3(result.getString(7));
             multipleChoiceQuestionList.add(multipleChoiceQuestion);
         }
         return multipleChoiceQuestionList;

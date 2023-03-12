@@ -4,7 +4,7 @@ package fr.univ_amu.iut.domain;
  * Represents a tuple of the WRITTENRESPONSE table
  * @author LennyGonzales
  */
-public class WrittenResponseQuestion extends Question{
+public class WrittenResponseQuestion extends Question implements Cloneable{
     private String trueAnswer;
 
     public String getTrueAnswer() {
@@ -13,5 +13,11 @@ public class WrittenResponseQuestion extends Question{
 
     public void setTrueAnswer(String trueAnswer) {
         this.trueAnswer = trueAnswer;
+    }
+
+    @Override
+    public WrittenResponseQuestion clone() throws CloneNotSupportedException
+    {
+        return (WrittenResponseQuestion) super.clone();
     }
 }

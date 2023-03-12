@@ -4,6 +4,8 @@ import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
 
 public class TestQCM {
@@ -69,13 +71,13 @@ public class TestQCM {
 
     @Test
     public void shouldGetTrueAnswer() {
-        assertEquals(1, multipleChoiceQuestion.getTrueAnswer());
+        assertEquals(Optional.of(1), multipleChoiceQuestion.getTrueAnswer());
     }
 
     @Test
     public void shouldSetTrueAnswer() {
         multipleChoiceQuestion.setTrueAnswer(2);
-        assertEquals(2, multipleChoiceQuestion.getTrueAnswer());
+        assertEquals(Optional.of(2), multipleChoiceQuestion.getTrueAnswer());
     }
 
     @Test

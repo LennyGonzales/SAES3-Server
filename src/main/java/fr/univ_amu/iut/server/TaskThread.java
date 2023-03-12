@@ -79,7 +79,7 @@ public class TaskThread implements Runnable {
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      * @throws EmptyQuestionsListException  if qcmList and writtenResponseQuestionList are empty
      */
-    public void serviceCreationMultiplayer() throws IOException, SQLException, EmptyQuestionsListException {
+    public void serviceCreationMultiplayer() throws IOException, SQLException, EmptyQuestionsListException, CloneNotSupportedException {
         Multiplayer multiplayer = new Multiplayer(communication);
         multiplayer.createMultiplayerSession();
     }
@@ -90,21 +90,9 @@ public class TaskThread implements Runnable {
      * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
      * @throws EmptyQuestionsListException  if qcmList and writtenResponseQuestionList are empty
      */
-    public void serviceJoinMultiplayer() throws IOException, SQLException, EmptyQuestionsListException {
+    public void serviceJoinMultiplayer(String code) throws IOException, SQLException, EmptyQuestionsListException, CloneNotSupportedException {
         Multiplayer multiplayer = new Multiplayer(communication);
-        multiplayer.joinMultiplayerSession();
-    }
-
-    /**
-     * Send the modules and get the module chosen by the user
-     * @return the module chose
-     * @throws IOException if the communication with the client is closed or didn't go well
-     * @throws SQLException  if a SQL request in the Multiplayer class method didn't go well
-     */
-    public String serviceModules() throws IOException, SQLException {
-        Modules modules = new Modules(communication);
-        modules.sendModules();
-        return modules.getModuleChoice();
+        multiplayer.joinMultiplayerSession(code);
     }
 
     /**
@@ -114,9 +102,14 @@ public class TaskThread implements Runnable {
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
     public void serviceTraining() throws SQLException, IOException, EmptyQuestionsListException {
-        String choice = serviceModules();
-        if((choice != null) && (!(choice.equals(Flags.BACK_TO_MENU)))) {   // (choice != null) to not throwing the NullPointerException (String.equals(null))
-            giveQuestionsWithSpecificModule(choice);
+        // Send modules
+        Modules modules = new Modules(communication);
+        modules.sendModules();
+
+        // Receive module choice
+        CommunicationFormat message = communication.receiveMessage();
+        if(!(message.getFlag().equals(Flags.BACK_TO_MENU))) {   // (choice != null) to not throwing the NullPointerException (String.equals(null))
+            giveQuestionsWithSpecificModule(message.getContent().toString());
         }
     }
 
@@ -126,15 +119,15 @@ public class TaskThread implements Runnable {
      * @throws SQLException if a SQL request didn't go well
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
-    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException {
+    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException, CloneNotSupportedException {
         CommunicationFormat message;
         while ((message = communication.receiveMessage()) != null) { // As long as the server receives no requests, it waits
             // Use element
             switch(message.getFlag()) {
                 case LOGIN -> serviceLogin(message.getContent());
                 case SOLO -> giveQuestionsWithSpecificModule("Tous les modules");
-                //case "MULTIPLAYER_CREATION" -> serviceCreationMultiplayer();
-                //case "MULTIPLAYER_JOIN_FLAG" -> serviceJoinMultiplayer();
+                case MULTIPLAYER_CREATION -> serviceCreationMultiplayer();
+                case MULTIPLAYER_JOIN -> serviceJoinMultiplayer(message.getContent().toString());
                 case TRAINING -> serviceTraining();
                 default -> throw new NotTheExpectedFlagException("LOGIN or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");
             }
@@ -147,7 +140,7 @@ public class TaskThread implements Runnable {
         try {
             serviceType();
         } catch (IOException | SQLException | EmptyQuestionsListException | NotTheExpectedFlagException |
-                 ClassNotFoundException e){
+                 ClassNotFoundException | CloneNotSupportedException e){
             throw new RuntimeException(e);
         }
     }

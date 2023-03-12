@@ -30,12 +30,4 @@ public class Modules {
         communication.sendMessage(new CommunicationFormat(Flags.MODULES, daoStoriesJDBC.getAllModules()));
     }
 
-    /**
-     * Get the module chosen by the user
-     * @return the module chosen
-     * @throws IOException if the communication with the client is closed or didn't go well
-     */
-    public String getModuleChoice() throws IOException {
-        return (String) communication.receiveMessage().getContent();
-    }
 }

@@ -25,7 +25,7 @@ public class GiveQuestions {
     private final Communication communication;
     private List<Question> story;
     private HashMap<Integer, String> correctionWrittenResponse;
-    private HashMap<Integer, Optional<Integer>> correctionMultipleChoiceResponse;
+    private HashMap<Integer, Integer> correctionMultipleChoiceResponse;
 
 
     public GiveQuestions(Communication communication, List<MultipleChoiceQuestion> multipleChoiceQuestionList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws EmptyQuestionsListException, IOException {
@@ -53,14 +53,22 @@ public class GiveQuestions {
      * Prepare the correction and nullified the true answer before sending to the client
      */
     public void prepareStory() {
-        multipleChoiceQuestionList.forEach((question) -> {
-            correctionMultipleChoiceResponse.put(question.getId(), question.getTrueAnswer());
-            question.setTrueAnswer(null);
-        });
-        writtenResponseQuestionList.forEach((question) -> {
-            correctionWrittenResponse.put(question.getId(), question.getTrueAnswer());
-            question.setTrueAnswer(null);
-        });
+        for(MultipleChoiceQuestion question : multipleChoiceQuestionList) {
+            if(question.getTrueAnswer() != null) {
+                correctionMultipleChoiceResponse.put(question.getId(), question.getTrueAnswer());
+                question.setTrueAnswer(null);
+                continue;
+            }
+            correctionMultipleChoiceResponse.put(question.getId(), null);
+        }
+        for(WrittenResponseQuestion question : writtenResponseQuestionList) {
+            if(question.getTrueAnswer() != null) {
+                correctionWrittenResponse.put(question.getId(), question.getTrueAnswer());
+                question.setTrueAnswer(null);
+                continue;
+            }
+            correctionWrittenResponse.put(question.getId(), null);
+        }
     }
 
     public void run() {

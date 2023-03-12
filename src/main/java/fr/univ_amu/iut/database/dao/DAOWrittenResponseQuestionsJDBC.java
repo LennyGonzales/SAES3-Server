@@ -24,7 +24,7 @@ public class DAOWrittenResponseQuestionsJDBC implements DAOWrittenResponseQuesti
      * @throws SQLException if the prepareStatement didn't go well
      */
     public DAOWrittenResponseQuestionsJDBC() throws SQLException {
-        getACertainNumberOfWrittenResponseQuestion = CONNECTION.prepareStatement("SELECT DISTINCT DESCRIPTION, QUESTION, TRUE_ANSWER FROM WRITTENRESPONSEQUESTIONS W WHERE MODULE = ? LIMIT ?;");
+        getACertainNumberOfWrittenResponseQuestion = CONNECTION.prepareStatement("SELECT DISTINCT ID, DESCRIPTION, QUESTION, TRUE_ANSWER FROM WRITTENRESPONSEQUESTIONS W WHERE MODULE = ? LIMIT ?;");
     }
 
     /**
@@ -46,9 +46,10 @@ public class DAOWrittenResponseQuestionsJDBC implements DAOWrittenResponseQuesti
         while(result.next()) {
             writtenResponseQuestion = new WrittenResponseQuestion();
             writtenResponseQuestion.setModule(module);
-            writtenResponseQuestion.setDescription(result.getString(1));
-            writtenResponseQuestion.setQuestion(result.getString(2));
-            writtenResponseQuestion.setTrueAnswer(result.getString(3));
+            writtenResponseQuestion.setId(result.getInt(1));
+            writtenResponseQuestion.setDescription(result.getString(2));
+            writtenResponseQuestion.setQuestion(result.getString(3));
+            writtenResponseQuestion.setTrueAnswer(result.getString(4));
             writtenResponseQuestions.add(writtenResponseQuestion);
         }
         return writtenResponseQuestions;

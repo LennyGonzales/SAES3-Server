@@ -24,9 +24,9 @@ public class Summary {
     private List<Question> storyReceived;
     private int correctAnswers;
     private HashMap<Integer, String> correctionWrittenResponse;
-    private HashMap<Integer, Optional<Integer>> correctionMultipleChoiceResponse;
+    private HashMap<Integer, Integer> correctionMultipleChoiceResponse;
 
-    public Summary(Communication communication, HashMap<Integer, String> correctionWrittenResponse, HashMap<Integer, Optional<Integer>> correctionMultipleChoiceResponse) {
+    public Summary(Communication communication, HashMap<Integer, String> correctionWrittenResponse, HashMap<Integer, Integer> correctionMultipleChoiceResponse) {
         this.communication = communication;
         this.correctionWrittenResponse = correctionWrittenResponse;
         this.correctionMultipleChoiceResponse = correctionMultipleChoiceResponse;
