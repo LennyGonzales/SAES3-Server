@@ -3,7 +3,6 @@ package fr.univ_amu.iut.communication;
 
 import javax.net.ssl.SSLSocket;
 import java.io.*;
-import java.util.HashMap;
 
 /**
  * Supports the communication with the client
@@ -16,7 +15,6 @@ public class Communication {
     private final ObjectInputStream inObject;
     private final ObjectOutputStream outObject;
     private Object object;
-    private HashMap<String, Object> hashMapMessage; // private HashMap<Flag, String> hashMapMessage;
 
 
     public Communication(SSLSocket socketClient) throws IOException {
@@ -25,7 +23,6 @@ public class Communication {
         outObject = new ObjectOutputStream(socketClient.getOutputStream());
         inObject = new ObjectInputStream(socketClient.getInputStream());
 
-        hashMapMessage = new HashMap<>();
     }
 
     /**

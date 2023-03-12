@@ -27,7 +27,7 @@ import java.util.List;
 public class TaskThread implements Runnable {
     private final Communication communication;
 
-    public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
+    public TaskThread(SSLSocket sockClient) throws IOException {
         communication = new Communication(sockClient);
     }
 
