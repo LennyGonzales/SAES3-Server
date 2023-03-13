@@ -2,14 +2,15 @@ package fr.univ_amu.iut;
 
 
 import fr.univ_amu.iut.communication.CommunicationFormat;
+import fr.univ_amu.iut.control.Controllers;
 import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
+import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
 import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.exceptions.NotTheExpectedFlagException;
-import fr.univ_amu.iut.service.login.Login;
 import fr.univ_amu.iut.service.module.Modules;
 import fr.univ_amu.iut.service.multiplayer.Multiplayer;
 import fr.univ_amu.iut.service.questions.GiveQuestions;
@@ -26,19 +27,13 @@ import java.util.List;
  */
 public class TaskThread implements Runnable {
     private final Communication communication;
+    private Controllers controller;
+    private DAOUsersJDBC usersJDBC;
 
-    public TaskThread(SSLSocket sockClient) throws IOException {
+    public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
         communication = new Communication(sockClient);
-    }
-
-    /**
-     * This function supports client login
-     * @throws IOException if the communication with the client is closed or didn't go well
-     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
-     */
-    public void serviceLogin(Object credentials) throws IOException, SQLException {
-        Login login = new Login(communication, (List<String>) credentials);   // Get the username and the password
-        login.serviceLogin();
+        usersJDBC = new DAOUsersJDBC();
+        controller = new Controllers(communication, usersJDBC);
     }
 
     /**
@@ -124,7 +119,7 @@ public class TaskThread implements Runnable {
         while ((message = communication.receiveMessage()) != null) { // As long as the server receives no requests, it waits
             // Use element
             switch(message.getFlag()) {
-                case LOGIN -> serviceLogin(message.getContent());
+                case LOGIN -> controller.loginAction((List<String>) message.getContent());
                 case SOLO -> giveQuestionsWithSpecificModule("Tous les modules", (Integer) message.getContent());
                 case MULTIPLAYER_CREATION -> serviceCreationMultiplayer((Integer) message.getContent());
                 case MULTIPLAYER_JOIN -> serviceJoinMultiplayer(message.getContent().toString());
