@@ -7,19 +7,12 @@ import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
-import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
-import fr.univ_amu.iut.domain.Question;
-import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.communication.Communication;
-import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.exceptions.NotTheExpectedFlagException;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.service.StoryChecking;
 import fr.univ_amu.iut.service.UsersChecking;
-import fr.univ_amu.iut.service.dao.DAOQuestions;
-import fr.univ_amu.iut.service.module.Modules;
 import fr.univ_amu.iut.service.multiplayer.Multiplayer;
-import fr.univ_amu.iut.service.questions.GiveQuestions;
 import fr.univ_amu.iut.exceptions.EmptyQuestionsListException;
 
 import javax.net.ssl.SSLSocket;
@@ -32,11 +25,10 @@ import java.util.List;
  * @author LennyGonzales
  */
 public class TaskThread implements Runnable {
-    private static final String DEFAULT_MODULE = "Tous les modules";
     private final Communication communication;
     private Controllers controller;
 
-    // Cheking
+    // Checking
     private UsersChecking usersChecking;
     private StoryChecking storyChecking;
 
@@ -44,8 +36,8 @@ public class TaskThread implements Runnable {
     private DAOUsersJDBC daoUsersJDBC;
     private DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceQuestionsJDBC;
     private DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestionsJDBC;
-
     private DAOQuestionsJDBC daoQuestionsJDBC;
+
     public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
         communication = new Communication(sockClient);
         usersChecking = new UsersChecking();
@@ -55,38 +47,6 @@ public class TaskThread implements Runnable {
         daoWrittenResponseQuestionsJDBC = new DAOWrittenResponseQuestionsJDBC();
         daoQuestionsJDBC = new DAOQuestionsJDBC();
         controller = new Controllers(communication);
-    }
-
-    /**
-     * Return 5 qcm
-     * @param module chose by the user
-     * @return 5 qcm
-     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
-     */
-    public List<MultipleChoiceQuestion> getQCM(String module, int nbQuestions) throws SQLException {
-        DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceResponsesJDBC = new DAOMultipleChoiceQuestionsJDBC();
-        return daoMultipleChoiceResponsesJDBC.getACertainNumberOfQCM(nbQuestions, module);
-    }
-
-    /**
-     * Return 5 written response questions
-     * @param module chose by the user
-     * @return 5 written response questions
-     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
-     */
-    public List<WrittenResponseQuestion> getWrittenResponseQuestions(String module, int nbQuestions) throws SQLException {
-        DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionsJDBC();
-        return daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(nbQuestions, module);
-    }
-
-    /**
-     * Give the qcm and written response questions to the user and verify the answers
-     * @throws SQLException if the getACertainNumberOfQCM() or getACertainNumberOfWrittenResponseQuestion() method didn't go well
-     * @throws EmptyQuestionsListException if qcmList and writtenResponseQuestionList are empty
-     */
-    public void giveQuestionsWithSpecificModule(String module, int nbQuestions) throws SQLException, EmptyQuestionsListException, IOException {
-        GiveQuestions giveQuestions = new GiveQuestions(communication, getQCM(module, nbQuestions/2), getWrittenResponseQuestions(module, nbQuestions/2));
-        giveQuestions.run();
     }
 
     /**
@@ -111,23 +71,7 @@ public class TaskThread implements Runnable {
         multiplayer.joinMultiplayerSession(code);
     }
 
-    /**
-     * Supports the creation of a training session
-     * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
-     * @throws IOException if the communication with the client is closed or didn't go well
-     * @throws EmptyQuestionsListException call when the list of questions is empty
-     */
-    public void serviceTraining(int nbQuestions) throws SQLException, IOException, EmptyQuestionsListException {
-        // Send modules
-        Modules modules = new Modules(communication);
-        modules.sendModules();
 
-        // Receive module choice
-        CommunicationFormat message = communication.receiveMessage();
-        if(!(message.getFlag().equals(Flags.BACK_TO_MENU))) {   // (choice != null) to not throwing the NullPointerException (String.equals(null))
-            giveQuestionsWithSpecificModule(message.getContent().toString(), nbQuestions);
-        }
-    }
 
     /**
      * A function which find the service type (login, create multiplayer session, ...) and call the function associated
@@ -148,8 +92,14 @@ public class TaskThread implements Runnable {
 
                 case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsersJDBC);
 
-                case MULTIPLAYER_CREATION -> serviceCreationMultiplayer((Integer) message.getContent());
+                // Create multiplayer session
+                case CREATE_SESSION -> controller.createSession(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1));
 
+                case CANCEL_CREATE_SESSION -> controller.removeSession(message.getContent().toString());
+
+                case BEGIN -> controller.beginSession(message.getContent().toString(), storyChecking);
+
+                // Join multiplayer session
                 case MULTIPLAYER_JOIN -> serviceJoinMultiplayer(message.getContent().toString());
 
                 default -> throw new NotTheExpectedFlagException("LOGIN or MODULES or STORY or SUMMARY or MULTIPLAYER_CREATION or MULTIPLAYER_JOIN");

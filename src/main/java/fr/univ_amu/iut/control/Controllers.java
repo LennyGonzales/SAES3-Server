@@ -3,6 +3,7 @@ package fr.univ_amu.iut.control;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.communication.Flags;
+import fr.univ_amu.iut.domain.Question;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.service.StoryChecking;
 import fr.univ_amu.iut.service.UsersChecking;
@@ -10,10 +11,14 @@ import fr.univ_amu.iut.service.dao.DAOMultipleChoiceQuestions;
 import fr.univ_amu.iut.service.dao.DAOQuestions;
 import fr.univ_amu.iut.service.dao.DAOUsers;
 import fr.univ_amu.iut.service.dao.DAOWrittenResponseQuestions;
+import fr.univ_amu.iut.domain.MultiplayerSession;
+import fr.univ_amu.iut.service.multiplayer.MultiplayerSessionsManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Controls the user's actions
@@ -85,4 +90,39 @@ public class Controllers {
     public void modulesAction(StoryChecking storyChecking ,DAOQuestions daoQuestions) throws SQLException, IOException {
         communication.sendMessage(new CommunicationFormat(Flags.MODULES, storyChecking.getModules(daoQuestions)));
     }
+
+    /**
+     * Control the creation of a session
+     * @param module story's module
+     * @param numberOfQuestions number of questions for the story
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
+     */
+    public void createSession(String module, int numberOfQuestions) throws IOException, SQLException {
+        String sessionCode = UUID.randomUUID().toString().substring(0,8);
+        MultiplayerSessionsManager.addSession(sessionCode,new MultiplayerSession(module, numberOfQuestions, communication));
+        communication.sendMessage(new CommunicationFormat(Flags.CODE, sessionCode));
+    }
+
+
+    public void removeSession(String sessionCode) {
+        if(MultiplayerSessionsManager.getSessionWithSessionCode(sessionCode).getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
+            MultiplayerSessionsManager.removeSession(sessionCode);
+        }
+    }
+
+    public void beginSession(String sessionCode, StoryChecking storyChecking) throws IOException, CloneNotSupportedException {
+        MultiplayerSession multiplayerSession = MultiplayerSessionsManager.getSessionWithSessionCode(sessionCode);
+        if (multiplayerSession.getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
+            multiplayerSession.start();
+            MultiplayerSessionsManager.removeSession(sessionCode);
+
+            List<Question> story = storyChecking.prepareStory(multiplayerSession.getMultipleChoiceResponseList(), multiplayerSession.getWrittenResponseQuestionList());
+            communication.sendMessage(new CommunicationFormat(Flags.STORY, story));
+        }
+    }
+
+    // Join
+    // multiplayerSession.getQCMList() => StoryChecking.setCurrentQCMList()
+    // ...
 }

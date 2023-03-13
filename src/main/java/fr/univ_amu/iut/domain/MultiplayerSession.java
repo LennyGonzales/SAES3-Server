@@ -1,4 +1,4 @@
-package fr.univ_amu.iut.service.multiplayer;
+package fr.univ_amu.iut.domain;
 
 import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.communication.Flags;
@@ -24,12 +24,9 @@ public class MultiplayerSession {
     private final List<Communication> users;
 
     private final Communication hostCommunication;
-    private final String sessionCode;
-    private String message;
 
-    public MultiplayerSession(String sessionCode, String module, Communication hostCommunication, int nbQuestions) throws SQLException {
+    public MultiplayerSession(String module, int nbQuestions, Communication hostCommunication) throws SQLException {
         this.hostCommunication = hostCommunication;
-        this.sessionCode = sessionCode;
         users = new ArrayList<>();
 
         // Generate the questions lists
@@ -39,11 +36,15 @@ public class MultiplayerSession {
         writtenResponseQuestionList = daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(nbQuestions/2, module);
     }
 
+    public Communication getHostCommunication() {
+        return hostCommunication;
+    }
+
     /**
      * Get the qcm list
      * @return the qcm list
      */
-    public List<MultipleChoiceQuestion> getQcmList() throws CloneNotSupportedException {
+    public List<MultipleChoiceQuestion> getMultipleChoiceResponseList() throws CloneNotSupportedException {
         List<MultipleChoiceQuestion> out = new ArrayList<>();
         for(MultipleChoiceQuestion question : multipleChoiceQuestionList) {
             out.add(question.clone());

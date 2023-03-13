@@ -44,6 +44,10 @@ public class StoryChecking {
         List<MultipleChoiceQuestion> multipleChoiceQuestionList = daoMultipleChoiceQuestions.getACertainNumberOfQCM(numberOfQuestions/2, module);
         List<WrittenResponseQuestion> writtenResponseQuestionList = daoWrittenResponseQuestions.getACertainNumberOfWrittenResponseQuestion(numberOfQuestions/2, module);
 
+        return prepareStory(multipleChoiceQuestionList, writtenResponseQuestionList);
+    }
+
+    public List<Question> prepareStory(List<MultipleChoiceQuestion> multipleChoiceQuestionList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws CloneNotSupportedException {
         MultipleChoiceQuestion multipleChoiceQuestionClone;
         for(MultipleChoiceQuestion question : multipleChoiceQuestionList) {
             multipleChoiceQuestionClone = question.clone(); // => not the same reference (setTrueAnswer isn't going to modify currentWrittenResponse HashMap
@@ -56,12 +60,12 @@ public class StoryChecking {
             currentWrittenResponse.put(question.getId(), writtenResponseQuestionClone.getTrueAnswer());
             question.setTrueAnswer(null);
         }
-
         List<Question> story = new ArrayList<>();
         story.addAll(multipleChoiceQuestionList);
         story.addAll(writtenResponseQuestionList);
         return story;
     }
+
 
     /**
      * Get the summary

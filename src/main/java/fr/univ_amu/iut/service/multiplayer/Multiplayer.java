@@ -3,6 +3,7 @@ package fr.univ_amu.iut.service.multiplayer;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.communication.Flags;
+import fr.univ_amu.iut.domain.MultiplayerSession;
 import fr.univ_amu.iut.service.module.Modules;
 import fr.univ_amu.iut.service.questions.GiveQuestions;
 import fr.univ_amu.iut.exceptions.EmptyQuestionsListException;
@@ -37,6 +38,7 @@ public class Multiplayer {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void createMultiplayerSession(int nbQuestions) throws IOException, SQLException, EmptyQuestionsListException, CloneNotSupportedException {
+        /*
         // Module choice
         modules.sendModules();
         CommunicationFormat message = communication.receiveMessage();
@@ -48,7 +50,7 @@ public class Multiplayer {
         // If the user doesn't return on the menu page
         if(!(message.getFlag().equals(Flags.BACK_TO_MENU))) {
             // Create the session
-            MultiplayerSession multiplayerSession = new MultiplayerSession(codeSession, message.getContent().toString(), communication, nbQuestions);
+            MultiplayerSession multiplayerSession = new MultiplayerSession(message.getContent().toString(), nbQuestions, communication);
             MultiplayerSessions.addSession(codeSession, multiplayerSession);   // Add session to the multiplayerSessions HashMap
 
             message = communication.receiveMessage();   // Users can join
@@ -61,6 +63,7 @@ public class Multiplayer {
                 giveQuestions.run();
             }
         }
+         */
     }
 
     /**
@@ -70,7 +73,7 @@ public class Multiplayer {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public boolean checkMultiplayerSessionExistence(String sessionCode) throws IOException {
-        if(MultiplayerSessions.getMultiplayerSessions().containsKey(sessionCode)) {  // Verify if the multiplayer session exists
+        if(MultiplayerSessionsManager.getMultiplayerSessions().containsKey(sessionCode)) {  // Verify if the multiplayer session exists
             communication.sendMessage(new CommunicationFormat(Flags.SESSION_EXISTS));
             return true;
         }
@@ -85,14 +88,14 @@ public class Multiplayer {
      */
     public void joinMultiplayerSession(String code) throws IOException, EmptyQuestionsListException, CloneNotSupportedException {
         if(checkMultiplayerSessionExistence(code)) {  // Verify if the multiplayer session exists
-            MultiplayerSession multiplayerSession = MultiplayerSessions.getSessionWithSessionCode(code);    // Get the multiplayer session instance
+            MultiplayerSession multiplayerSession = MultiplayerSessionsManager.getSessionWithSessionCode(code);    // Get the multiplayer session instance
 
             CommunicationFormat message = communication.receiveMessage();   // Get the user email
             if(message.getFlag().equals(Flags.EMAIL)) {
                 multiplayerSession.addUser(communication, message.getContent().toString());  // Add it to the user list
 
                 if (communication.receiveMessage().getFlag().equals(Flags.BEGIN)) {  // If the session begin (the host of the session start it), we give the questions to the user
-                    GiveQuestions giveQuestions = new GiveQuestions(communication, multiplayerSession.getQcmList(), multiplayerSession.getWrittenResponseQuestionList());
+                    GiveQuestions giveQuestions = new GiveQuestions(communication, multiplayerSession.getMultipleChoiceResponseList(), multiplayerSession.getWrittenResponseQuestionList());
                     giveQuestions.run();
                 }
             }

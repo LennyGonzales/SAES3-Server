@@ -1,12 +1,14 @@
 package fr.univ_amu.iut.service.multiplayer;
 
+import fr.univ_amu.iut.domain.MultiplayerSession;
+
 import java.util.HashMap;
 
 /**
  * Stores multiplayer sessions
  * @author LennyGonzales
  */
-public class MultiplayerSessions {
+public class MultiplayerSessionsManager {
     private static HashMap<String, MultiplayerSession> multiplayerSessions = new HashMap<>();
 
     /**
