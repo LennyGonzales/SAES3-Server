@@ -2,6 +2,7 @@ package fr.univ_amu.iut.database.dao;
 
 import fr.univ_amu.iut.Main;
 import fr.univ_amu.iut.domain.WrittenResponseQuestion;
+import fr.univ_amu.iut.service.dao.DAOWrittenResponseQuestions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

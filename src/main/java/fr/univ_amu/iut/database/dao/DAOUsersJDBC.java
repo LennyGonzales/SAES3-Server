@@ -1,7 +1,9 @@
 package fr.univ_amu.iut.database.dao;
 
 import fr.univ_amu.iut.Main;
+import fr.univ_amu.iut.domain.User;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
+import fr.univ_amu.iut.service.dao.DAOUsers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,18 +33,24 @@ public class DAOUsersJDBC implements DAOUsers {
     }
 
     /**
-     * verify if the user's email is in the database
+     * Get the user by email and password
      * @param email the input email of the user
      * @param password the input password of the user
-     * @return  true - the user is in the database | false - the user isn't in the database
+     * @return an instance of User or null
      * @throws SQLException the SQL request didn't go well
      */
-    public boolean authentication(String email, String password) throws SQLException {
+    public User getUser(String email, String password) throws SQLException {
         authenticationStatement.setString(1,email);
         authenticationStatement.setString(2,password);
 
         ResultSet result = authenticationStatement.executeQuery();
-        return (result.next());
+        if(result.next()) {
+            User user = new User();
+            user.setEmail(result.getString(1));
+            user.setPassword(result.getString(2));
+            return user;
+        }
+        return null;
     }
 
     /**

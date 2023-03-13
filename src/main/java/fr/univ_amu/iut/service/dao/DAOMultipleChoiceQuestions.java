@@ -1,4 +1,4 @@
-package fr.univ_amu.iut.database.dao;
+package fr.univ_amu.iut.service.dao;
 
 import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
 

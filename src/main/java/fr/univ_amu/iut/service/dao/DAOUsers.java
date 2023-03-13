@@ -1,5 +1,6 @@
-package fr.univ_amu.iut.database.dao;
+package fr.univ_amu.iut.service.dao;
 
+import fr.univ_amu.iut.domain.User;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ public interface DAOUsers extends DAO{
      * @return  true - the user is in the database | false - the user isn't in the database
      * @throws SQLException the SQL request didn't go well
      */
-    boolean authentication(String email, String password) throws SQLException;
+    User getUser(String email, String password) throws SQLException;
 
     /**
      * Get the points of a user by his email

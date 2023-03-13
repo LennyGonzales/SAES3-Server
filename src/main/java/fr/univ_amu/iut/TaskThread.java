@@ -11,6 +11,7 @@ import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.exceptions.NotTheExpectedFlagException;
+import fr.univ_amu.iut.service.UsersChecking;
 import fr.univ_amu.iut.service.module.Modules;
 import fr.univ_amu.iut.service.multiplayer.Multiplayer;
 import fr.univ_amu.iut.service.questions.GiveQuestions;
@@ -28,12 +29,14 @@ import java.util.List;
 public class TaskThread implements Runnable {
     private final Communication communication;
     private Controllers controller;
-    private DAOUsersJDBC usersJDBC;
+    private DAOUsersJDBC daoUsersJDBC;
+    private UsersChecking usersChecking;
 
     public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
         communication = new Communication(sockClient);
-        usersJDBC = new DAOUsersJDBC();
-        controller = new Controllers(communication, usersJDBC);
+        daoUsersJDBC = new DAOUsersJDBC();
+        usersChecking = new UsersChecking();
+        controller = new Controllers(communication);
     }
 
     /**
@@ -119,7 +122,7 @@ public class TaskThread implements Runnable {
         while ((message = communication.receiveMessage()) != null) { // As long as the server receives no requests, it waits
             // Use element
             switch(message.getFlag()) {
-                case LOGIN -> controller.loginAction((List<String>) message.getContent());
+                case LOGIN -> controller.loginAction((List<String>) message.getContent(), usersChecking, daoUsersJDBC);
                 case SOLO -> giveQuestionsWithSpecificModule("Tous les modules", (Integer) message.getContent());
                 case MULTIPLAYER_CREATION -> serviceCreationMultiplayer((Integer) message.getContent());
                 case MULTIPLAYER_JOIN -> serviceJoinMultiplayer(message.getContent().toString());
