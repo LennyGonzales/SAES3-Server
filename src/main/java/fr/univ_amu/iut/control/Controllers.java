@@ -98,20 +98,20 @@ public class Controllers {
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public void createSession(String module, int numberOfQuestions) throws IOException, SQLException {
+    public void createSessionAction(String module, int numberOfQuestions) throws IOException, SQLException {
         String sessionCode = UUID.randomUUID().toString().substring(0,8);
         MultiplayerSessionsManager.addSession(sessionCode,new MultiplayerSession(module, numberOfQuestions, communication));
         communication.sendMessage(new CommunicationFormat(Flags.CODE, sessionCode));
     }
 
 
-    public void removeSession(String sessionCode) {
+    public void removeSessionAction(String sessionCode) {
         if(MultiplayerSessionsManager.getSessionWithSessionCode(sessionCode).getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
             MultiplayerSessionsManager.removeSession(sessionCode);
         }
     }
 
-    public void beginSession(String sessionCode, StoryChecking storyChecking) throws IOException, CloneNotSupportedException {
+    public void beginSessionAction(String sessionCode, StoryChecking storyChecking) throws IOException, CloneNotSupportedException {
         MultiplayerSession multiplayerSession = MultiplayerSessionsManager.getSessionWithSessionCode(sessionCode);
         if (multiplayerSession.getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
             multiplayerSession.start();

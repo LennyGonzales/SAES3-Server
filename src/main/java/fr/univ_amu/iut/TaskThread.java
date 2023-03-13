@@ -93,11 +93,11 @@ public class TaskThread implements Runnable {
                 case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsersJDBC);
 
                 // Create multiplayer session
-                case CREATE_SESSION -> controller.createSession(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1));
+                case CREATE_SESSION -> controller.createSessionAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1));
 
-                case CANCEL_CREATE_SESSION -> controller.removeSession(message.getContent().toString());
+                case CANCEL_CREATE_SESSION -> controller.removeSessionAction(message.getContent().toString());
 
-                case BEGIN -> controller.beginSession(message.getContent().toString(), storyChecking);
+                case BEGIN -> controller.beginSessionAction(message.getContent().toString(), storyChecking);
 
                 // Join multiplayer session
                 case MULTIPLAYER_JOIN -> serviceJoinMultiplayer(message.getContent().toString());
