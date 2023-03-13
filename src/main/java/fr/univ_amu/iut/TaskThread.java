@@ -4,6 +4,7 @@ package fr.univ_amu.iut;
 import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.control.Controllers;
 import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
+import fr.univ_amu.iut.database.dao.DAOQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
@@ -15,6 +16,7 @@ import fr.univ_amu.iut.exceptions.NotTheExpectedFlagException;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.service.StoryChecking;
 import fr.univ_amu.iut.service.UsersChecking;
+import fr.univ_amu.iut.service.dao.DAOQuestions;
 import fr.univ_amu.iut.service.module.Modules;
 import fr.univ_amu.iut.service.multiplayer.Multiplayer;
 import fr.univ_amu.iut.service.questions.GiveQuestions;
@@ -43,6 +45,7 @@ public class TaskThread implements Runnable {
     private DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceQuestionsJDBC;
     private DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestionsJDBC;
 
+    private DAOQuestionsJDBC daoQuestionsJDBC;
     public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
         communication = new Communication(sockClient);
         usersChecking = new UsersChecking();
@@ -50,6 +53,7 @@ public class TaskThread implements Runnable {
         daoUsersJDBC = new DAOUsersJDBC();
         daoMultipleChoiceQuestionsJDBC = new DAOMultipleChoiceQuestionsJDBC();
         daoWrittenResponseQuestionsJDBC = new DAOWrittenResponseQuestionsJDBC();
+        daoQuestionsJDBC = new DAOQuestionsJDBC();
         controller = new Controllers(communication);
     }
 
@@ -137,12 +141,18 @@ public class TaskThread implements Runnable {
             // Use element
             switch(message.getFlag()) {
                 case LOGIN -> controller.loginAction((List<String>) message.getContent(), usersChecking, daoUsersJDBC);
-                case SOLO ->  controller.storyAction(DEFAULT_MODULE, (Integer) message.getContent(), storyChecking, daoMultipleChoiceQuestionsJDBC, daoWrittenResponseQuestionsJDBC);
+
+                case MODULES -> controller.modulesAction(storyChecking, daoQuestionsJDBC);
+
+                case STORY -> controller.storyAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1), storyChecking, daoMultipleChoiceQuestionsJDBC, daoWrittenResponseQuestionsJDBC);
+
                 case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsersJDBC);
+
                 case MULTIPLAYER_CREATION -> serviceCreationMultiplayer((Integer) message.getContent());
+
                 case MULTIPLAYER_JOIN -> serviceJoinMultiplayer(message.getContent().toString());
-                case TRAINING -> serviceTraining((Integer) message.getContent());
-                default -> throw new NotTheExpectedFlagException("LOGIN or SOLO_FLAG or MULTIPLAYER_CREATION_FLAG or MULTIPLAYER_JOIN_FLAG or TRAINING_FLAG");
+
+                default -> throw new NotTheExpectedFlagException("LOGIN or MODULES or STORY or SUMMARY or MULTIPLAYER_CREATION or MULTIPLAYER_JOIN");
             }
         }
         communication.close();    // Close the communication when the client leave

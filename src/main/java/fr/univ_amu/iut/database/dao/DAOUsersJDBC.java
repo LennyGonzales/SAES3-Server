@@ -26,7 +26,7 @@ public class DAOUsersJDBC implements DAOUsers {
      * @throws SQLException if the prepareStatement didn't go well
      */
     public DAOUsersJDBC() throws SQLException {
-        authenticationStatement = CONNECTION.prepareStatement("SELECT * FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
+        authenticationStatement = CONNECTION.prepareStatement("SELECT EMAIL, USER_PASSWORD, USER_STATUS, POINTS, VERIFIED FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
         getPointsByEmailStatement = CONNECTION.prepareStatement("SELECT POINTS FROM USERS WHERE EMAIL = ?");
         setPointsStatement = CONNECTION.prepareStatement("UPDATE USERS SET POINTS = ? WHERE EMAIL = ?");
         verifyEmailStatement = CONNECTION.prepareStatement("SELECT COUNT(*) FROM USERS WHERE EMAIL = ?");
@@ -48,6 +48,9 @@ public class DAOUsersJDBC implements DAOUsers {
             User user = new User();
             user.setEmail(result.getString(1));
             user.setPassword(result.getString(2));
+            user.setUserStatus(result.getString(3));
+            user.setPoints(result.getInt(4));
+            user.setVerified(result.getBoolean(5));
             return user;
         }
         return null;
@@ -96,7 +99,7 @@ public class DAOUsersJDBC implements DAOUsers {
      * @throws SQLException if the SQL request didn't go well
      */
     @Override
-    public boolean verifyEmail(String email) throws SQLException, UserIsNotInTheDatabaseException {
+    public boolean verifyEmail(String email) throws SQLException {
         verifyEmailStatement.setString(1,email);
         ResultSet result = verifyEmailStatement.executeQuery();
         result.next();

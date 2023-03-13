@@ -7,6 +7,7 @@ import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.service.StoryChecking;
 import fr.univ_amu.iut.service.UsersChecking;
 import fr.univ_amu.iut.service.dao.DAOMultipleChoiceQuestions;
+import fr.univ_amu.iut.service.dao.DAOQuestions;
 import fr.univ_amu.iut.service.dao.DAOUsers;
 import fr.univ_amu.iut.service.dao.DAOWrittenResponseQuestions;
 
@@ -59,8 +60,29 @@ public class Controllers {
     }
 
 
+    /**
+     * Control the summary
+     * @param questions questions received
+     * @param storyChecking an instance of StoryChecking
+     * @param usersChecking an instance of UsersChecking
+     * @param daoUsers interface (Reversing dependencies)
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws UserIsNotInTheDatabaseException if the user isn't in the database
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
+     */
     public void summaryAction(Object questions, StoryChecking storyChecking, UsersChecking usersChecking, DAOUsers daoUsers) throws IOException, UserIsNotInTheDatabaseException, SQLException {
         communication.sendMessage(new CommunicationFormat(Flags.SUMMARY, storyChecking.getSummary(questions, usersChecking, daoUsers)));
         communication.sendMessage(new CommunicationFormat(Flags.USER_POINTS, storyChecking.getUserPoints(usersChecking)));
+    }
+
+    /**
+     * Control modules
+     * @param storyChecking an instance of StoryChecking
+     * @param daoQuestions interface (Reversing dependencies) to access database
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
+     * @throws IOException if the communication with the client is closed or didn't go well
+     */
+    public void modulesAction(StoryChecking storyChecking ,DAOQuestions daoQuestions) throws SQLException, IOException {
+        communication.sendMessage(new CommunicationFormat(Flags.MODULES, storyChecking.getModules(daoQuestions)));
     }
 }

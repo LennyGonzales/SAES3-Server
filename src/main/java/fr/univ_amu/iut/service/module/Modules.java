@@ -1,7 +1,7 @@
 package fr.univ_amu.iut.service.module;
 
 import fr.univ_amu.iut.communication.CommunicationFormat;
-import fr.univ_amu.iut.database.dao.DAOModuleJDBC;
+import fr.univ_amu.iut.database.dao.DAOQuestionsJDBC;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.Flags;
 
@@ -13,11 +13,11 @@ import java.sql.SQLException;
  * @author LennyGonzales
  */
 public class Modules {
-    private final DAOModuleJDBC daoStoriesJDBC;
+    private final DAOQuestionsJDBC daoStoriesJDBC;
     private final Communication communication;
 
     public Modules(Communication communication) throws SQLException {
-        daoStoriesJDBC = new DAOModuleJDBC();
+        daoStoriesJDBC = new DAOQuestionsJDBC();
         this.communication = communication;
     }
 

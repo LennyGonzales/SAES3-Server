@@ -2,7 +2,7 @@ package fr.univ_amu.iut.database.dao;
 
 import fr.univ_amu.iut.Main;
 import fr.univ_amu.iut.domain.Story;
-import fr.univ_amu.iut.service.dao.DAOModule;
+import fr.univ_amu.iut.service.dao.DAOQuestions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +15,7 @@ import java.util.List;
  * Implements methods' for the Stories table
  * @author LennyGonzales
  */
-public class DAOModuleJDBC implements DAOModule {
+public class DAOQuestionsJDBC implements DAOQuestions {
     private final PreparedStatement getAllModulesStatement;
     private static final Connection CONNECTION = Main.database.getConnections().get("STORIES");
 
@@ -23,8 +23,8 @@ public class DAOModuleJDBC implements DAOModule {
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
-    public DAOModuleJDBC() throws SQLException {
-        getAllModulesStatement = CONNECTION.prepareStatement("SELECT DISTINCT MODULE FROM WRITTENRESPONSEQUESTIONS UNION SELECT DISTINCT module FROM MULTIPLECHOICEQUESTIONS;");
+    public DAOQuestionsJDBC() throws SQLException {
+        getAllModulesStatement = CONNECTION.prepareStatement("SELECT DISTINCT MODULE FROM QUESTIONS;");
     }
 
     /**

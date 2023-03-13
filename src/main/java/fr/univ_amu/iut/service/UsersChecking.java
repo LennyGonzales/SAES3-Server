@@ -35,6 +35,7 @@ public class UsersChecking {
     }
 
     public void updateUsersPoints(int numberOfPoints, DAOUsers daoUsers) throws UserIsNotInTheDatabaseException, SQLException {
-        daoUsers.setPointsByEmail(user.getEmail(), numberOfPoints);   // we also check if the user is still in the database
+        daoUsers.setPointsByEmail(user.getEmail(), daoUsers.getPointsByEmail(user.getEmail()) + numberOfPoints);   // we also check if the user is still in the database
+        user = daoUsers.getUser(user.getEmail(), user.getPassword()); // Update the instance
     }
 }

@@ -5,9 +5,11 @@ import fr.univ_amu.iut.domain.Question;
 import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.service.dao.DAOMultipleChoiceQuestions;
+import fr.univ_amu.iut.service.dao.DAOQuestions;
 import fr.univ_amu.iut.service.dao.DAOUsers;
 import fr.univ_amu.iut.service.dao.DAOWrittenResponseQuestions;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,10 +37,12 @@ public class StoryChecking {
      * @param daoMultipleChoiceQuestions interface (Reversing dependencies) to access database
      * @param daoWrittenResponseQuestions interface (Reversing dependencies) to access database
      * @return a list of Question (story)
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
+     * @throws CloneNotSupportedException if the clone in StoryChecking.getStory isn't supported
      */
     public List<Question> getStory(String module, int numberOfQuestions, DAOMultipleChoiceQuestions daoMultipleChoiceQuestions, DAOWrittenResponseQuestions daoWrittenResponseQuestions) throws SQLException, CloneNotSupportedException {
-        List<MultipleChoiceQuestion> multipleChoiceQuestionList = daoMultipleChoiceQuestions.getACertainNumberOfQCM(numberOfQuestions, module);
-        List<WrittenResponseQuestion> writtenResponseQuestionList = daoWrittenResponseQuestions.getACertainNumberOfWrittenResponseQuestion(numberOfQuestions, module);
+        List<MultipleChoiceQuestion> multipleChoiceQuestionList = daoMultipleChoiceQuestions.getACertainNumberOfQCM(numberOfQuestions/2, module);
+        List<WrittenResponseQuestion> writtenResponseQuestionList = daoWrittenResponseQuestions.getACertainNumberOfWrittenResponseQuestion(numberOfQuestions/2, module);
 
         MultipleChoiceQuestion multipleChoiceQuestionClone;
         for(MultipleChoiceQuestion question : multipleChoiceQuestionList) {
@@ -60,9 +64,13 @@ public class StoryChecking {
     }
 
     /**
-     *
+     * Get the summary
      * @param story story received
-     * @return
+     * @param usersChecking an instance of UsersChecking
+     * @param daoUsers interface (Reversing dependencies)
+     * @return a hashmap containing Question and if the user sent corrects answers
+     * @throws UserIsNotInTheDatabaseException if the user isn't in the database
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
     public HashMap<Question, Boolean> getSummary(Object story, UsersChecking usersChecking, DAOUsers daoUsers) throws UserIsNotInTheDatabaseException, SQLException {
         List<Question> storyReceived = (List<Question>) story;
@@ -85,11 +93,26 @@ public class StoryChecking {
         }
 
         usersChecking.updateUsersPoints((int) (10 * (currentCorrectAnswers - (storyReceived.size()/2.0)) * (1 - (usersChecking.getUser().getPoints()) / 2000.0)), daoUsers);   // function to calculate the new user points
+
         return storyToSend;
     }
 
-
+    /**
+     * Get user's points
+     * @param usersChecking an instance of UsersChecking
+     * @return user's points
+     */
     public int getUserPoints(UsersChecking usersChecking) {
         return usersChecking.getUser().getPoints();
+    }
+
+    /**
+     * Get modules
+     * @param daoQuestions interface (Reversing dependencies) to access database
+     * @return a list of modules
+     * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
+     */
+    public List<String> getModules(DAOQuestions daoQuestions) throws SQLException {
+        return daoQuestions.getAllModules();
     }
 }

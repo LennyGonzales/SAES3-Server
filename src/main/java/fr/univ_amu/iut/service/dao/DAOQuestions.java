@@ -9,7 +9,7 @@ import java.util.List;
  * The methods' signature for the Stories table
  * @author LennyGonzales
  */
-public interface DAOModule extends DAO<Story,Integer> {
+public interface DAOQuestions extends DAO<Story,Integer> {
 
     /**
      * Get all the modules
