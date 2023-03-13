@@ -11,10 +11,10 @@ import java.sql.SQLException;
  */
 public interface DAOUsers extends DAO{
     /**
-     * verify if the user's email is in the database
+     * Get the user by email and password
      * @param email the input email of the user
      * @param password the input password of the user
-     * @return  true - the user is in the database | false - the user isn't in the database
+     * @return an instance of User or null
      * @throws SQLException the SQL request didn't go well
      */
     User getUser(String email, String password) throws SQLException;

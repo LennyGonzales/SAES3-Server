@@ -19,7 +19,11 @@ public class Controllers {
 
     /**
      * Control the login
-     * @throws IOException if the communication with the client is closed or didn't go well
+     * @param credentials a list containing email and password
+     * @param usersChecking a instance of UsersChecking
+     * @param daoUsers interface (Reversing dependencies)
+     * @return if the login was successful
+     * @throws IOException  if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
     public boolean loginAction(List<String> credentials, UsersChecking usersChecking, DAOUsers daoUsers) throws IOException, SQLException {
@@ -30,4 +34,5 @@ public class Controllers {
         communication.sendMessage(new CommunicationFormat(Flags.LOGIN_NOT_SUCCESSFULLY));
         return false;
     }
+
 }
