@@ -7,10 +7,13 @@ import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOUsersJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
+import fr.univ_amu.iut.domain.Question;
 import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.exceptions.NotTheExpectedFlagException;
+import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
+import fr.univ_amu.iut.service.StoryChecking;
 import fr.univ_amu.iut.service.UsersChecking;
 import fr.univ_amu.iut.service.module.Modules;
 import fr.univ_amu.iut.service.multiplayer.Multiplayer;
@@ -27,15 +30,26 @@ import java.util.List;
  * @author LennyGonzales
  */
 public class TaskThread implements Runnable {
+    private static final String DEFAULT_MODULE = "Tous les modules";
     private final Communication communication;
     private Controllers controller;
-    private DAOUsersJDBC daoUsersJDBC;
+
+    // Cheking
     private UsersChecking usersChecking;
+    private StoryChecking storyChecking;
+
+    // DAO
+    private DAOUsersJDBC daoUsersJDBC;
+    private DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceQuestionsJDBC;
+    private DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestionsJDBC;
 
     public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
         communication = new Communication(sockClient);
-        daoUsersJDBC = new DAOUsersJDBC();
         usersChecking = new UsersChecking();
+        storyChecking = new StoryChecking();
+        daoUsersJDBC = new DAOUsersJDBC();
+        daoMultipleChoiceQuestionsJDBC = new DAOMultipleChoiceQuestionsJDBC();
+        daoWrittenResponseQuestionsJDBC = new DAOWrittenResponseQuestionsJDBC();
         controller = new Controllers(communication);
     }
 
@@ -117,13 +131,14 @@ public class TaskThread implements Runnable {
      * @throws SQLException if a SQL request didn't go well
      * @throws EmptyQuestionsListException call when the list of questions is empty
      */
-    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException, CloneNotSupportedException {
+    public void serviceType() throws SQLException, IOException, EmptyQuestionsListException, NotTheExpectedFlagException, ClassNotFoundException, CloneNotSupportedException, UserIsNotInTheDatabaseException {
         CommunicationFormat message;
         while ((message = communication.receiveMessage()) != null) { // As long as the server receives no requests, it waits
             // Use element
             switch(message.getFlag()) {
                 case LOGIN -> controller.loginAction((List<String>) message.getContent(), usersChecking, daoUsersJDBC);
-                case SOLO -> giveQuestionsWithSpecificModule("Tous les modules", (Integer) message.getContent());
+                case SOLO ->  controller.storyAction(DEFAULT_MODULE, (Integer) message.getContent(), storyChecking, daoMultipleChoiceQuestionsJDBC, daoWrittenResponseQuestionsJDBC);
+                case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsersJDBC);
                 case MULTIPLAYER_CREATION -> serviceCreationMultiplayer((Integer) message.getContent());
                 case MULTIPLAYER_JOIN -> serviceJoinMultiplayer(message.getContent().toString());
                 case TRAINING -> serviceTraining((Integer) message.getContent());
@@ -138,7 +153,7 @@ public class TaskThread implements Runnable {
         try {
             serviceType();
         } catch (IOException | SQLException | EmptyQuestionsListException | NotTheExpectedFlagException |
-                 ClassNotFoundException | CloneNotSupportedException e){
+                 ClassNotFoundException | CloneNotSupportedException | UserIsNotInTheDatabaseException e){
             throw new RuntimeException(e);
         }
     }

@@ -1,5 +1,7 @@
 package fr.univ_amu.iut.service;
 
+import fr.univ_amu.iut.domain.User;
+import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
 import fr.univ_amu.iut.service.dao.DAOUsers;
 
 import java.sql.SQLException;
@@ -9,6 +11,11 @@ import java.sql.SQLException;
  * @author LennyGonzales
  */
 public class UsersChecking {
+    private User user;
+
+    public User getUser() {
+        return this.user;
+    }
 
     /**
      * Check the user authentication
@@ -19,6 +26,15 @@ public class UsersChecking {
      * @throws SQLException
      */
     public boolean authenticate(String email, String password, DAOUsers daoUsers) throws SQLException {
-        return (daoUsers.getUser(email, password) != null);
+        User user = daoUsers.getUser(email, password);
+        boolean isAuthenticated = (user != null);
+        if(isAuthenticated) {
+            this.user = user;
+        }
+        return isAuthenticated;
+    }
+
+    public void updateUsersPoints(int numberOfPoints, DAOUsers daoUsers) throws UserIsNotInTheDatabaseException, SQLException {
+        daoUsers.setPointsByEmail(user.getEmail(), numberOfPoints);   // we also check if the user is still in the database
     }
 }
