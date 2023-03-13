@@ -1,15 +1,15 @@
-package fr.univ_amu.iut.service;
+package fr.univ_amu.iut.service.story;
 
 import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
 import fr.univ_amu.iut.domain.Question;
 import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
+import fr.univ_amu.iut.service.users.UsersChecking;
 import fr.univ_amu.iut.service.dao.DAOMultipleChoiceQuestions;
 import fr.univ_amu.iut.service.dao.DAOQuestions;
 import fr.univ_amu.iut.service.dao.DAOUsers;
 import fr.univ_amu.iut.service.dao.DAOWrittenResponseQuestions;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,12 +22,17 @@ import java.util.List;
 public class StoryChecking {
     private HashMap<Integer, Integer> currentMultipleChoiceResponse;
     private HashMap<Integer, String> currentWrittenResponse;
+    private List<Question> story;
     private int currentCorrectAnswers;
 
     public StoryChecking() {
         currentMultipleChoiceResponse = new HashMap<>();
         currentWrittenResponse = new HashMap<>();
         currentCorrectAnswers = 0;
+    }
+
+    public List<Question> getStory() {
+        return story;
     }
 
     /**
@@ -40,7 +45,7 @@ public class StoryChecking {
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      * @throws CloneNotSupportedException if the clone in StoryChecking.getStory isn't supported
      */
-    public List<Question> getStory(String module, int numberOfQuestions, DAOMultipleChoiceQuestions daoMultipleChoiceQuestions, DAOWrittenResponseQuestions daoWrittenResponseQuestions) throws SQLException, CloneNotSupportedException {
+    public List<Question> createStory(String module, int numberOfQuestions, DAOMultipleChoiceQuestions daoMultipleChoiceQuestions, DAOWrittenResponseQuestions daoWrittenResponseQuestions) throws SQLException, CloneNotSupportedException {
         List<MultipleChoiceQuestion> multipleChoiceQuestionList = daoMultipleChoiceQuestions.getACertainNumberOfQCM(numberOfQuestions/2, module);
         List<WrittenResponseQuestion> writtenResponseQuestionList = daoWrittenResponseQuestions.getACertainNumberOfWrittenResponseQuestion(numberOfQuestions/2, module);
 
@@ -60,7 +65,7 @@ public class StoryChecking {
             currentWrittenResponse.put(question.getId(), writtenResponseQuestionClone.getTrueAnswer());
             question.setTrueAnswer(null);
         }
-        List<Question> story = new ArrayList<>();
+        story = new ArrayList<>();
         story.addAll(multipleChoiceQuestionList);
         story.addAll(writtenResponseQuestionList);
         return story;

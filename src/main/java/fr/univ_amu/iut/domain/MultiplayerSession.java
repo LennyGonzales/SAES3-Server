@@ -24,16 +24,26 @@ public class MultiplayerSession {
     private final List<Communication> users;
 
     private final Communication hostCommunication;
+    private boolean isRunning;
 
     public MultiplayerSession(String module, int nbQuestions, Communication hostCommunication) throws SQLException {
         this.hostCommunication = hostCommunication;
         users = new ArrayList<>();
+        isRunning = false;
 
         // Generate the questions lists
         DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceResponsesJDBC = new DAOMultipleChoiceQuestionsJDBC();
         multipleChoiceQuestionList = daoMultipleChoiceResponsesJDBC.getACertainNumberOfQCM(nbQuestions/2, module);
         DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestionJDBC = new DAOWrittenResponseQuestionsJDBC();
         writtenResponseQuestionList = daoWrittenResponseQuestionJDBC.getACertainNumberOfWrittenResponseQuestion(nbQuestions/2, module);
+    }
+
+    public List<Communication> getUsers() {
+        return users;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 
     public Communication getHostCommunication() {
@@ -80,6 +90,7 @@ public class MultiplayerSession {
      * @throws IOException if the communication with a user is closed or didn't go well
      */
     public void start() throws IOException {
+        isRunning = true;
         CommunicationFormat message = new CommunicationFormat(Flags.BEGIN);
         for (Communication clientMultiplayerCommunication : users) {
             clientMultiplayerCommunication.sendMessage(message);

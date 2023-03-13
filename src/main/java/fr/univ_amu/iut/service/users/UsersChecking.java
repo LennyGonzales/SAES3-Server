@@ -1,4 +1,4 @@
-package fr.univ_amu.iut.service;
+package fr.univ_amu.iut.service.users;
 
 import fr.univ_amu.iut.domain.User;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;

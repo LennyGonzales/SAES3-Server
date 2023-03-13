@@ -5,8 +5,9 @@ import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.domain.Question;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
-import fr.univ_amu.iut.service.StoryChecking;
-import fr.univ_amu.iut.service.UsersChecking;
+import fr.univ_amu.iut.service.multiplayer.MultiplayerChecking;
+import fr.univ_amu.iut.service.story.StoryChecking;
+import fr.univ_amu.iut.service.users.UsersChecking;
 import fr.univ_amu.iut.service.dao.DAOMultipleChoiceQuestions;
 import fr.univ_amu.iut.service.dao.DAOQuestions;
 import fr.univ_amu.iut.service.dao.DAOUsers;
@@ -16,7 +17,6 @@ import fr.univ_amu.iut.service.multiplayer.MultiplayerSessionsManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,9 +61,8 @@ public class Controllers {
      * @throws IOException if the communication with the client is closed or didn't go well
      */
     public void storyAction(String module, int numberOfQuestions, StoryChecking storyChecking, DAOMultipleChoiceQuestions daoMultipleChoiceQuestions, DAOWrittenResponseQuestions daoWrittenResponseQuestions) throws SQLException, CloneNotSupportedException, IOException {
-        communication.sendMessage(new CommunicationFormat(Flags.STORY, storyChecking.getStory(module, numberOfQuestions, daoMultipleChoiceQuestions, daoWrittenResponseQuestions)));
+        communication.sendMessage(new CommunicationFormat(Flags.STORY, storyChecking.createStory(module, numberOfQuestions, daoMultipleChoiceQuestions, daoWrittenResponseQuestions)));
     }
-
 
     /**
      * Control the summary
@@ -95,34 +94,83 @@ public class Controllers {
      * Control the creation of a session
      * @param module story's module
      * @param numberOfQuestions number of questions for the story
+     * @param multiplayerChecking the instance of MultiplayerChecking
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public void createSessionAction(String module, int numberOfQuestions) throws IOException, SQLException {
+    public void createSessionAction(String module, int numberOfQuestions, MultiplayerChecking multiplayerChecking) throws IOException, SQLException {
         String sessionCode = UUID.randomUUID().toString().substring(0,8);
-        MultiplayerSessionsManager.addSession(sessionCode,new MultiplayerSession(module, numberOfQuestions, communication));
+
+        MultiplayerSession multiplayerSession = new MultiplayerSession(module, numberOfQuestions, communication);
+        MultiplayerSessionsManager.addSession(sessionCode, multiplayerSession);
+        multiplayerChecking.setCurrentMultiplayerSession(multiplayerSession);
+
         communication.sendMessage(new CommunicationFormat(Flags.CODE, sessionCode));
     }
 
 
-    public void removeSessionAction(String sessionCode) {
-        if(MultiplayerSessionsManager.getSessionWithSessionCode(sessionCode).getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
+    /**
+     * Control the deletion of a multiplayer session
+     * @param sessionCode the session code
+     * @param multiplayerChecking the instance of MultiplayerChecking
+     */
+    public void removeSessionAction(String sessionCode, MultiplayerChecking multiplayerChecking) {
+        if(multiplayerChecking.getCurrentMultiplayerSession().getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
+            multiplayerChecking.setCurrentMultiplayerSession(null);
             MultiplayerSessionsManager.removeSession(sessionCode);
         }
     }
 
-    public void beginSessionAction(String sessionCode, StoryChecking storyChecking) throws IOException, CloneNotSupportedException {
-        MultiplayerSession multiplayerSession = MultiplayerSessionsManager.getSessionWithSessionCode(sessionCode);
-        if (multiplayerSession.getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
+    /**
+     * Control the beginning of a multiplayer session
+     * @param sessionCode the session code
+     * @param storyChecking an instance of StoryChecking
+     * @param multiplayerChecking the instance of MultiplayerChecking*
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws CloneNotSupportedException if the clone in StoryChecking.getStory isn't supported
+     */
+    public boolean beginSessionAction(String sessionCode, StoryChecking storyChecking, MultiplayerChecking multiplayerChecking) throws IOException, CloneNotSupportedException {
+        MultiplayerSession multiplayerSession = multiplayerChecking.getCurrentMultiplayerSession();
+
+        if (multiplayerSession.getHostCommunication() == communication) {    // Verify if the user is the host (owner) of the session (use '==' because hostCommunication might be null if the user isn't the host)
             multiplayerSession.start();
+            multiplayerChecking.setCurrentMultiplayerSession(null);
             MultiplayerSessionsManager.removeSession(sessionCode);
 
             List<Question> story = storyChecking.prepareStory(multiplayerSession.getMultipleChoiceResponseList(), multiplayerSession.getWrittenResponseQuestionList());
             communication.sendMessage(new CommunicationFormat(Flags.STORY, story));
+            return true;
         }
+
+        if((multiplayerSession.isRunning()) // If the session started
+          && (multiplayerSession.getUsers().contains(communication))) { // If the user had joined the session
+            communication.sendMessage(new CommunicationFormat(Flags.STORY, storyChecking.getStory()));
+        }
+
+        return false;
     }
 
-    // Join
-    // multiplayerSession.getQCMList() => StoryChecking.setCurrentQCMList()
-    // ...
+    /**
+     * Control the join multiplayer session action
+     * @param sessionCode the session code
+     * @param usersChecking an instance of UsersChecking
+     * @return if the join action was successful
+     * @throws IOException if the communication with the client is closed or didn't go well
+     * @throws CloneNotSupportedException if the clone in StoryChecking.getStory isn't supported
+     */
+    public boolean joinSessionAction(String sessionCode, UsersChecking usersChecking, StoryChecking storyChecking, MultiplayerChecking multiplayerChecking) throws IOException, CloneNotSupportedException {
+        MultiplayerSession multiplayerSession = MultiplayerSessionsManager.getSessionWithSessionCode(sessionCode);
+        if(multiplayerSession != null) { // If the sessions exists
+            multiplayerSession.addUser(communication, usersChecking.getUser().getEmail());
+            multiplayerChecking.setCurrentMultiplayerSession(multiplayerSession);
+
+            // Store the story in the instance of StoryChecking
+            storyChecking.prepareStory(multiplayerSession.getMultipleChoiceResponseList(),multiplayerSession.getWrittenResponseQuestionList());
+
+            communication.sendMessage(new CommunicationFormat(Flags.SESSION_EXISTS));
+            return true;
+        }
+        communication.sendMessage(new CommunicationFormat(Flags.SESSION_NOT_EXISTS));
+        return false;
+    }
 }

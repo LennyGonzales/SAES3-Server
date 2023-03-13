@@ -10,9 +10,9 @@ import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
 import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.exceptions.NotTheExpectedFlagException;
 import fr.univ_amu.iut.exceptions.UserIsNotInTheDatabaseException;
-import fr.univ_amu.iut.service.StoryChecking;
-import fr.univ_amu.iut.service.UsersChecking;
-import fr.univ_amu.iut.service.multiplayer.Multiplayer;
+import fr.univ_amu.iut.service.multiplayer.MultiplayerChecking;
+import fr.univ_amu.iut.service.story.StoryChecking;
+import fr.univ_amu.iut.service.users.UsersChecking;
 import fr.univ_amu.iut.exceptions.EmptyQuestionsListException;
 
 import javax.net.ssl.SSLSocket;
@@ -31,6 +31,7 @@ public class TaskThread implements Runnable {
     // Checking
     private UsersChecking usersChecking;
     private StoryChecking storyChecking;
+    private MultiplayerChecking multiplayerChecking;
 
     // DAO
     private DAOUsersJDBC daoUsersJDBC;
@@ -40,35 +41,17 @@ public class TaskThread implements Runnable {
 
     public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
         communication = new Communication(sockClient);
+
         usersChecking = new UsersChecking();
         storyChecking = new StoryChecking();
+        multiplayerChecking = new MultiplayerChecking();
+
         daoUsersJDBC = new DAOUsersJDBC();
         daoMultipleChoiceQuestionsJDBC = new DAOMultipleChoiceQuestionsJDBC();
         daoWrittenResponseQuestionsJDBC = new DAOWrittenResponseQuestionsJDBC();
         daoQuestionsJDBC = new DAOQuestionsJDBC();
+
         controller = new Controllers(communication);
-    }
-
-    /**
-     * Supports the creation of a multiplayer session
-     * @throws IOException if the communication with the client is closed or didn't go well
-     * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
-     * @throws EmptyQuestionsListException  if qcmList and writtenResponseQuestionList are empty
-     */
-    public void serviceCreationMultiplayer(int nbQuestions) throws IOException, SQLException, EmptyQuestionsListException, CloneNotSupportedException {
-        Multiplayer multiplayer = new Multiplayer(communication);
-        multiplayer.createMultiplayerSession(nbQuestions);
-    }
-
-    /**
-     * Join a multiplayer session
-     * @throws IOException if the communication with the client is closed or didn't go well
-     * @throws SQLException if a SQL request in the Multiplayer class method didn't go well
-     * @throws EmptyQuestionsListException  if qcmList and writtenResponseQuestionList are empty
-     */
-    public void serviceJoinMultiplayer(String code) throws IOException, SQLException, EmptyQuestionsListException, CloneNotSupportedException {
-        Multiplayer multiplayer = new Multiplayer(communication);
-        multiplayer.joinMultiplayerSession(code);
     }
 
 
@@ -87,22 +70,16 @@ public class TaskThread implements Runnable {
                 case LOGIN -> controller.loginAction((List<String>) message.getContent(), usersChecking, daoUsersJDBC);
 
                 case MODULES -> controller.modulesAction(storyChecking, daoQuestionsJDBC);
-
                 case STORY -> controller.storyAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1), storyChecking, daoMultipleChoiceQuestionsJDBC, daoWrittenResponseQuestionsJDBC);
-
                 case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsersJDBC);
 
-                // Create multiplayer session
-                case CREATE_SESSION -> controller.createSessionAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1));
+                // Multiplayer session
+                case CREATE_SESSION -> controller.createSessionAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1), multiplayerChecking);
+                case CANCEL_CREATE_SESSION -> controller.removeSessionAction(message.getContent().toString(), multiplayerChecking);
+                case MULTIPLAYER_JOIN -> controller.joinSessionAction(message.getContent().toString(), usersChecking, storyChecking, multiplayerChecking);
+                case BEGIN -> controller.beginSessionAction(message.getContent().toString(), storyChecking, multiplayerChecking);
 
-                case CANCEL_CREATE_SESSION -> controller.removeSessionAction(message.getContent().toString());
-
-                case BEGIN -> controller.beginSessionAction(message.getContent().toString(), storyChecking);
-
-                // Join multiplayer session
-                case MULTIPLAYER_JOIN -> serviceJoinMultiplayer(message.getContent().toString());
-
-                default -> throw new NotTheExpectedFlagException("LOGIN or MODULES or STORY or SUMMARY or MULTIPLAYER_CREATION or MULTIPLAYER_JOIN");
+                default -> throw new NotTheExpectedFlagException("LOGIN or MODULES or STORY or SUMMARY or CREATE_SESSION or CANCEL_CREATE_SESSION or BEGIN or MULTIPLAYER_JOIN : Flag received => " + message.getFlag() );
             }
         }
         communication.close();    // Close the communication when the client leave
