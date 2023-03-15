@@ -1,6 +1,5 @@
 package fr.univ_amu.iut.communication;
 
-
 import javax.net.ssl.SSLSocket;
 import java.io.*;
 
@@ -11,18 +10,21 @@ import java.io.*;
 public class Communication {
 
     private final SSLSocket socketClient;
-    private final BufferedReader in;
-    private final ObjectInputStream inObject;
-    private final ObjectOutputStream outObject;
+    private BufferedReader in = null;
+    private ObjectInputStream inObject = null;
+    private ObjectOutputStream outObject = null;
     private Object object;
 
 
-    public Communication(SSLSocket socketClient) throws IOException {
+    public Communication(SSLSocket socketClient) {
         this.socketClient = socketClient;
-        in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
-        outObject = new ObjectOutputStream(socketClient.getOutputStream());
-        inObject = new ObjectInputStream(socketClient.getInputStream());
-
+        try {
+            in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
+            outObject = new ObjectOutputStream(socketClient.getOutputStream());
+            inObject = new ObjectInputStream(socketClient.getInputStream());
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
