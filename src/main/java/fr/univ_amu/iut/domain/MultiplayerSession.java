@@ -11,7 +11,9 @@ import fr.univ_amu.iut.communication.Communication;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Supports a multiplayer session
@@ -22,6 +24,7 @@ public class MultiplayerSession {
     private final List<WrittenResponseQuestion> writtenResponseQuestionList;
 
     private final List<Communication> users;
+    private HashMap<String, Integer> leaderboard;
 
     private final Communication hostCommunication;
     private boolean isRunning;
@@ -30,6 +33,7 @@ public class MultiplayerSession {
         this.hostCommunication = hostCommunication;
         users = new ArrayList<>();
         isRunning = false;
+        leaderboard = new HashMap<>();
 
         // Generate the questions lists
         DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceResponsesJDBC = new DAOMultipleChoiceQuestionsJDBC();
@@ -86,6 +90,36 @@ public class MultiplayerSession {
     }
 
     /**
+     * Add an user on the leaderboard
+     * @param email user email
+     * @param numberOfGoodAnswers the number of good answers
+     */
+    public void addUserOnLeaderboard(String email, int numberOfGoodAnswers, Communication communication) {
+        users.add(communication);
+        leaderboard.put(email, numberOfGoodAnswers);
+    }
+
+    /**
+     * Send the leaderboard to all the users
+     * @throws IOException if the communication with a user is closed or didn't go well
+     */
+    public void sendLeaderboard() throws IOException {
+        HashMap<String, Integer> leaderboardToSend = new HashMap<>();
+        for(Communication communicationUser : users) {
+            /*                                          TO READ
+             * We have to create a new object (new reference) so as not to send the same object (same reference)
+             * because of the sockets that "remember the object
+             * and when it re-receives the same object (same reference), it returns to the client the old value
+             */
+            leaderboardToSend = new HashMap<>();
+            for(Map.Entry<String,Integer> entry : leaderboard.entrySet()) {
+                leaderboardToSend.put(entry.getKey(), entry.getValue());
+            }
+            communicationUser.sendMessage(new CommunicationFormat(Flags.LEADERBOARD, leaderboardToSend));
+        }
+    }
+
+    /**
      * Run the session for all other users
      * @throws IOException if the communication with a user is closed or didn't go well
      */
@@ -95,6 +129,7 @@ public class MultiplayerSession {
         for (Communication clientMultiplayerCommunication : users) {
             clientMultiplayerCommunication.sendMessage(message);
         }
-        users.add(hostCommunication);
+        //users.add(hostCommunication);
+        users.clear();  // This list will become the list of users who has finish the game
     }
 }

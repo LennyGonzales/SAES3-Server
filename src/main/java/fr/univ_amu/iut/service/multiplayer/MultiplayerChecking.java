@@ -16,4 +16,5 @@ public class MultiplayerChecking {
     public void setCurrentMultiplayerSession(MultiplayerSession currentMultiplayerSession) {
         this.currentMultiplayerSession = currentMultiplayerSession;
     }
+
 }

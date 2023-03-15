@@ -71,13 +71,13 @@ public class TaskThread implements Runnable {
 
                 case MODULES -> controller.modulesAction(storyChecking, daoQuestionsJDBC);
                 case STORY -> controller.storyAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1), storyChecking, daoMultipleChoiceQuestionsJDBC, daoWrittenResponseQuestionsJDBC);
-                case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsersJDBC);
+                case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsersJDBC, multiplayerChecking);
 
                 // Multiplayer session
                 case CREATE_SESSION -> controller.createSessionAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1), multiplayerChecking);
-                case CANCEL_CREATE_SESSION -> controller.removeSessionAction(message.getContent().toString(), multiplayerChecking);
+                case CANCEL_SESSION -> controller.removeSessionAction(multiplayerChecking);
                 case MULTIPLAYER_JOIN -> controller.joinSessionAction(message.getContent().toString(), usersChecking, storyChecking, multiplayerChecking);
-                case BEGIN -> controller.beginSessionAction(message.getContent().toString(), storyChecking, multiplayerChecking);
+                case BEGIN -> controller.beginSessionAction(storyChecking, multiplayerChecking);
 
                 default -> throw new NotTheExpectedFlagException("LOGIN or MODULES or STORY or SUMMARY or CREATE_SESSION or CANCEL_CREATE_SESSION or BEGIN or MULTIPLAYER_JOIN : Flag received => " + message.getFlag() );
             }

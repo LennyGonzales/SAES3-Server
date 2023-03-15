@@ -102,6 +102,7 @@ public class StoryChecking {
         }
 
         usersChecking.updateUsersPoints((int) (10 * (currentCorrectAnswers - (storyReceived.size()/2.0)) * (1 - (usersChecking.getUser().getPoints()) / 2000.0)), daoUsers);   // function to calculate the new user points
+        currentCorrectAnswers = 0;
 
         return storyToSend;
     }

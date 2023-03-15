@@ -1,21 +1,13 @@
 package fr.univ_amu.iut.communication;
 
 public enum Flags {
-    BACK_TO_MENU,
     LOGIN,
     LOGIN_SUCCESSFULLY,
     LOGIN_NOT_SUCCESSFULLY,
     MODULES,
-    MODULE_CHOICE,
-    TRAINING,
     STORY,
-    ANSWER,
-    TIMER_ENDED,
     SUMMARY,
-    EMAIL,
     USER_POINTS,
-    SOLO,
-    MULTIPLAYER_CREATION,
     CODE,
     BEGIN,
     NEW_PLAYER,
@@ -23,5 +15,6 @@ public enum Flags {
     SESSION_EXISTS,
     SESSION_NOT_EXISTS,
     CREATE_SESSION,
-    CANCEL_CREATE_SESSION
+    LEADERBOARD,
+    CANCEL_SESSION
 }

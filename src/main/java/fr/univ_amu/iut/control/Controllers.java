@@ -17,6 +17,8 @@ import fr.univ_amu.iut.service.multiplayer.MultiplayerSessionsManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,13 +72,25 @@ public class Controllers {
      * @param storyChecking an instance of StoryChecking
      * @param usersChecking an instance of UsersChecking
      * @param daoUsers interface (Reversing dependencies)
+     * @param multiplayerChecking an instance of MultiplayerChecking
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws UserIsNotInTheDatabaseException if the user isn't in the database
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public void summaryAction(Object questions, StoryChecking storyChecking, UsersChecking usersChecking, DAOUsers daoUsers) throws IOException, UserIsNotInTheDatabaseException, SQLException {
-        communication.sendMessage(new CommunicationFormat(Flags.SUMMARY, storyChecking.getSummary(questions, usersChecking, daoUsers)));
+    public void summaryAction(Object questions, StoryChecking storyChecking, UsersChecking usersChecking, DAOUsers daoUsers, MultiplayerChecking multiplayerChecking) throws IOException, UserIsNotInTheDatabaseException, SQLException {
+        HashMap<Question, Boolean> summary = storyChecking.getSummary(questions, usersChecking, daoUsers);
+        communication.sendMessage(new CommunicationFormat(Flags.SUMMARY, summary));
         communication.sendMessage(new CommunicationFormat(Flags.USER_POINTS, storyChecking.getUserPoints(usersChecking)));
+
+        // If it was a multiplayer session
+        MultiplayerSession multiplayerSession = multiplayerChecking.getCurrentMultiplayerSession();
+        if (multiplayerSession != null) {
+            int numberOfCorrectAnswers = Collections.frequency(summary.values(), true); // Get the number of correct answers with the summary
+            multiplayerSession.addUserOnLeaderboard(usersChecking.getUser().getEmail(), numberOfCorrectAnswers, communication);
+            multiplayerSession.sendLeaderboard();
+
+            multiplayerChecking.setCurrentMultiplayerSession(null); // We wouldn't have to use the multiplayer session anymore
+        }
     }
 
     /**
@@ -111,39 +125,52 @@ public class Controllers {
 
     /**
      * Control the deletion of a multiplayer session
-     * @param sessionCode the session code
      * @param multiplayerChecking the instance of MultiplayerChecking
+     * @return true if the session is canceled
      */
-    public void removeSessionAction(String sessionCode, MultiplayerChecking multiplayerChecking) {
-        if(multiplayerChecking.getCurrentMultiplayerSession().getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
+    public boolean removeSessionAction(MultiplayerChecking multiplayerChecking) throws IOException {
+        MultiplayerSession multiplayerSession = multiplayerChecking.getCurrentMultiplayerSession();
+
+        if(multiplayerSession.getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
+            MultiplayerSessionsManager.removeSession(multiplayerSession);
+
+            for(Communication communicationUser : multiplayerSession.getUsers()) {
+                communicationUser.sendMessage(new CommunicationFormat(Flags.CANCEL_SESSION));
+            }
             multiplayerChecking.setCurrentMultiplayerSession(null);
-            MultiplayerSessionsManager.removeSession(sessionCode);
+
+            return true;
         }
+
+        if(multiplayerSession != null) {    // If the user joined the session
+            multiplayerSession.getUsers().remove(communication);
+            multiplayerChecking.setCurrentMultiplayerSession(null);
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Control the beginning of a multiplayer session
-     * @param sessionCode the session code
      * @param storyChecking an instance of StoryChecking
      * @param multiplayerChecking the instance of MultiplayerChecking*
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws CloneNotSupportedException if the clone in StoryChecking.getStory isn't supported
      */
-    public boolean beginSessionAction(String sessionCode, StoryChecking storyChecking, MultiplayerChecking multiplayerChecking) throws IOException, CloneNotSupportedException {
+    public boolean beginSessionAction(StoryChecking storyChecking, MultiplayerChecking multiplayerChecking) throws IOException, CloneNotSupportedException {
         MultiplayerSession multiplayerSession = multiplayerChecking.getCurrentMultiplayerSession();
 
-        if (multiplayerSession.getHostCommunication() == communication) {    // Verify if the user is the host (owner) of the session (use '==' because hostCommunication might be null if the user isn't the host)
+        if ((multiplayerSession != null) && (multiplayerSession.getHostCommunication() == communication)) {    // Verify if the user is the host (owner) of the session (use '==' because hostCommunication might be null if the user isn't the host)
             multiplayerSession.start();
-            multiplayerChecking.setCurrentMultiplayerSession(null);
-            MultiplayerSessionsManager.removeSession(sessionCode);
+            MultiplayerSessionsManager.removeSession(multiplayerSession);
 
             List<Question> story = storyChecking.prepareStory(multiplayerSession.getMultipleChoiceResponseList(), multiplayerSession.getWrittenResponseQuestionList());
             communication.sendMessage(new CommunicationFormat(Flags.STORY, story));
             return true;
         }
 
-        if((multiplayerSession.isRunning()) // If the session started
-          && (multiplayerSession.getUsers().contains(communication))) { // If the user had joined the session
+        if((multiplayerSession != null) && (multiplayerSession.isRunning())) { // If the user had joined the session
             communication.sendMessage(new CommunicationFormat(Flags.STORY, storyChecking.getStory()));
         }
 
