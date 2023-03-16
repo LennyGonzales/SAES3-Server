@@ -78,8 +78,9 @@ public class TaskThread implements Runnable {
                 case CANCEL_SESSION -> controller.removeSessionAction(multiplayerChecking);
                 case MULTIPLAYER_JOIN -> controller.joinSessionAction(message.getContent().toString(), usersChecking, storyChecking, multiplayerChecking);
                 case BEGIN -> controller.beginSessionAction(storyChecking, multiplayerChecking);
+                case LEAVE_SESSION -> controller.leaveSessionAction(multiplayerChecking);
 
-                default -> throw new NotTheExpectedFlagException("LOGIN or MODULES or STORY or SUMMARY or CREATE_SESSION or CANCEL_CREATE_SESSION or BEGIN or MULTIPLAYER_JOIN : Flag received => " + message.getFlag() );
+                default -> throw new NotTheExpectedFlagException("LOGIN or MODULES or STORY or SUMMARY or CREATE_SESSION or CANCEL_CREATE_SESSION or BEGIN or MULTIPLAYER_JOIN or LEAVE_SESSION : Flag received => " + message.getFlag() );
             }
         }
         communication.close();    // Close the communication when the client leave

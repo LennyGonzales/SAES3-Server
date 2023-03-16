@@ -129,7 +129,7 @@ public class MultiplayerSession {
         for (Communication clientMultiplayerCommunication : users) {
             clientMultiplayerCommunication.sendMessage(message);
         }
-        //users.add(hostCommunication);
+
         users.clear();  // This list will become the list of users who has finish the game
     }
 }

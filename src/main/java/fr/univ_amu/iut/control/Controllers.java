@@ -200,4 +200,16 @@ public class Controllers {
         communication.sendMessage(new CommunicationFormat(Flags.SESSION_NOT_EXISTS));
         return false;
     }
+
+    /**
+     * The player switch to the menu and doesn't want anymore a update of the leaderboard
+     * @param multiplayerChecking an instance of MultiplayerChecking
+     */
+    public void leaveSessionAction(MultiplayerChecking multiplayerChecking) {
+        MultiplayerSession multiplayerSession = multiplayerChecking.getCurrentMultiplayerSession();
+        if(multiplayerSession != null) {
+            multiplayerSession.getUsers().remove(communication);
+            multiplayerChecking.setCurrentMultiplayerSession(null);
+        }
+    }
 }
