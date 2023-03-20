@@ -34,10 +34,10 @@ public class TaskThread implements Runnable {
     private MultiplayerChecking multiplayerChecking;
 
     // DAO
-    private DAOUsersJDBC daoUsersJDBC;
-    private DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceQuestionsJDBC;
-    private DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestionsJDBC;
-    private DAOQuestionsJDBC daoQuestionsJDBC;
+    private DAOUsersJDBC daoUsers;
+    private DAOMultipleChoiceQuestionsJDBC daoMultipleChoiceQuestions;
+    private DAOWrittenResponseQuestionsJDBC daoWrittenResponseQuestions;
+    private DAOQuestionsJDBC daoQuestions;
 
     public TaskThread(SSLSocket sockClient) throws IOException, SQLException {
         communication = new Communication(sockClient);
@@ -46,10 +46,10 @@ public class TaskThread implements Runnable {
         storyChecking = new StoryChecking();
         multiplayerChecking = new MultiplayerChecking();
 
-        daoUsersJDBC = new DAOUsersJDBC();
-        daoMultipleChoiceQuestionsJDBC = new DAOMultipleChoiceQuestionsJDBC();
-        daoWrittenResponseQuestionsJDBC = new DAOWrittenResponseQuestionsJDBC();
-        daoQuestionsJDBC = new DAOQuestionsJDBC();
+        daoUsers = new DAOUsersJDBC();
+        daoMultipleChoiceQuestions = new DAOMultipleChoiceQuestionsJDBC();
+        daoWrittenResponseQuestions = new DAOWrittenResponseQuestionsJDBC();
+        daoQuestions = new DAOQuestionsJDBC();
 
         controller = new Controllers(communication);
     }
@@ -67,11 +67,11 @@ public class TaskThread implements Runnable {
         while ((message = communication.receiveMessage()) != null) { // As long as the server receives no requests, it waits
             // Use element
             switch(message.getFlag()) {
-                case LOGIN -> controller.loginAction((List<String>) message.getContent(), usersChecking, daoUsersJDBC);
+                case LOGIN -> controller.loginAction((List<String>) message.getContent(), usersChecking, daoUsers);
 
-                case MODULES -> controller.modulesAction(storyChecking, daoQuestionsJDBC);
-                case STORY -> controller.storyAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1), storyChecking, daoMultipleChoiceQuestionsJDBC, daoWrittenResponseQuestionsJDBC);
-                case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsersJDBC, multiplayerChecking);
+                case MODULES -> controller.modulesAction(storyChecking, daoQuestions);
+                case STORY -> controller.storyAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1), storyChecking, daoMultipleChoiceQuestions, daoWrittenResponseQuestions);
+                case SUMMARY -> controller.summaryAction(message.getContent(), storyChecking, usersChecking, daoUsers, multiplayerChecking, daoQuestions);
 
                 // Multiplayer session
                 case CREATE_SESSION -> controller.createSessionAction(((List<Object>)message.getContent()).get(0).toString(), (int)((List<Object>)message.getContent()).get(1), multiplayerChecking);

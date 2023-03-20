@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -81,7 +82,7 @@ public class StoryChecking {
      * @throws UserIsNotInTheDatabaseException if the user isn't in the database
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public HashMap<Question, Boolean> getSummary(Object story, UsersChecking usersChecking, DAOUsers daoUsers) throws UserIsNotInTheDatabaseException, SQLException {
+    public HashMap<Question, Boolean> getSummary(Object story, UsersChecking usersChecking, DAOUsers daoUsers, DAOQuestions daoQuestions) throws UserIsNotInTheDatabaseException, SQLException {
         List<Question> storyReceived = (List<Question>) story;
         HashMap<Question, Boolean> storyToSend = new HashMap<>();
         boolean answerStatus;
@@ -100,11 +101,29 @@ public class StoryChecking {
                 if(answerStatus) { ++currentCorrectAnswers; }
             }
         }
+        incrementNumberOfAnswersAndNumberOfCorrectAnswers(storyToSend, daoQuestions);    // Increment the number of answers and the number of good answers
 
         usersChecking.updateUsersPoints((int) (10 * (currentCorrectAnswers - (storyReceived.size()/2.0)) * (1 - (usersChecking.getUser().getPoints()) / 2000.0)), daoUsers);   // function to calculate the new user points
         currentCorrectAnswers = 0;
 
         return storyToSend;
+    }
+
+    /**
+     * Increment the number of answers for a given list of questions id
+     * @param story the story
+     * @param daoQuestions interface (Reversing dependencies)
+     * @return if the incrementation worked
+     * @throws SQLException if a SQL request in the incrementNbAnswers method didn't go well
+     */
+    public boolean incrementNumberOfAnswersAndNumberOfCorrectAnswers(HashMap<Question, Boolean> story, DAOQuestions daoQuestions) throws SQLException {
+        List<Integer> allListIds = new ArrayList<>();
+        List<Integer> correctAnswersListIds = new ArrayList<>();
+        for (Map.Entry<Question, Boolean> entry : story.entrySet()) {
+            allListIds.add(entry.getKey().getId());
+            if(entry.getValue()) { correctAnswersListIds.add(entry.getKey().getId()); } // Get the correct answersr questions id
+        }
+        return daoQuestions.incrementNbAnswers(correctAnswersListIds, allListIds);
     }
 
     /**
@@ -114,7 +133,7 @@ public class StoryChecking {
      */
     public int getUserPoints(UsersChecking usersChecking) {
         return usersChecking.getUser().getPoints();
-    }
+    }       // ??? Why not in userschecking ???
 
     /**
      * Get modules

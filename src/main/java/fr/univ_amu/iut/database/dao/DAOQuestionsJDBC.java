@@ -4,10 +4,7 @@ import fr.univ_amu.iut.Main;
 import fr.univ_amu.iut.domain.Story;
 import fr.univ_amu.iut.service.dao.DAOQuestions;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +14,7 @@ import java.util.List;
  */
 public class DAOQuestionsJDBC implements DAOQuestions {
     private final PreparedStatement getAllModulesStatement;
+    private final PreparedStatement incrementNbAnswersAndNbCorrectAnswers;
     private static final Connection CONNECTION = Main.database.getConnections().get("STORIES");
 
     /**
@@ -25,6 +23,8 @@ public class DAOQuestionsJDBC implements DAOQuestions {
      */
     public DAOQuestionsJDBC() throws SQLException {
         getAllModulesStatement = CONNECTION.prepareStatement("SELECT DISTINCT MODULE FROM QUESTIONS;");
+        incrementNbAnswersAndNbCorrectAnswers = CONNECTION.prepareStatement("UPDATE QUESTIONS SET nbAnswers = nbAnswers + 1, nbCorrectAnswers = nbCorrectAnswers + CASE WHEN id = ANY (?) THEN 1 ELSE 0 END WHERE id = ANY (?);");
+
     }
 
     /**
@@ -41,6 +41,19 @@ public class DAOQuestionsJDBC implements DAOQuestions {
             modules.add(result.getString(1));
         }
         return modules;
+    }
+
+    /**
+     * Increment the number of answers for a list of question IDs and the number of correct answers for another list of question IDs
+     * @param correctAnswerIdList a list containing all the correct answers questions IDs
+     * @param allIdList a list containing all the questions IDs
+     * @return if the query worked or failed
+     * @throws SQLException the SQL request didn't go well
+     */
+    public boolean incrementNbAnswers(List<Integer> correctAnswerIdList, List<Integer> allIdList) throws SQLException {
+        incrementNbAnswersAndNbCorrectAnswers.setArray(1, CONNECTION.createArrayOf("INTEGER", correctAnswerIdList.toArray()));
+        incrementNbAnswersAndNbCorrectAnswers.setArray(2, CONNECTION.createArrayOf("INTEGER", allIdList.toArray()));
+        return (incrementNbAnswersAndNbCorrectAnswers.executeUpdate() > 0);
     }
 
     /**

@@ -1,6 +1,9 @@
 package fr.univ_amu.iut;
 
 import fr.univ_amu.iut.database.Database;
+import fr.univ_amu.iut.database.dao.DAOQuestionsJDBC;
+
+import java.util.Arrays;
 
 /**
  * Class to run to launch the server

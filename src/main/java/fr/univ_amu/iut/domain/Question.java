@@ -7,6 +7,8 @@ public class Question implements Serializable {
     private String module;
     private String description;
     private String question;
+    private int nbAnswers;
+    private int nbCorrectAnswers;
 
     public int getId() {
         return id;
@@ -38,5 +40,21 @@ public class Question implements Serializable {
 
     public void setQuestion(String question) {
         this.question = question;
+    }
+
+    public int getNbAnswers() {
+        return nbAnswers;
+    }
+
+    public void setNbAnswers(int nbAnswers) {
+        this.nbAnswers = nbAnswers;
+    }
+
+    public int getNbCorrectAnswers() {
+        return nbCorrectAnswers;
+    }
+
+    public void setNbCorrectAnswers(int nbCorrectAnswers) {
+        this.nbCorrectAnswers = nbCorrectAnswers;
     }
 }

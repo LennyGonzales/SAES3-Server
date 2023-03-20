@@ -77,8 +77,8 @@ public class Controllers {
      * @throws UserIsNotInTheDatabaseException if the user isn't in the database
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public void summaryAction(Object questions, StoryChecking storyChecking, UsersChecking usersChecking, DAOUsers daoUsers, MultiplayerChecking multiplayerChecking) throws IOException, UserIsNotInTheDatabaseException, SQLException {
-        HashMap<Question, Boolean> summary = storyChecking.getSummary(questions, usersChecking, daoUsers);
+    public void summaryAction(Object questions, StoryChecking storyChecking, UsersChecking usersChecking, DAOUsers daoUsers, MultiplayerChecking multiplayerChecking, DAOQuestions daoQuestions) throws IOException, UserIsNotInTheDatabaseException, SQLException {
+        HashMap<Question, Boolean> summary = storyChecking.getSummary(questions, usersChecking, daoUsers, daoQuestions);
         communication.sendMessage(new CommunicationFormat(Flags.SUMMARY, summary));
         communication.sendMessage(new CommunicationFormat(Flags.USER_POINTS, storyChecking.getUserPoints(usersChecking)));
 
