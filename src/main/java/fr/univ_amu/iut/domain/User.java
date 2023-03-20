@@ -5,7 +5,6 @@ public class User {
     private String password;
     private String userStatus;
     private int points;
-    private boolean verified;
 
     public String getEmail() {
         return email;
@@ -39,11 +38,4 @@ public class User {
         this.points = points;
     }
 
-    public boolean isVerified() {
-        return verified;
-    }
-
-    public void setVerified(boolean verified) {
-        this.verified = verified;
-    }
 }
