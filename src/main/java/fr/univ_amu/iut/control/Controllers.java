@@ -80,7 +80,7 @@ public class Controllers {
     public void summaryAction(Object questions, StoryChecking storyChecking, UsersChecking usersChecking, DAOUsers daoUsers, MultiplayerChecking multiplayerChecking, DAOQuestions daoQuestions) throws IOException, UserIsNotInTheDatabaseException, SQLException {
         HashMap<Question, Boolean> summary = storyChecking.summary(questions, usersChecking, daoUsers, daoQuestions);
         communication.sendMessage(new CommunicationFormat(Flags.SUMMARY, summary));
-        communication.sendMessage(new CommunicationFormat(Flags.USER_POINTS, storyChecking.getUserPoints(usersChecking)));
+        communication.sendMessage(new CommunicationFormat(Flags.USER_POINTS, usersChecking.getUser().getPoints()));
 
         // If it was a multiplayer session
         MultiplayerSession multiplayerSession = multiplayerChecking.getCurrentMultiplayerSession();
@@ -134,7 +134,7 @@ public class Controllers {
         if(multiplayerSession.getHostCommunication().equals(communication)) {    // Verify if the user is the host (owner) of the session
             MultiplayerSessionsManager.removeSession(multiplayerSession);
 
-            for(Communication communicationUser : multiplayerSession.getUsers()) {
+            for(Communication communicationUser : multiplayerSession.getUsers()) {  // Say to all users who joined the session that the session is canceled
                 communicationUser.sendMessage(new CommunicationFormat(Flags.CANCEL_SESSION));
             }
             multiplayerChecking.setCurrentMultiplayerSession(null);
@@ -162,16 +162,12 @@ public class Controllers {
         MultiplayerSession multiplayerSession = multiplayerChecking.getCurrentMultiplayerSession();
 
         if ((multiplayerSession != null) && (multiplayerSession.getHostCommunication() == communication)) {    // Verify if the user is the host (owner) of the session (use '==' because hostCommunication might be null if the user isn't the host)
-            multiplayerSession.start();
-            MultiplayerSessionsManager.removeSession(multiplayerSession);
+            MultiplayerSessionsManager.removeSession(multiplayerSession);   // Nobody can join the multiplayer session anymore
 
             List<Question> story = storyChecking.prepareStory(multiplayerSession.getMultipleChoiceResponseList(), multiplayerSession.getWrittenResponseQuestionList());
+            multiplayerSession.start(story); // Notify the users who joined the multiplayer session that the session begin
             communication.sendMessage(new CommunicationFormat(Flags.STORY, story));
             return true;
-        }
-
-        if((multiplayerSession != null) && (multiplayerSession.isRunning())) { // If the user had joined the session
-            communication.sendMessage(new CommunicationFormat(Flags.STORY, storyChecking.getStory()));
         }
 
         return false;

@@ -52,10 +52,6 @@ public class MultiplayerSession {
         return users;
     }
 
-    public boolean isRunning() {
-        return isRunning;
-    }
-
     public Communication getHostCommunication() {
         return hostCommunication;
     }
@@ -129,9 +125,9 @@ public class MultiplayerSession {
      * Run the session for all other users
      * @throws IOException if the communication with a user is closed or didn't go well
      */
-    public void start() throws IOException {
+    public void start(List<Question> story) throws IOException {
         isRunning = true;
-        CommunicationFormat message = new CommunicationFormat(Flags.BEGIN);
+        CommunicationFormat message = new CommunicationFormat(Flags.STORY, story);
         for (Communication clientMultiplayerCommunication : users) {
             clientMultiplayerCommunication.sendMessage(message);
         }

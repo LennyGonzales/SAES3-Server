@@ -121,7 +121,7 @@ public class StoryChecking {
         HashMap<Question, Boolean> storyToSend = prepareSummary(storyReceived);
         incrementNumberOfAnswersAndNumberOfCorrectAnswers(storyToSend, daoQuestions);    // Increment the number of answers and the number of good answers
 
-        usersChecking.increaseUserPoints((int) (10 * (currentCorrectAnswers - (storyReceived.size()/2.0)) * (1 - (usersChecking.getUser().getPoints()) / 2000.0)), daoUsers);   // function to calculate the new user points
+        usersChecking.updateUserPoints((int) (10 * (currentCorrectAnswers - (storyReceived.size()/2.0)) * (1 - (usersChecking.getUser().getPoints()) / 2000.0)), daoUsers);   // function to calculate the new user points
         currentCorrectAnswers = 0;
 
         return storyToSend;
@@ -169,15 +169,6 @@ public class StoryChecking {
         }
         return daoQuestions.incrementNbAnswers(correctAnswersListIds, allListIds);
     }
-
-    /**
-     * Get user's points
-     * @param usersChecking an instance of UsersChecking
-     * @return user's points
-     */
-    public int getUserPoints(UsersChecking usersChecking) {
-        return usersChecking.getUser().getPoints();
-    }       // ??? Why not in userschecking ???
 
     /**
      * Get modules
