@@ -23,7 +23,7 @@ public class UsersChecking {
      * @param password password of the user
      * @param daoUsers interface (Reversing dependencies) to access database
      * @return if the authentication was successful
-     * @throws SQLException
+     * @throws SQLException if the getUser query didn't go well
      */
     public boolean authenticate(String email, String password, DAOUsers daoUsers) throws SQLException {
         User user = daoUsers.getUser(email, password);
@@ -34,7 +34,14 @@ public class UsersChecking {
         return isAuthenticated;
     }
 
-    public void updateUsersPoints(int numberOfPoints, DAOUsers daoUsers) throws UserIsNotInTheDatabaseException, SQLException {
+    /**
+     * Increase the user points
+     * @param numberOfPoints the number of points
+     * @param daoUsers interface (Reversing dependencies) to access database
+     * @throws UserIsNotInTheDatabaseException if the user isn't in the database
+     * @throws SQLException if one of the queries didn't go well
+     */
+    public void increaseUserPoints(int numberOfPoints, DAOUsers daoUsers) throws UserIsNotInTheDatabaseException, SQLException {
         daoUsers.setPointsByEmail(user.getEmail(), daoUsers.getPointsByEmail(user.getEmail()) + numberOfPoints);   // we also check if the user is still in the database
         user = daoUsers.getUser(user.getEmail(), user.getPassword()); // Update the instance
     }

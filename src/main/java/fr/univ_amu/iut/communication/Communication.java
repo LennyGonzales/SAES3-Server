@@ -27,8 +27,11 @@ public class Communication {
         }
     }
 
-
-
+    /**
+     * Send a message to the client
+     * @param communicationFormat the message to send
+     * @throws IOException if the communication with the client didn't go well
+     */
     public void sendMessage(CommunicationFormat communicationFormat) throws IOException {
         outObject.writeObject(communicationFormat);
         outObject.flush();

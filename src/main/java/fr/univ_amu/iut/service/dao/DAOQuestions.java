@@ -1,6 +1,6 @@
 package fr.univ_amu.iut.service.dao;
 
-import fr.univ_amu.iut.domain.Story;
+import fr.univ_amu.iut.domain.Question;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
  * The methods' signature for the Stories table
  * @author LennyGonzales
  */
-public interface DAOQuestions extends DAO<Story,Integer> {
+public interface DAOQuestions extends DAO<Question,Integer> {
 
     /**
      * Get all the modules

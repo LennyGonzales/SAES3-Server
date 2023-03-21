@@ -4,8 +4,6 @@ import fr.univ_amu.iut.communication.CommunicationFormat;
 import fr.univ_amu.iut.communication.Flags;
 import fr.univ_amu.iut.database.dao.DAOMultipleChoiceQuestionsJDBC;
 import fr.univ_amu.iut.database.dao.DAOWrittenResponseQuestionsJDBC;
-import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
-import fr.univ_amu.iut.domain.WrittenResponseQuestion;
 import fr.univ_amu.iut.communication.Communication;
 
 import java.io.IOException;
@@ -13,7 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Supports a multiplayer session
@@ -24,14 +21,23 @@ public class MultiplayerSession {
     private final List<WrittenResponseQuestion> writtenResponseQuestionList;
 
     private final List<Communication> users;
+    private final List<Communication> usersWhoFinished;
     private HashMap<String, Integer> leaderboard;
 
     private final Communication hostCommunication;
     private boolean isRunning;
 
+    /**
+     * Prepare the questions (multiple choice questions and written response questions)
+     * @param module the module chosen
+     * @param nbQuestions the number of questions
+     * @param hostCommunication the instance of Communication for the user who created this session (the host)
+     * @throws SQLException if one of the sql queries (get questions) didn't go well
+     */
     public MultiplayerSession(String module, int nbQuestions, Communication hostCommunication) throws SQLException {
         this.hostCommunication = hostCommunication;
         users = new ArrayList<>();
+        usersWhoFinished = new ArrayList<>();
         isRunning = false;
         leaderboard = new HashMap<>();
 
@@ -57,6 +63,7 @@ public class MultiplayerSession {
     /**
      * Get the qcm list
      * @return the qcm list
+     * @throws CloneNotSupportedException if the class doesn't implement Cloneable interface
      */
     public List<MultipleChoiceQuestion> getMultipleChoiceResponseList() throws CloneNotSupportedException {
         List<MultipleChoiceQuestion> out = new ArrayList<>();
@@ -69,6 +76,7 @@ public class MultiplayerSession {
     /**
      * Get the written response question list
      * @return the written response question list
+     * @throws CloneNotSupportedException if the class doesn't implement Cloneable interface
      */
     public List<WrittenResponseQuestion> getWrittenResponseQuestionList() throws CloneNotSupportedException {
         List<WrittenResponseQuestion> out = new ArrayList<>();
@@ -90,12 +98,12 @@ public class MultiplayerSession {
     }
 
     /**
-     * Add an user on the leaderboard
+     * Add a user on the leaderboard
      * @param email user email
      * @param numberOfGoodAnswers the number of good answers
      */
     public void addUserOnLeaderboard(String email, int numberOfGoodAnswers, Communication communication) {
-        users.add(communication);
+        usersWhoFinished.add(communication);
         leaderboard.put(email, numberOfGoodAnswers);
     }
 
@@ -104,17 +112,15 @@ public class MultiplayerSession {
      * @throws IOException if the communication with a user is closed or didn't go well
      */
     public void sendLeaderboard() throws IOException {
-        HashMap<String, Integer> leaderboardToSend = new HashMap<>();
-        for(Communication communicationUser : users) {
+        HashMap<String, Integer> leaderboardToSend;
+        for(Communication communicationUser : usersWhoFinished) {
             /*                                          TO READ
              * We have to create a new object (new reference) so as not to send the same object (same reference)
              * because of the sockets that "remember the object
              * and when it re-receives the same object (same reference), it returns to the client the old value
              */
             leaderboardToSend = new HashMap<>();
-            for(Map.Entry<String,Integer> entry : leaderboard.entrySet()) {
-                leaderboardToSend.put(entry.getKey(), entry.getValue());
-            }
+            leaderboardToSend.putAll(leaderboard);
             communicationUser.sendMessage(new CommunicationFormat(Flags.LEADERBOARD, leaderboardToSend));
         }
     }
@@ -129,7 +135,5 @@ public class MultiplayerSession {
         for (Communication clientMultiplayerCommunication : users) {
             clientMultiplayerCommunication.sendMessage(message);
         }
-
-        users.clear();  // This list will become the list of users who has finish the game
     }
 }

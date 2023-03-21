@@ -1,11 +1,8 @@
 package fr.univ_amu.iut.service.multiplayer;
 
-import fr.univ_amu.iut.communication.Communication;
 import fr.univ_amu.iut.domain.MultiplayerSession;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Stores multiplayer sessions
@@ -39,13 +36,4 @@ public class MultiplayerSessionsManager {
     public static void removeSession(MultiplayerSession multiplayerSession) {
         multiplayerSessions.values().remove(multiplayerSession);
     }
-
-    /**
-     * Get multiplayer sessions and their code
-     * @return multiplayer sessions in a HashMap
-     */
-    public static HashMap<String, MultiplayerSession> getMultiplayerSessions() {
-        return multiplayerSessions;
-    }
-
 }

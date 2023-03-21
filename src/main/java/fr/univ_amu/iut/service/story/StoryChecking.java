@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Supports the stories management
  * @author LennyGonzales
  */
 public class StoryChecking {
-    private HashMap<Integer, Integer> currentMultipleChoiceResponse;
-    private HashMap<Integer, String> currentWrittenResponse;
+    private final HashMap<Integer, Integer> currentMultipleChoiceResponse;
+    private final HashMap<Integer, String> currentWrittenResponse;
     private List<Question> story;
     private int currentCorrectAnswers;
 
@@ -32,12 +32,16 @@ public class StoryChecking {
         currentCorrectAnswers = 0;
     }
 
+    /**
+     * Get the current story
+     * @return the current story
+     */
     public List<Question> getStory() {
         return story;
     }
 
     /**
-     * Get a story
+     * Create a story
      * @param module module of the story
      * @param numberOfQuestions number of questions in the story
      * @param daoMultipleChoiceQuestions interface (Reversing dependencies) to access database
@@ -53,28 +57,57 @@ public class StoryChecking {
         return prepareStory(multipleChoiceQuestionList, writtenResponseQuestionList);
     }
 
+    /**
+     * Prepare the story before sending to the user
+     * @param multipleChoiceQuestionList the list of multiple choice questions
+     * @param writtenResponseQuestionList the list of written response questions
+     * @return the list prepared
+     * @throws CloneNotSupportedException if the class doesn't implement the Cloneable interface
+     */
     public List<Question> prepareStory(List<MultipleChoiceQuestion> multipleChoiceQuestionList, List<WrittenResponseQuestion> writtenResponseQuestionList) throws CloneNotSupportedException {
-        MultipleChoiceQuestion multipleChoiceQuestionClone;
-        for(MultipleChoiceQuestion question : multipleChoiceQuestionList) {
-            multipleChoiceQuestionClone = question.clone(); // => not the same reference (setTrueAnswer isn't going to modify currentWrittenResponse HashMap
-            currentMultipleChoiceResponse.put(question.getId(), multipleChoiceQuestionClone.getTrueAnswer());
-            question.setTrueAnswer(null);
-        }
-        WrittenResponseQuestion writtenResponseQuestionClone;
-        for(WrittenResponseQuestion question : writtenResponseQuestionList) {
-            writtenResponseQuestionClone = question.clone();    // => not the same reference (setTrueAnswer isn't going to modify currentWrittenResponse HashMap
-            currentWrittenResponse.put(question.getId(), writtenResponseQuestionClone.getTrueAnswer());
-            question.setTrueAnswer(null);
-        }
+        prepareMultipleChoiceQuestions(multipleChoiceQuestionList);
+        prepareWrittenResponseQuestions(writtenResponseQuestionList);
+
         story = new ArrayList<>();
         story.addAll(multipleChoiceQuestionList);
         story.addAll(writtenResponseQuestionList);
         return story;
     }
 
+    /**
+     * Prepare the list of multiple choice questions
+     * @param multipleChoiceQuestionList the list of multiple choice questions
+     * @return the list prepared
+     * @throws CloneNotSupportedException if the class doesn't implement the Cloneable interface
+     */
+    public void prepareMultipleChoiceQuestions(List<MultipleChoiceQuestion> multipleChoiceQuestionList) throws CloneNotSupportedException {
+        MultipleChoiceQuestion multipleChoiceQuestionClone;
+        for(MultipleChoiceQuestion question : multipleChoiceQuestionList) {
+            multipleChoiceQuestionClone = question.clone(); // => not the same reference (setTrueAnswer isn't going to modify currentWrittenResponse HashMap
+            currentMultipleChoiceResponse.put(question.getId(), multipleChoiceQuestionClone.getTrueAnswer());
+            question.setTrueAnswer(null);
+        }
+    }
 
     /**
-     * Get the summary
+     * Prepare the list of written response questions
+     * @param writtenResponseQuestionList the list of multiple choice questions
+     * @return the list prepared
+     * @throws CloneNotSupportedException if the class doesn't implement the Cloneable interface
+     */
+    public void prepareWrittenResponseQuestions(List<WrittenResponseQuestion> writtenResponseQuestionList) throws CloneNotSupportedException {
+        WrittenResponseQuestion writtenResponseQuestionClone;
+        for(WrittenResponseQuestion question : writtenResponseQuestionList) {
+            writtenResponseQuestionClone = question.clone();    // => not the same reference (setTrueAnswer isn't going to modify currentWrittenResponse HashMap
+            currentWrittenResponse.put(question.getId(), writtenResponseQuestionClone.getTrueAnswer());
+            question.setTrueAnswer(null);
+        }
+    }
+
+    /**
+     *  - Prepare the HashMap to send to the client/user
+     *  - For each question, increment the number of answers and the number of good answers in the database
+     *  - Update the user points
      * @param story story received
      * @param usersChecking an instance of UsersChecking
      * @param daoUsers interface (Reversing dependencies)
@@ -82,8 +115,24 @@ public class StoryChecking {
      * @throws UserIsNotInTheDatabaseException if the user isn't in the database
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
-    public HashMap<Question, Boolean> getSummary(Object story, UsersChecking usersChecking, DAOUsers daoUsers, DAOQuestions daoQuestions) throws UserIsNotInTheDatabaseException, SQLException {
+    public HashMap<Question, Boolean> summary(Object story, UsersChecking usersChecking, DAOUsers daoUsers, DAOQuestions daoQuestions) throws UserIsNotInTheDatabaseException, SQLException {
         List<Question> storyReceived = (List<Question>) story;
+
+        HashMap<Question, Boolean> storyToSend = prepareSummary(storyReceived);
+        incrementNumberOfAnswersAndNumberOfCorrectAnswers(storyToSend, daoQuestions);    // Increment the number of answers and the number of good answers
+
+        usersChecking.increaseUserPoints((int) (10 * (currentCorrectAnswers - (storyReceived.size()/2.0)) * (1 - (usersChecking.getUser().getPoints()) / 2000.0)), daoUsers);   // function to calculate the new user points
+        currentCorrectAnswers = 0;
+
+        return storyToSend;
+    }
+
+    /**
+     * Prepare the summary to send to the user/client
+     * @param storyReceived the story received
+     * @return the summary prepared
+     */
+    public HashMap<Question, Boolean> prepareSummary(List<Question> storyReceived) {
         HashMap<Question, Boolean> storyToSend = new HashMap<>();
         boolean answerStatus;
 
@@ -101,11 +150,6 @@ public class StoryChecking {
                 if(answerStatus) { ++currentCorrectAnswers; }
             }
         }
-        incrementNumberOfAnswersAndNumberOfCorrectAnswers(storyToSend, daoQuestions);    // Increment the number of answers and the number of good answers
-
-        usersChecking.updateUsersPoints((int) (10 * (currentCorrectAnswers - (storyReceived.size()/2.0)) * (1 - (usersChecking.getUser().getPoints()) / 2000.0)), daoUsers);   // function to calculate the new user points
-        currentCorrectAnswers = 0;
-
         return storyToSend;
     }
 
@@ -121,7 +165,7 @@ public class StoryChecking {
         List<Integer> correctAnswersListIds = new ArrayList<>();
         for (Map.Entry<Question, Boolean> entry : story.entrySet()) {
             allListIds.add(entry.getKey().getId());
-            if(entry.getValue()) { correctAnswersListIds.add(entry.getKey().getId()); } // Get the correct answersr questions id
+            if(entry.getValue()) { correctAnswersListIds.add(entry.getKey().getId()); } // Get the correct answers questions id
         }
         return daoQuestions.incrementNbAnswers(correctAnswersListIds, allListIds);
     }

@@ -1,7 +1,7 @@
 package fr.univ_amu.iut.database.dao;
 
 import fr.univ_amu.iut.Main;
-import fr.univ_amu.iut.domain.Story;
+import fr.univ_amu.iut.domain.Question;
 import fr.univ_amu.iut.service.dao.DAOQuestions;
 
 import java.sql.*;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements methods' for the Stories table
+ * Implements methods' for the Questions table
  * @author LennyGonzales
  */
 public class DAOQuestionsJDBC implements DAOQuestions {
@@ -58,31 +58,31 @@ public class DAOQuestionsJDBC implements DAOQuestions {
 
     /**
      * Allows removal of a tuple from the base
-     * @param story tuple to delete from the database
+     * @param question tuple to delete from the database
      * @return true - The deletion went well | false - The deletion didn't go well
      */
     @Override
-    public boolean delete(Story story) {
+    public boolean delete(Question question) {
         return false;
     }
 
     /**
      * Allows to create a tuple in the database with an object
-     * @param story tuple to insert into the database
+     * @param question tuple to insert into the database
      * @return the tuple inserted
      */
     @Override
-    public Story insert(Story story) {
+    public Question insert(Question question) {
         return null;
     }
 
     /**
      * Allows to update a tuple in the database with an object
-     * @param story tuple to update in the database
+     * @param question tuple to update in the database
      * @return true - The update went well | false - The update didn't go well
      */
     @Override
-    public boolean update(Story story) {
+    public boolean update(Question question) {
         return false;
     }
 }

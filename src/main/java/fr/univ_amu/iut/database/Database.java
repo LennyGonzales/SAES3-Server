@@ -3,13 +3,10 @@ package fr.univ_amu.iut.database;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Supports the connection with the database and allows to close it
@@ -64,7 +61,6 @@ public class Database {
 
     /**
      * Return the connection with the database
-     *
      * @return the connection
      */
     public HashMap<String, Connection> getConnections() {
@@ -73,7 +69,6 @@ public class Database {
 
     /**
      *  Close the connections with the databases
-     *
      * @return true if the disconnection worked
      *         false if the disconnection didn't work
      */

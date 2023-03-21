@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements methods' for the WrittenResponses table
+ * Implements methods' for the WrittenResponseQuestions table
  * @author LennyGonzales
  */
 public class DAOWrittenResponseQuestionsJDBC implements DAOWrittenResponseQuestions {

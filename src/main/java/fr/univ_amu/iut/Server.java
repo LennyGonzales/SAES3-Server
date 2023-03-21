@@ -18,13 +18,17 @@ public class Server {
     private SSLServerSocket sockServer;
     private ExecutorService pool;
 
+    /**
+     * Initialize the server and prepare the files needed for the handshake
+     * @throws Exception if the initialization didn't go well
+     */
     public Server() throws Exception {
         this.pool = Executors.newFixedThreadPool(NB_THREADS);   // Fix the number of threads
         try {
             System.setProperty("javax.net.ssl.keyStore", "keyStore.jks");
-            System.setProperty("javax.net.ssl.keyStorePassword", "uiYy1ae7h!ayvU");   // ----!!!
+            System.setProperty("javax.net.ssl.keyStorePassword", "uiYy1ae7h!ayvU");
             System.setProperty("javax.net.ssl.trustStore", "trustStore.jts");
-            System.setProperty("javax.net.ssl.trustStorePassword", "uiYy1ae7h!ayvU"); //----to do
+            System.setProperty("javax.net.ssl.trustStorePassword", "uiYy1ae7h!ayvU");
 
             SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
             sockServer = (SSLServerSocket) factory.createServerSocket(NUM_PORT);

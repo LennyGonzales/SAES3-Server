@@ -1,5 +1,9 @@
 package fr.univ_amu.iut.communication;
 
+/**
+ * All the flags for the communication with the client | Use to provide or get the reason of the communication
+ * @author LennyGonzales
+ */
 public enum Flags {
     LOGIN,
     LOGIN_SUCCESSFULLY,

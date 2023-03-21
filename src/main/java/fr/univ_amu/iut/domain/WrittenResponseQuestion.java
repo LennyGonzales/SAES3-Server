@@ -1,7 +1,7 @@
 package fr.univ_amu.iut.domain;
 
 /**
- * Represents a tuple of the WRITTENRESPONSE table
+ * Represents a tuple of the WrittenResponseQuestions table
  * @author LennyGonzales
  */
 public class WrittenResponseQuestion extends Question implements Cloneable{

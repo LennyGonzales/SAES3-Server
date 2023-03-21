@@ -27,7 +27,7 @@ import java.util.UUID;
  * @author LennyGonzales
  */
 public class Controllers {
-    private Communication communication;
+    private final Communication communication;
 
     public Controllers(Communication communication) {
         this.communication = communication;
@@ -78,7 +78,7 @@ public class Controllers {
      * @throws SQLException if a SQL request in the Login.serviceLogin() method didn't go well
      */
     public void summaryAction(Object questions, StoryChecking storyChecking, UsersChecking usersChecking, DAOUsers daoUsers, MultiplayerChecking multiplayerChecking, DAOQuestions daoQuestions) throws IOException, UserIsNotInTheDatabaseException, SQLException {
-        HashMap<Question, Boolean> summary = storyChecking.getSummary(questions, usersChecking, daoUsers, daoQuestions);
+        HashMap<Question, Boolean> summary = storyChecking.summary(questions, usersChecking, daoUsers, daoQuestions);
         communication.sendMessage(new CommunicationFormat(Flags.SUMMARY, summary));
         communication.sendMessage(new CommunicationFormat(Flags.USER_POINTS, storyChecking.getUserPoints(usersChecking)));
 
@@ -181,6 +181,8 @@ public class Controllers {
      * Control the join multiplayer session action
      * @param sessionCode the session code
      * @param usersChecking an instance of UsersChecking
+     * @param storyChecking an instance of StoryChecking
+     * @param multiplayerChecking an instance of MultiplayerChecking
      * @return if the join action was successful
      * @throws IOException if the communication with the client is closed or didn't go well
      * @throws CloneNotSupportedException if the clone in StoryChecking.getStory isn't supported
@@ -202,7 +204,7 @@ public class Controllers {
     }
 
     /**
-     * The player switch to the menu and doesn't want anymore a update of the leaderboard
+     * The player switch to the menu and doesn't want anymore an update of the leaderboard
      * @param multiplayerChecking an instance of MultiplayerChecking
      */
     public void leaveSessionAction(MultiplayerChecking multiplayerChecking) {

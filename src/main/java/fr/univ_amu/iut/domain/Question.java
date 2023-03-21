@@ -2,6 +2,10 @@ package fr.univ_amu.iut.domain;
 
 import java.io.Serializable;
 
+/**
+ * Represents a tuple of the Questions table
+ * @author LennyGonzales
+ */
 public class Question implements Serializable {
     private int id;
     private String module;

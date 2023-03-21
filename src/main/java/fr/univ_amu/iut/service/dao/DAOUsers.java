@@ -9,7 +9,7 @@ import java.sql.SQLException;
  * The methods' signature for the Users table
  * @author LennyGonzales
  */
-public interface DAOUsers extends DAO{
+public interface DAOUsers extends DAO<User, Integer>{
     /**
      * Get the user by email and password
      * @param email the input email of the user

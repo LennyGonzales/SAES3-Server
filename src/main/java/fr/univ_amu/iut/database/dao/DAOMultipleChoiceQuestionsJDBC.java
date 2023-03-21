@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements methods' for the MultipleChoiceResponses table
+ * Implements methods' for the MultipleChoiceQuestions table
  * @author LennyGonzales
  */
 public class DAOMultipleChoiceQuestionsJDBC implements DAOMultipleChoiceQuestions {

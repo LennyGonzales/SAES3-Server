@@ -109,31 +109,31 @@ public class DAOUsersJDBC implements DAOUsers {
 
     /**
      * Allows removal of a tuple from the base
-     * @param obj tuple to delete from the database
+     * @param user tuple to delete from the database
      * @return true - The deletion went well | false - The deletion didn't go well
      */
     @Override
-    public boolean delete(Object obj) {
+    public boolean delete(User user) {
         return false;
     }
 
     /**
      * Allows to create a tuple in the database with an object
-     * @param obj tuple to insert into the database
+     * @param user tuple to insert into the database
      * @return the tuple inserted
      */
     @Override
-    public Object insert(Object obj) {
+    public User insert(User user) {
         return null;
     }
 
     /**
      * Allows to update a tuple in the database with an object
-     * @param obj tuple to update in the database
+     * @param user tuple to update in the database
      * @return true - The update went well | false - The update didn't go well
      */
     @Override
-    public boolean update(Object obj) {
+    public boolean update(User user) {
         return false;
     }
 }

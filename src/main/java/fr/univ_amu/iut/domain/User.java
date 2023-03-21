@@ -1,5 +1,9 @@
 package fr.univ_amu.iut.domain;
 
+/**
+ * Represents a tuple of the Users table
+ * @author LennyGonzales
+ */
 public class User {
     private String email;
     private String password;

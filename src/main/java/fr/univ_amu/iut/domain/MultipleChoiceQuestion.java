@@ -1,7 +1,5 @@
 package fr.univ_amu.iut.domain;
 
-import java.util.Optional;
-
 /**
  * Represents a tuple of the QCM table
  * @author LennyGonzales
