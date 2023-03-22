@@ -1,14 +1,13 @@
-package fr.univ_amu.iut.database.table;
+package fr.univ_amu.iut.domain;
 
-import fr.univ_amu.iut.domain.MultipleChoiceQuestion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-public class TestQCM {
+public class TestMultipleChoiceQuestion {
     private MultipleChoiceQuestion multipleChoiceQuestion;
 
     @BeforeEach
@@ -22,6 +21,8 @@ public class TestQCM {
         multipleChoiceQuestion.setAnswer1("answer1");
         multipleChoiceQuestion.setAnswer2("answer2");
         multipleChoiceQuestion.setAnswer3("answer3");
+        multipleChoiceQuestion.setNbAnswers(1);
+        multipleChoiceQuestion.setNbCorrectAnswers(1);
     }
 
 
@@ -71,13 +72,13 @@ public class TestQCM {
 
     @Test
     public void shouldGetTrueAnswer() {
-        assertEquals(Optional.of(1), multipleChoiceQuestion.getTrueAnswer());
+        assertEquals(1, multipleChoiceQuestion.getTrueAnswer().intValue());
     }
 
     @Test
     public void shouldSetTrueAnswer() {
         multipleChoiceQuestion.setTrueAnswer(2);
-        assertEquals(Optional.of(2), multipleChoiceQuestion.getTrueAnswer());
+        assertEquals(2, multipleChoiceQuestion.getTrueAnswer().intValue());
     }
 
     @Test
@@ -103,13 +104,29 @@ public class TestQCM {
     }
 
     @Test
-    public void shouldGetAnswer3() {
-        assertEquals("answer3", multipleChoiceQuestion.getAnswer3());
+    public void shouldGetNbAnswers() {
+        assertEquals(1, multipleChoiceQuestion.getNbAnswers());
     }
 
     @Test
-    public void shouldSetAnswer3() {
-        multipleChoiceQuestion.setAnswer3("answer3Change");
-        assertEquals("answer3Change", multipleChoiceQuestion.getAnswer3());
+    public void shouldSetNbAnswers() {
+        multipleChoiceQuestion.setNbAnswers(2);
+        assertEquals(2, multipleChoiceQuestion.getNbAnswers());
+    }
+
+    @Test
+    public void shouldGetNbCorrectAnswers() {
+        assertEquals(1, multipleChoiceQuestion.getNbCorrectAnswers());
+    }
+
+    @Test
+    public void shouldSetNbCorrectAnswers() {
+        multipleChoiceQuestion.setNbCorrectAnswers(2);
+        assertEquals(2, multipleChoiceQuestion.getNbCorrectAnswers());
+    }
+
+    @Test
+    public void shouldCloneNotEquals() throws CloneNotSupportedException {
+        assertFalse(multipleChoiceQuestion.clone().equals(multipleChoiceQuestion));
     }
 }

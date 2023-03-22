@@ -18,14 +18,17 @@ import java.util.List;
 public class DAOWrittenResponseQuestionsJDBC implements DAOWrittenResponseQuestions {
     private PreparedStatement getACertainNumberOfWrittenResponseQuestion;
 
-    private static final Connection CONNECTION = Main.database.getConnections().get("STORIES");
 
     /**
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
+    public DAOWrittenResponseQuestionsJDBC(Connection connection) throws SQLException {
+        getACertainNumberOfWrittenResponseQuestion = connection.prepareStatement("SELECT DISTINCT ID, DESCRIPTION, QUESTION, TRUE_ANSWER FROM WRITTENRESPONSEQUESTIONS W WHERE MODULE = ? LIMIT ?;");
+    }
+
     public DAOWrittenResponseQuestionsJDBC() throws SQLException {
-        getACertainNumberOfWrittenResponseQuestion = CONNECTION.prepareStatement("SELECT DISTINCT ID, DESCRIPTION, QUESTION, TRUE_ANSWER FROM WRITTENRESPONSEQUESTIONS W WHERE MODULE = ? LIMIT ?;");
+        this(Main.database.getConnections().get("STORIES"));
     }
 
     /**

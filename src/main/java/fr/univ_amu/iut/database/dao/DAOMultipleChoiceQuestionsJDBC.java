@@ -17,14 +17,17 @@ import java.util.List;
  */
 public class DAOMultipleChoiceQuestionsJDBC implements DAOMultipleChoiceQuestions {
     private PreparedStatement getACertainNumberOfQCMStatement;
-    private static final Connection CONNECTION = Main.database.getConnections().get("STORIES");
 
     /**
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
+    public DAOMultipleChoiceQuestionsJDBC(Connection connection) throws SQLException {
+        getACertainNumberOfQCMStatement = connection.prepareStatement("SELECT DISTINCT ID, DESCRIPTION, QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM MULTIPLECHOICEQUESTIONS WHERE MODULE = ? LIMIT ?;");
+    }
+
     public DAOMultipleChoiceQuestionsJDBC() throws SQLException {
-        getACertainNumberOfQCMStatement = CONNECTION.prepareStatement("SELECT DISTINCT ID, DESCRIPTION, QUESTION, TRUE_ANSWER, ANSWER_1, ANSWER_2, ANSWER_3 FROM MULTIPLECHOICEQUESTIONS WHERE MODULE = ? LIMIT ?;");
+        this(Main.database.getConnections().get("STORIES"));
     }
 
     /**

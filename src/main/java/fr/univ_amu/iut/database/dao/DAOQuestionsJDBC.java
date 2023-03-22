@@ -15,16 +15,20 @@ import java.util.List;
 public class DAOQuestionsJDBC implements DAOQuestions {
     private final PreparedStatement getAllModulesStatement;
     private final PreparedStatement incrementNbAnswersAndNbCorrectAnswers;
-    private static final Connection CONNECTION = Main.database.getConnections().get("STORIES");
+    private final Connection connection;
 
     /**
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
-    public DAOQuestionsJDBC() throws SQLException {
-        getAllModulesStatement = CONNECTION.prepareStatement("SELECT DISTINCT MODULE FROM QUESTIONS;");
-        incrementNbAnswersAndNbCorrectAnswers = CONNECTION.prepareStatement("UPDATE QUESTIONS SET nbAnswers = nbAnswers + 1, nbCorrectAnswers = nbCorrectAnswers + CASE WHEN id = ANY (?) THEN 1 ELSE 0 END WHERE id = ANY (?);");
+    public DAOQuestionsJDBC(Connection connection) throws SQLException {
+        this.connection = connection;
+        getAllModulesStatement = connection.prepareStatement("SELECT DISTINCT MODULE FROM QUESTIONS;");
+        incrementNbAnswersAndNbCorrectAnswers = connection.prepareStatement("UPDATE QUESTIONS SET nbAnswers = nbAnswers + 1, nbCorrectAnswers = nbCorrectAnswers + CASE WHEN id = ANY (?) THEN 1 ELSE 0 END WHERE id = ANY (?);");
+    }
 
+    public DAOQuestionsJDBC() throws SQLException {
+        this(Main.database.getConnections().get("STORIES"));
     }
 
     /**
@@ -51,8 +55,8 @@ public class DAOQuestionsJDBC implements DAOQuestions {
      * @throws SQLException the SQL request didn't go well
      */
     public boolean incrementNbAnswers(List<Integer> correctAnswerIdList, List<Integer> allIdList) throws SQLException {
-        incrementNbAnswersAndNbCorrectAnswers.setArray(1, CONNECTION.createArrayOf("INTEGER", correctAnswerIdList.toArray()));
-        incrementNbAnswersAndNbCorrectAnswers.setArray(2, CONNECTION.createArrayOf("INTEGER", allIdList.toArray()));
+        incrementNbAnswersAndNbCorrectAnswers.setArray(1, this.connection.createArrayOf("INTEGER", correctAnswerIdList.toArray()));
+        incrementNbAnswersAndNbCorrectAnswers.setArray(2, this.connection.createArrayOf("INTEGER", allIdList.toArray()));
         return (incrementNbAnswersAndNbCorrectAnswers.executeUpdate() > 0);
     }
 

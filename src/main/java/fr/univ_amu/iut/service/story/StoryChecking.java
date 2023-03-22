@@ -33,14 +33,6 @@ public class StoryChecking {
     }
 
     /**
-     * Get the current story
-     * @return the current story
-     */
-    public List<Question> getStory() {
-        return story;
-    }
-
-    /**
      * Create a story
      * @param module module of the story
      * @param numberOfQuestions number of questions in the story

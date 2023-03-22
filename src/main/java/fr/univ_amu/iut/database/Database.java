@@ -25,11 +25,7 @@ public class Database {
      */
     public Database() {
         connections = new HashMap<>();
-        try {
-            initConnections();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        dotenv = Dotenv.configure().load(); // Read the .env file
     }
 
     /**
@@ -37,10 +33,6 @@ public class Database {
      * @throws SQLException if the connection didn't go well
      */
     public void initConnections() throws SQLException {
-        // Read the .env file
-        dotenv = Dotenv.configure().load();
-
-        // init the connections
         connections.put(DATABASE_USERS, initSingleConnection(DATABASE_USERS));
         connections.put(DATABASE_STORIES, initSingleConnection(DATABASE_STORIES));
     }

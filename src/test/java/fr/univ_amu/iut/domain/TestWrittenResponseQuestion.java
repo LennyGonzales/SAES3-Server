@@ -1,9 +1,9 @@
-package fr.univ_amu.iut.database.table;
-import fr.univ_amu.iut.domain.WrittenResponseQuestion;
+package fr.univ_amu.iut.domain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class TestWrittenResponseQuestion {
     private WrittenResponseQuestion writtenResponseQuestion;
@@ -15,6 +15,8 @@ public class TestWrittenResponseQuestion {
         writtenResponseQuestion.setQuestion("question");
         writtenResponseQuestion.setModule("module");
         writtenResponseQuestion.setTrueAnswer("trueAnswer");
+        writtenResponseQuestion.setNbAnswers(1);
+        writtenResponseQuestion.setNbCorrectAnswers(1);
     }
 
 
@@ -71,5 +73,32 @@ public class TestWrittenResponseQuestion {
     public void shouldSetTrueAnswer() {
         writtenResponseQuestion.setTrueAnswer("trueAnswerChange");
         assertEquals("trueAnswerChange", writtenResponseQuestion.getTrueAnswer());
+    }
+
+    @Test
+    public void shouldGetNbAnswers() {
+        assertEquals(1, writtenResponseQuestion.getNbAnswers());
+    }
+
+    @Test
+    public void shouldSetNbAnswers() {
+        writtenResponseQuestion.setNbAnswers(2);
+        assertEquals(2, writtenResponseQuestion.getNbAnswers());
+    }
+
+    @Test
+    public void shouldGetNbCorrectAnswers() {
+        assertEquals(1, writtenResponseQuestion.getNbCorrectAnswers());
+    }
+
+    @Test
+    public void shouldSetNbCorrectAnswers() {
+        writtenResponseQuestion.setNbCorrectAnswers(2);
+        assertEquals(2, writtenResponseQuestion.getNbCorrectAnswers());
+    }
+
+    @Test
+    public void shouldCloneNotEquals() throws CloneNotSupportedException {
+        assertFalse(writtenResponseQuestion.clone().equals(writtenResponseQuestion));
     }
 }

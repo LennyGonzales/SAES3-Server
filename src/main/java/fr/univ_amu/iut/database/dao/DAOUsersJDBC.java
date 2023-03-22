@@ -19,17 +19,20 @@ public class DAOUsersJDBC implements DAOUsers {
     private final PreparedStatement getPointsByEmailStatement;
     private final PreparedStatement setPointsStatement;
     private final PreparedStatement verifyEmailStatement;
-    private static final Connection CONNECTION = Main.database.getConnections().get("USERS");
 
     /**
      * Constructor | Prepare the SQL requests
      * @throws SQLException if the prepareStatement didn't go well
      */
+    public DAOUsersJDBC(Connection connection) throws SQLException {
+        authenticationStatement = connection.prepareStatement("SELECT EMAIL, USER_PASSWORD, USER_STATUS, POINTS FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
+        getPointsByEmailStatement = connection.prepareStatement("SELECT POINTS FROM USERS WHERE EMAIL = ?");
+        setPointsStatement = connection.prepareStatement("UPDATE USERS SET POINTS = ? WHERE EMAIL = ?");
+        verifyEmailStatement = connection.prepareStatement("SELECT COUNT(*) FROM USERS WHERE EMAIL = ?");
+    }
+
     public DAOUsersJDBC() throws SQLException {
-        authenticationStatement = CONNECTION.prepareStatement("SELECT EMAIL, USER_PASSWORD, USER_STATUS, POINTS FROM USERS WHERE EMAIL = ? AND USER_PASSWORD = ?");
-        getPointsByEmailStatement = CONNECTION.prepareStatement("SELECT POINTS FROM USERS WHERE EMAIL = ?");
-        setPointsStatement = CONNECTION.prepareStatement("UPDATE USERS SET POINTS = ? WHERE EMAIL = ?");
-        verifyEmailStatement = CONNECTION.prepareStatement("SELECT COUNT(*) FROM USERS WHERE EMAIL = ?");
+        this(Main.database.getConnections().get("USERS"));
     }
 
     /**

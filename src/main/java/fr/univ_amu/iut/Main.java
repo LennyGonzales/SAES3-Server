@@ -9,7 +9,8 @@ import fr.univ_amu.iut.database.Database;
 public class Main {
     public static Database database;
     public static void main(String[] args) throws Exception {
-        database = new Database();  // Initialize the connection with the database
+        database = new Database();
+        database.initConnections(); // Initialize the connections with the databases
 
         Server server = new Server();   // Initialize the server
         server.acceptClients();
