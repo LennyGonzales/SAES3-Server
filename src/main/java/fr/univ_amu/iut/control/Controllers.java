@@ -166,6 +166,7 @@ public class Controllers {
 
             List<Question> story = storyChecking.prepareStory(multiplayerSession.getMultipleChoiceResponseList(), multiplayerSession.getWrittenResponseQuestionList());
             multiplayerSession.start(story); // Notify the users who joined the multiplayer session that the session begin
+
             communication.sendMessage(new CommunicationFormat(Flags.STORY, story));
             return true;
         }
@@ -208,6 +209,7 @@ public class Controllers {
         if(multiplayerSession != null) {
             multiplayerSession.getUsers().remove(communication);
             multiplayerChecking.setCurrentMultiplayerSession(null);
+            if(multiplayerSession.getUsers().size() == 0) { MultiplayerSessionsManager.removeSession(multiplayerSession); }  // If everyone is gone
         }
     }
 }

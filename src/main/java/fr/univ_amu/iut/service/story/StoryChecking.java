@@ -43,6 +43,9 @@ public class StoryChecking {
      * @throws CloneNotSupportedException if the clone in StoryChecking.getStory isn't supported
      */
     public List<Question> createStory(String module, int numberOfQuestions, DAOMultipleChoiceQuestions daoMultipleChoiceQuestions, DAOWrittenResponseQuestions daoWrittenResponseQuestions) throws SQLException, CloneNotSupportedException {
+        currentMultipleChoiceResponse.clear();
+        currentWrittenResponse.clear();
+
         List<MultipleChoiceQuestion> multipleChoiceQuestionList = daoMultipleChoiceQuestions.getACertainNumberOfQCM(numberOfQuestions/2, module);
         List<WrittenResponseQuestion> writtenResponseQuestionList = daoWrittenResponseQuestions.getACertainNumberOfWrittenResponseQuestion(numberOfQuestions/2, module);
 
