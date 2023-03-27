@@ -7,6 +7,7 @@ import java.io.Serializable;
  * @author LennyGonzales
  */
 public class CommunicationFormat implements Serializable {
+    private static final long serialVersionUID = 123456789L;
     private final Flags flag;
     private final Object content;
 
