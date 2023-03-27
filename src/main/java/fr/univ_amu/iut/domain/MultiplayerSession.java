@@ -52,6 +52,10 @@ public class MultiplayerSession {
         return users;
     }
 
+    public List<Communication> getUsersWhoFinished() {
+        return usersWhoFinished;
+    }
+
     public Communication getHostCommunication() {
         return hostCommunication;
     }

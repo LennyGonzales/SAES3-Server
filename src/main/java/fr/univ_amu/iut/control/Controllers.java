@@ -207,6 +207,7 @@ public class Controllers {
     public void leaveSessionAction(MultiplayerChecking multiplayerChecking) {
         MultiplayerSession multiplayerSession = multiplayerChecking.getCurrentMultiplayerSession();
         if(multiplayerSession != null) {
+            multiplayerSession.getUsersWhoFinished().remove(communication);
             multiplayerSession.getUsers().remove(communication);
             multiplayerChecking.setCurrentMultiplayerSession(null);
             if(multiplayerSession.getUsers().size() == 0) { MultiplayerSessionsManager.removeSession(multiplayerSession); }  // If everyone is gone
