@@ -1,7 +1,6 @@
 FROM bellsoft/liberica-openjdk-alpine:19.0.2-9
 
 COPY ./SAES3-Server-1.0-SNAPSHOT-jar-with-dependencies.jar /usr/src/myapp/
-COPY .env /usr/src/myapp/
 COPY keyStore.jks /usr/src/myapp/
 COPY trustStore.jts /usr/src/myapp/
 

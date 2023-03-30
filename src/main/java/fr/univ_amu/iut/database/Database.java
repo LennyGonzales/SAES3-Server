@@ -1,8 +1,6 @@
 
 package fr.univ_amu.iut.database;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -17,7 +15,6 @@ public class Database {
     private static final String DATABASE_STORIES = "STORIES";
 
     private static HashMap<String, Connection> connections;
-    private Dotenv dotenv;
 
 
     /**
@@ -25,7 +22,6 @@ public class Database {
      */
     public Database() {
         connections = new HashMap<>();
-        dotenv = Dotenv.configure().load(); // Read the .env file
     }
 
     /**
@@ -45,9 +41,9 @@ public class Database {
      */
     public Connection initSingleConnection(String databaseName) throws SQLException {
         return DriverManager.getConnection(
-                dotenv.get("DB_" + databaseName + "_URL"),
-                dotenv.get("DB_" + databaseName + "_LOGIN"),
-                dotenv.get("DB_" + databaseName + "_PASSWORD")
+                System.getenv("DB_" + databaseName + "_URL"),
+                System.getenv("DB_LOGIN"),
+                System.getenv("DB_PASSWORD")
         );
     }
 
